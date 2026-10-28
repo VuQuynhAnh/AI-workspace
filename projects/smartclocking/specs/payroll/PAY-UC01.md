@@ -1,7 +1,7 @@
 # PAY-UC01 — Vòng đời bảng lương tháng
 
 > Trạng thái: as-built · Việc: — · Cập nhật: 2026-10-28
-> Kiểm ở commit `008f4f7`. Đường dẫn tính từ `repos/smartclocking/`.
+> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/`.
 
 ## Mục tiêu
 Admin cửa hàng lập bảng lương tháng từ dữ liệu chấm công, lương giờ và mức phạt; tính lại khi dữ liệu đổi; chốt để đóng băng số liệu và khoá chấm công của tháng; huỷ khi cần làm lại; xuất bảng lương và phiếu lương từng người. Nhân viên thấy số lương lấy từ bảng lương, hoặc lương tạm tính khi tháng chưa có bảng.
@@ -172,7 +172,7 @@ Scenario: PAY-UC01-SC13 Lương nhân viên thấy
 
 ## Câu hỏi mở
 - [ ] **Rủi ro đồng thời khi chốt lương:** chốt lương chỉ khoá dòng bảng lương, không khoá dữ liệu chấm công. Trong khi đó `assertMonthEditable` của chấm công và sửa giờ đọc bảng lương mà không khoá (`timesheet.service.js:21-27`, `paysheet.repository.js:46-52`). Một lần chấm hoặc sửa giờ đã qua bước kiểm tra nhưng commit **sau** khi chốt lương đọc dữ liệu thì không có trong số liệu đã chốt, rồi tháng bị khoá luôn. Hậu quả: lương đã chốt thiếu công, mà không sửa được trừ khi huỷ bảng. Cờ "cần tính lại" cũng có thể bỏ sót trường hợp tương tự, vì `calculated_at` là thời điểm **bắt đầu** transaction.
-- [ ] **Lưu thiết lập làm bảng nháp bị báo nhầm "cần tính lại":** màn Thiết lập cửa hàng luôn gửi kèm mức phạt (`frontend/src/pages/admin/StoreSetting.jsx:62`), và lệnh ghi thiết lập luôn cập nhật `updated_at` dù giá trị không đổi (`store.repository.js:71-75`). Chỉ bật/tắt Wi-Fi cũng làm mọi bảng nháp hiện cảnh báo.
+- [ ] **Lưu thiết lập làm bảng nháp bị báo nhầm "cần tính lại":** màn Thiết lập cửa hàng luôn gửi kèm mức phạt (`frontend/src/pages/admin/StoreSetting.jsx:95`), và lệnh ghi thiết lập luôn cập nhật `updated_at` dù giá trị không đổi (`store.repository.js:71-75`). Chỉ bật/tắt Wi-Fi cũng làm mọi bảng nháp hiện cảnh báo.
 - [ ] **Dữ liệu chấm công đã xoá mềm vẫn được tính lương (lỗi tiềm ẩn):** `listByStoreAndPeriod`, `listByEmployeeAndPeriod` và `findLatestUpdateInPeriod` không lọc `NOT is_deleted` (`clocking.repository.js:36-72`). Hiện chưa có luồng nào xoá mềm dòng chấm công nên chưa xảy ra.
 - [ ] **Lương ngày âm, lương tháng không âm:** lương thực nhận của từng ngày có thể âm, còn thực nhận cả tháng bị chặn ở 0. Khi bị chặn, tổng các ngày trên phiếu lương khác với "Thực nhận" của tháng. Comment trong code lại ghi "tổng tháng = tổng các ngày" (`payrollCalculator.js:11-12`).
 - [ ] **Hộp thoại huỷ vẫn đóng khi huỷ thất bại:** người dùng thấy thông báo lỗi nhưng mất lý do vừa nhập (`Paysheets.jsx:66-70`).

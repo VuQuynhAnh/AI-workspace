@@ -71,6 +71,11 @@
   code_name: is_out_of_range, check_in_radius_meters
   ui_label: Ngoài phạm vi
 
+- term: chặn ngoài bán kính
+  meaning: Thiết lập cửa hàng; khi bật, nhân viên chấm QR ở xa cửa hàng hơn bán kính chấm công (sau khi trừ hao sai số GPS tối đa 100 m) bị từ chối.
+  code_name: check_in_radius_enforced, SETTING_KEY.CHECK_IN_RADIUS_ENFORCED
+  ui_label: Chặn chấm công QR ngoài bán kính
+
 - term: đi muộn
   meaning: Số phút từ giờ vào ca tới lần check-in đầu tiên, làm tròn xuống.
   code_name: late_minutes

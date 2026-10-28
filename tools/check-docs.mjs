@@ -2,8 +2,9 @@
 //  1. Ngân sách kích thước các file nạp vào ngữ cảnh.
 //  2. Mọi tham chiếu `file:line` trong projects/<p>/{architecture,specs} trỏ tới
 //     file có thật trong repo của dự án, và dòng không vượt quá số dòng của file.
-//  3. File được trích đã đổi kể từ commit ghi ở đầu tài liệu ("Kiểm ở commit `sha`")
-//     -> cảnh báo: số dòng có thể đã lệch, cần đối chiếu lại.
+//  3. File được trích đã đổi kể từ commit ghi ở đầu tài liệu ("Kiểm ở commit `sha`"),
+//     tính cả thay đổi chưa commit -> cảnh báo: số dòng có thể đã lệch, cần đối chiếu
+//     lại; đối chiếu xong (và đã commit code) thì cập nhật sha.
 // Chạy ở gốc workspace: node tools/check-docs.mjs [--strict]
 //   exit 1 khi có lỗi (hoặc có cảnh báo nếu --strict).
 import fs from "fs";
@@ -58,7 +59,8 @@ for (const project of dirs(path.join(root, "projects"))) {
     const dir = path.join(projectDir, "repos", name);
     let files = [];
     try {
-      files = git(dir, "ls-files").split("\n").filter(Boolean);
+      // Gồm cả file mới chưa commit (đang làm dở), bỏ qua file bị .gitignore
+      files = git(dir, "ls-files", "--cached", "--others", "--exclude-standard").split("\n").filter(Boolean);
     } catch {
       warnings.push(`projects/${project}/repos/${name}: không đọc được git (chưa init submodule?)`);
     }
@@ -104,7 +106,8 @@ for (const project of dirs(path.join(root, "projects"))) {
       if (!changedCache.has(key)) {
         let changed;
         try {
-          changed = git(repo.dir, "diff", "--name-only", sha, "HEAD", "--", file).trim() !== "";
+          // So với working tree (không phải HEAD): sửa code chưa commit cũng bị phát hiện
+          changed = git(repo.dir, "diff", "--name-only", sha, "--", file).trim() !== "";
         } catch {
           changed = null; // sha không có trong repo này
         }

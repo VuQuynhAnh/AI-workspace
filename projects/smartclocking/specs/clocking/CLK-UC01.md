@@ -1,7 +1,7 @@
 # CLK-UC01 — Nhân viên tự chấm công (QR / Wi-Fi + GPS)
 
-> Trạng thái: as-built · Việc: — · Cập nhật: 2026-10-28
-> Kiểm ở commit `008f4f7`. Đường dẫn tính từ `repos/smartclocking/`.
+> Trạng thái: implemented · Việc: 2026-10-28-chan-ngoai-ban-kinh · Cập nhật: 2026-10-28
+> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/`.
 
 ## Mục tiêu
 Nhân viên (và admin cửa hàng) tự ghi nhận giờ vào/ra trên điện thoại khi đang ở cửa hàng. Mục đích là có dữ liệu công chính xác để tính lương mà quản lý không phải nhập tay. Cửa hàng được chứng minh bằng mã QR dán tại quầy, hoặc bằng Wi-Fi cửa hàng kết hợp GPS. Giờ chấm luôn do server ghi.
@@ -55,6 +55,13 @@ Nhân viên (và admin cửa hàng) tự ghi nhận giờ vào/ra trên điện 
   - Danh sách các lần chấm hợp lệ, có nhãn Wi-Fi, "Admin chỉnh", "Ngoài phạm vi".
 - **BR-11:** Ngày làm việc là ngày theo giờ Việt Nam tại thời điểm server ghi nhận lần chấm. Check-out sau 00:00 rơi vào ngày mới, thành một lần check-out không có check-in.
 - **BR-12:** Tài khoản không có hồ sơ nhân viên (hoặc hồ sơ đã xoá) thì không xem được trạng thái hôm nay, không kiểm tra được Wi-Fi và không chấm công được: 404 "Không tìm thấy hồ sơ nhân viên của tài khoản."
+- **BR-14:** Khi cửa hàng **bật chặn chấm công ngoài bán kính** và đã đặt vị trí (STORE-UC01/BR-6):
+  - Chấm bằng **QR** mà điện thoại ở xa cửa hàng hơn bán kính chấm công thì bị từ chối 403 "Bạn đang cách cửa hàng khoảng <n> m — chỉ được chấm công trong phạm vi <bán kính> m quanh cửa hàng. Hãy tới cửa hàng rồi chấm công lại."
+  - Được trừ hao sai số GPS do điện thoại báo, tối đa 100 m, giống cách chấm Wi-Fi.
+  - Lần chấm nằm trong phần trừ hao (khoảng cách thật lớn hơn bán kính) vẫn được ghi nhận và vẫn gắn cờ ngoài phạm vi (CLK-BR-008).
+  - Chấm bằng **Wi-Fi** không đổi: vẫn theo giới hạn riêng (CLK-BR-005).
+  - Khi tắt chặn, hoặc cửa hàng chưa đặt vị trí: giữ cách cũ, chỉ gắn cờ.
+- **BR-15:** Khi bấm chấm công, app dò GPS **tối đa 3 giây** và gửi lần đọc có sai số nhỏ nhất. App dừng ngay khi sai số ≤ 50 m. Trong lúc dò, màn hình hiện "Đang dò vị trí GPS…" và các nút chấm bị vô hiệu. Không lấy được lần đọc nào thì báo lỗi GPS như cũ. Kiểm tra Wi-Fi (BR-7) cũng dò GPS theo cách này.
 - **BR-13:** Ngày đã có check-out mà chưa có check-in thì vẫn check-in được. Lần check-out trước đó nằm trước giờ vào nên không được tính là giờ ra, và ngày đó trở thành "thiếu check-out" cho tới khi check-out lại.
 
 ## Scenario
@@ -140,6 +147,27 @@ Scenario: CLK-UC01-SC15 Check-in sau khi đã lỡ check-out
   When check-in lúc 08:00
   Then được ghi nhận; giờ ra của ngày để trống và ngày bị gắn "thiếu check-out"
 
+Scenario: CLK-UC01-SC16 Bật chặn — chấm QR ngoài bán kính bị từ chối
+  Given cửa hàng bật chặn chấm công ngoài bán kính, bán kính 100 m
+  When nhân viên quét QR khi đang cách cửa hàng 1 km (sai số GPS 10 m)
+  Then bị từ chối 403 "Bạn đang cách cửa hàng khoảng 1000 m — chỉ được chấm công trong phạm vi 100 m quanh cửa hàng. Hãy tới cửa hàng rồi chấm công lại."
+  And không có lần chấm nào được ghi
+
+Scenario: CLK-UC01-SC17 Bật chặn — được trừ hao sai số GPS
+  Given cửa hàng bật chặn, bán kính 100 m
+  When nhân viên quét QR khi cách 150 m với sai số GPS 80 m
+  Then được chấm (150 − 80 ≤ 100), lần chấm vẫn gắn cờ "Ngoài phạm vi"
+  When cách 250 m với sai số GPS 500 m
+  Then bị từ chối (chỉ trừ tối đa 100 m: 250 − 100 > 100)
+
+Scenario: CLK-UC01-SC18 Tắt chặn hoặc chấm bằng Wi-Fi
+  Given cửa hàng tắt chặn
+  When nhân viên quét QR khi cách 1 km
+  Then vẫn được chấm, gắn cờ "Ngoài phạm vi"
+  Given cửa hàng bật chặn và bật chấm Wi-Fi (giới hạn Wi-Fi 200 m)
+  When nhân viên chấm bằng Wi-Fi khi cách 150 m
+  Then được chấm (Wi-Fi không theo bán kính chấm công QR)
+
 Scenario: CLK-UC01-SC14 Trang QR công khai
   When mở /s/<id> của cửa hàng đang hoạt động
   Then thấy tên và địa chỉ cửa hàng cùng nút "Đăng nhập để chấm công"
@@ -153,35 +181,37 @@ Scenario: CLK-UC01-SC14 Trang QR công khai
 | Route và quyền | `backend/src/routes/clocking.routes.js:17-36` | — |
 | BR-1 | `backend/src/services/clocking.service.js:30-34` | — |
 | BR-2 | `frontend/src/pages/employee/StoreLanding.jsx:20-33` | — |
-| BR-3 | `frontend/src/pages/employee/CheckIn.jsx:15-21`, `:72-81` | — |
-| BR-4 | `backend/src/services/clocking.service.js:145-148`, `backend/src/services/timesheet.service.js:63-67` | `clocking.service.test.js` (mặc định check-in; loại lạ) |
+| BR-3 | `frontend/src/pages/employee/CheckIn.jsx:19-25`, `:77-86` | — |
+| BR-4 | `backend/src/services/clocking.service.js:164-167`, `backend/src/services/timesheet.service.js:63-67` | `clocking.service.test.js` (mặc định check-in; loại lạ) |
 | BR-5 | `backend/src/services/payrollCalculator.js:36-38` | `payrollCalculator.test.js` (check-out nhiều lần) |
-| BR-6 | `backend/src/services/clocking.service.js:166-182`, `backend/src/services/serializers.js:79-103` | `clocking.service.test.js` (ghi IP, ngoài phạm vi) |
-| BR-7 | `frontend/src/pages/employee/CheckIn.jsx:46-55`, `:146-150`; `backend/src/services/clocking.service.js:60-78` | — |
+| BR-6 | `backend/src/services/clocking.service.js:185-201`, `backend/src/services/serializers.js:80-104` | `clocking.service.test.js` (ghi IP, ngoài phạm vi) |
+| BR-7 | `frontend/src/pages/employee/CheckIn.jsx:51-60`, `:156-160`; `backend/src/services/clocking.service.js:60-78` | — |
 | BR-8 | `backend/src/services/storeNetwork.service.js:29-32`, `backend/src/utils/network.js:30-32` | `network.test.js` |
 | SC13 (chặn ở guard) | `backend/src/middleware/accountAccess.js:22-29` | — |
-| BR-9 | `frontend/src/pages/employee/CheckIn.jsx:154-171`, `:199-201` | `clocking.service.test.js` (quên check-in) |
-| BR-10 | `frontend/src/pages/employee/CheckIn.jsx:116-117`, `:185-229` | — |
-| BR-11 | `backend/src/services/clocking.service.js:136` | `vnTime.test.js` |
+| BR-9 | `frontend/src/pages/employee/CheckIn.jsx:164-181`, `:212-214` | `clocking.service.test.js` (quên check-in) |
+| BR-10 | `frontend/src/pages/employee/CheckIn.jsx:126-127`, `:198-242` | — |
+| BR-11 | `backend/src/services/clocking.service.js:155` | `vnTime.test.js` |
 | BR-12 | `backend/src/services/clocking.service.js:23-27`, `backend/src/repositories/employee.repository.js:19-26` | — |
-| BR-13 | `backend/src/services/clocking.service.js:149`, `backend/src/services/payrollCalculator.js:36-38` | `payrollCalculator.test.js` (check-out trước check-in) |
+| BR-13 | `backend/src/services/clocking.service.js:168`, `backend/src/services/payrollCalculator.js:36-38` | `payrollCalculator.test.js` (check-out trước check-in) |
+| BR-14 | `backend/src/services/clocking.service.js:80-107`, `:152-153`; `frontend/src/pages/employee/CheckIn.jsx:125`, `:193` (ghi chú phạm vi cho nhân viên) | `clocking.service.test.js` (SC16, SC17, SC18) |
+| BR-15 | `frontend/src/utils/geo.js:17-53`, `frontend/src/pages/employee/CheckIn.jsx:7-10`, `:93-97`, `:184` | — (chạy tay trên điện thoại) |
 | CLK-BR-001..009, 011 | xem `_domain.md` | `clocking.service.test.js` |
 | SC1–SC3, SC5–SC13 | — | `clocking.service.test.js` |
 
 ## Câu hỏi mở
-- [ ] **Có vẻ là bug — GPS rỗng lọt kiểm tra:** `check()` chỉ chặn `null`/`undefined`. Chuỗi rỗng `""` qua `Number("")` thành `0`, nên toạ độ (0, 0) được chấp nhận (`clocking.service.js:110-115`, đã chạy thử xác nhận). Hậu quả: chấm QR không có GPS thật vẫn được ghi, chỉ bị gắn cờ ngoài phạm vi. Trong khi đó `checkWifi` lại chặn chuỗi rỗng (`:67-68`).
-- [ ] **Sai số GPS do client tự khai:** `accuracy` do client gửi lên được trừ hao tối đa 100 m. Khai sai số lớn thì giới hạn chấm Wi-Fi mặc định 200 m thực chất thành 300 m (`clocking.service.js:88-89`).
+- [ ] **Có vẻ là bug — GPS rỗng lọt kiểm tra:** `check()` chỉ chặn `null`/`undefined`. Chuỗi rỗng `""` qua `Number("")` thành `0`, nên toạ độ (0, 0) được chấp nhận (`clocking.service.js:127-132`, đã chạy thử xác nhận). Hậu quả: chấm QR không có GPS thật vẫn được ghi, chỉ bị gắn cờ ngoài phạm vi. Trong khi đó `checkWifi` lại chặn chuỗi rỗng (`:67-68`). Khi cửa hàng bật chặn (BR-14), toạ độ (0, 0) ở rất xa nên bị chặn; khi tắt chặn thì lỗi vẫn còn.
+- [ ] **Sai số GPS do client tự khai:** `accuracy` do client gửi lên được trừ hao tối đa 100 m. Khai sai số lớn thì giới hạn chấm Wi-Fi mặc định 200 m thực chất thành 300 m (`clocking.service.js:89-90`).
 - [ ] **Trang QR công khai bỏ qua 2 kiểm tra:** chỉ kiểm `is_active`, không kiểm hạn dùng hay xoá mềm (`clocking.service.js:31-32`). Cửa hàng đã hết hạn vẫn hiện tên ở trang QR.
-- [ ] **Lộ thông tin cho nhân viên:** `/me/today` trả nguyên thiết lập cửa hàng gồm toạ độ, bán kính, mức phạt và cấu hình Wi-Fi (`clocking.service.js:52`, `serializers.js:49-61`). Đây có phải chủ đích không?
+- [ ] **Lộ thông tin cho nhân viên:** `/me/today` trả nguyên thiết lập cửa hàng gồm toạ độ, bán kính, mức phạt và cấu hình Wi-Fi (`clocking.service.js:52`, `serializers.js:49-62`). Đây có phải chủ đích không?
 - [ ] **Thông báo khoá tháng viết cho admin:** nhân viên chấm công vào tháng đã chốt nhận câu "…không thể chỉnh sửa chấm công." (`timesheet.service.js:23`), dễ gây khó hiểu.
-- [ ] **Hai nguồn giờ trong kiểm tra chống bấm đúp:** so `Date.now()` của Node với `clock_time` lấy từ `now()` của DB (`clocking.service.js:155`). Nếu đồng hồ hai máy lệch nhau thì khoảng 20 giây cũng lệch theo.
-- [ ] **QR cố định, có thể chấm từ xa:** mã QR chỉ là URL chứa UUID cửa hàng, không đổi theo thời gian. Ai có ảnh chụp QR đều chấm được từ bất kỳ đâu: GPS ngoài bán kính chỉ bị gắn cờ, không bị chặn (CLK-BR-008). Đây có phải chủ đích, chấp nhận vì admin xem cờ, không?
+- [ ] **Hai nguồn giờ trong kiểm tra chống bấm đúp:** so `Date.now()` của Node với `clock_time` lấy từ `now()` của DB (`clocking.service.js:174`). Nếu đồng hồ hai máy lệch nhau thì khoảng 20 giây cũng lệch theo.
+- [ ] **QR cố định, có thể chấm từ xa:** mã QR chỉ là URL chứa UUID cửa hàng, không đổi theo thời gian. Ai có ảnh chụp QR đều chấm được từ bất kỳ đâu: GPS ngoài bán kính chỉ bị gắn cờ, không bị chặn (CLK-BR-008). Đây có phải chủ đích, chấp nhận vì admin xem cờ, không? **Đã xử lý một phần:** cửa hàng có thể bật chặn chấm QR ngoài bán kính (BR-14). Vẫn còn rủi ro giả GPS ngay trên điện thoại.
 - [ ] **`qrStoreId` được lưu nhưng không ai đọc:** `StoreLanding.jsx:28` lưu id cửa hàng vào localStorage, nhưng không có code nào đọc lại. Comment nói dùng để "đưa sang đăng nhập / màn chấm công". Có thể là code thừa, hoặc tính năng làm dở.
 - [ ] **Lệch R-DB-02 (đọc không lọc xoá mềm):**
   - `store.repository.js:24` (`findById`): cửa hàng đã xoá mềm nhưng `is_active` vẫn là true thì vẫn hiện ở trang QR và vẫn chấm công được.
   - `storeNetwork.repository.js:5-11` (`findLatest`).
   - `store.repository.js:55` (`findSetting`).
   - Các truy vấn trong `clocking.repository.js` (ARCHITECTURE §6.12).
-- [ ] **README nói sai so với code:** mục "Quy tắc tính" của README ghi "Chỉ lưu vị trí GPS, không lưu IP", nhưng code lưu `client_ip` cho mọi lần tự chấm (`clocking.service.js:179`). README chưa được cập nhật sau khi thêm tính năng Wi-Fi.
+- [ ] **README nói sai so với code:** mục "Quy tắc tính" của README ghi "Chỉ lưu vị trí GPS, không lưu IP", nhưng code lưu `client_ip` cho mọi lần tự chấm (`clocking.service.js:198`). README chưa được cập nhật sau khi thêm tính năng Wi-Fi.
 - [ ] **Đoạn code không bao giờ chạy tới:** `timesheet.service.js` ném "Cửa hàng chưa có thiết lập." khi không có thiết lập, nhưng `findSetting` luôn trả về object kèm giá trị mặc định (`store.repository.js:54-63`).
 - [ ] **Mã thiết bị chỉ để lưu:** mã thiết bị được lưu nhưng không dùng cho rule nào, kể cả việc chặn một tài khoản chấm trên nhiều máy. Có cần rule ở đây không?

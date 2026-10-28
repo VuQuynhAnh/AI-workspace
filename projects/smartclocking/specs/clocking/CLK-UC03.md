@@ -1,7 +1,7 @@
 # CLK-UC03 — Admin xem bảng công và sửa giờ chấm công
 
 > Trạng thái: as-built · Việc: — · Cập nhật: 2026-10-28
-> Kiểm ở commit `008f4f7`. Đường dẫn tính từ `repos/smartclocking/`.
+> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/`.
 
 ## Mục tiêu
 Admin cửa hàng theo dõi công của mọi người trong cửa hàng theo tuần hoặc tháng, xem chi tiết từng lần chấm (kèm vị trí), và sửa giờ vào/ra khi nhân viên quên chấm hoặc chấm sai. Mọi thay đổi được giữ lại thành nhật ký, không ghi đè dữ liệu gốc. Tháng đã chốt lương thì không sửa được nữa.

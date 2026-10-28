@@ -1,6 +1,6 @@
 # SmartClocking — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo `repos/smartclocking/`. Kiểm ở commit `008f4f7`. Sửa code thì cập nhật lại các dòng bị lệch (`node tools/check-docs.mjs` báo).
+> Đường dẫn tính từ gốc repo `repos/smartclocking/`. Kiểm ở commit `4ac4c01`. Sửa code thì cập nhật lại các dòng bị lệch (`node tools/check-docs.mjs` báo).
 > Repo có sẵn `CLAUDE.md` riêng (luật DB + nút bấm). File này bổ sung chứ không thay thế nó.
 
 ## 1. Tổng quan
@@ -18,6 +18,7 @@ Monorepo hai phần:
 | Redis | Cache dữ liệu đã đóng băng | Không. Không có `REDIS_URL` thì bỏ qua |
 | Ổ đĩa `backend/uploads/` / Cloudinary | File quy chế / ảnh đại diện | Cloudinary là tuỳ chọn |
 | Gemini | Chat + embedding | Cần cho AI |
+| OpenStreetMap (frontend) | Bản đồ nền + tìm địa chỉ (Nominatim) ở màn Thiết lập cửa hàng (`frontend/src/components/hr/StoreLocationMap.jsx`) | Không. Miễn phí, không cần khoá; mất mạng thì vẫn nhập toạ độ tay |
 
 ## 2. Khởi động và lắp ráp
 
@@ -44,11 +45,11 @@ constants/enums.js  nguồn duy nhất cho giá trị cố định (+ sinh ENUM 
 1. `app.js:24` → `middleware/accountAccess.js:22-29`: tài khoản bị khoá → 401; cửa hàng tạm ngưng hoặc hết hạn → 403 `STORE_LOCKED`. Token sai thì cho qua để router trả 401.
 2. `routes/clocking.routes.js:22`: `requireAuth` (`middleware/auth.js:4`, gán `req.user = { id, email, role, fullName, storeId }`) + `requireRole(USER, ADMIN)`.
 3. `clocking.routes.js:34-36` → `clockingService.check(req.user, req.body, { ip: req.ip })`.
-4. `services/clocking.service.js:109`: kiểm GPS (`:112-115`). Nếu chấm bằng QR thì QR phải đúng cửa hàng của nhân viên (`:122`). Nếu chấm bằng Wi-Fi thì cần IP trùng và GPS trong bán kính (`:123-132`).
-5. `clocking.service.js:137` `transaction.run(tx)`:
+4. `services/clocking.service.js:126`: kiểm GPS (`:129-132`). Nếu chấm bằng QR thì QR phải đúng cửa hàng của nhân viên (`:139`). Nếu chấm bằng Wi-Fi thì cần IP trùng và GPS trong bán kính (`:140-149`). Cửa hàng bật chặn thì chấm QR phải ở trong bán kính chấm công (`:153`, `:96-107`).
+5. `clocking.service.js:156` `transaction.run(tx)`:
    - `timesheet.service.js:21` `assertMonthEditable`: tháng đã chốt lương → 403 `MONTH_LOCKED`.
    - `timesheet.service.js:32` `lockDailyClocking`: `findOrCreate … ON CONFLICT` + `SELECT … FOR UPDATE` (`repositories/clocking.repository.js:8-26`).
-   - Luật trong ngày: chỉ check-in 1 lần (`:149`), hai lần bấm phải cách nhau 20s (`:155`, trả 429).
+   - Luật trong ngày: chỉ check-in 1 lần (`:168`), hai lần bấm phải cách nhau 20s (`:174`, trả 429).
    - `clockingRepository.createHistory` (`clocking.repository.js:75`). Giờ chấm do **server** ghi bằng `COALESCE($3, now())`.
    - `timesheet.service.js:48` `recalculateClocking` → `payrollCalculator.js:21` `summarizeClockingDay` → `updateSummary`.
 6. Lỗi `AppError` được `middleware/errorHandler.js:8` chuyển thành `{ error, code?, ...details }`.
@@ -71,8 +72,8 @@ Phía frontend gọi qua `frontend/src/api/client.js:119` (`api.post`). Khi nh�
 | R-DB-03 | Nhiều lệnh ghi liên quan nhau phải nằm trong `transaction.run(async (tx) => …)` (`repositories/transaction.js:8`) và truyền `tx` xuống **mọi** lệnh repo bên trong |
 | R-DB-04 | `clocking_history` bất biến (trigger `db/schema.sql:180-200`). "Sửa giờ" = `voidHistory` + `createHistory` với `replacedHistoryId` |
 | R-DB-05 | Đặt tên theo quy ước ở đầu `db/schema.sql:5-11`: bảng số ít, đơn vị nằm trong tên, boolean có tiền tố `is_` |
-| R-ENUM-01 | Không viết chuỗi cố định (`"admin"`, `"draft"`…). Dùng `constants/enums.js`. Sửa enum thì sửa **cả** `frontend/src/constants/enums.js`. ENUM Postgres sinh từ `POSTGRES_ENUM_TYPES` (`db/seed.js:128`) |
-| R-SETTING-01 | Thiết lập cửa hàng mới = thêm `SETTING_KEY` + `SETTING_DEFINITIONS` (`backend/src/constants/enums.js:59-85`), **không** thêm cột |
+| R-ENUM-01 | Không viết chuỗi cố định (`"admin"`, `"draft"`…). Dùng `constants/enums.js`. Sửa enum thì sửa **cả** `frontend/src/constants/enums.js`. ENUM Postgres sinh từ `POSTGRES_ENUM_TYPES` (`db/seed.js:129`) |
+| R-SETTING-01 | Thiết lập cửa hàng mới = thêm `SETTING_KEY` + `SETTING_DEFINITIONS` (`backend/src/constants/enums.js:59-89`), **không** thêm cột |
 | R-TIME-01 | Ngày/tháng nghiệp vụ theo giờ VN: luôn dùng `utils/vnTime.js`, không dùng `getHours()/getMonth()`. Mốc thời gian chấm công do server ghi, không nhận từ client |
 | R-PAY-01 | Logic tính công/lương nằm trong hàm thuần ở `services/payrollCalculator.js`. Tháng đã chốt lương thì khoá chấm công (`assertMonthEditable`) |
 | R-CACHE-01 | Chỉ cache dữ liệu đã đóng băng. Method ghi làm đổi dữ liệu đã cache phải nằm trong danh sách `invalidateAfter` (`cache/cachedServices.js:43`, `:86`) |
@@ -102,6 +103,7 @@ Phía frontend gọi qua `frontend/src/api/client.js:119` (`api.post`). Khi nh�
 11. **Đổi schema mà không sửa `seed.js`**: seed chạy qua chính các service, nên `npm run seed` sẽ vỡ ngay lần sau.
 12. **Lệch luật hiện có:** các query đọc trong `repositories/clocking.repository.js:16,30,38,47` chưa lọc `NOT is_deleted`. Hiện chưa có luồng nào xoá mềm `clocking` nên chưa thấy lỗi. Khi thêm luồng xoá thì phải sửa các query này.
 13. **Model Gemini bị Google gỡ định kỳ** (`config/gemini.js:23`). Lỗi 404 ở đây là do model, không phải do key sai.
+14. **Bản đồ/tìm địa chỉ gọi thẳng máy chủ OpenStreetMap từ trình duyệt** (`frontend/src/components/hr/StoreLocationMap.jsx:24-29`): phải giữ dòng ghi nguồn OSM và không gọi tìm địa chỉ tự động khi gõ (Nominatim giới hạn ~1 yêu cầu/giây). Ảnh ghim của Leaflet phải import qua Vite (`:13-22`) — dùng icon mặc định thì ghim mất ảnh sau khi build.
 
 ## 7. Test
 
