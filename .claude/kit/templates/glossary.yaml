@@ -1,0 +1,7 @@
+# Từ điển thuật ngữ nghiệp vụ — code, UI và spec dùng chung một cách gọi.
+# term: cách gọi trong spec · meaning: nghĩa · code_name: tên trong code/DB · ui_label: chữ trên giao diện
+
+- term: <thuật ngữ>
+  meaning: <nghĩa nghiệp vụ>
+  code_name: <tên trong code>
+  ui_label: <chữ trên giao diện>

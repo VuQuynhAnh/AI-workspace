@@ -1,0 +1,137 @@
+# Từ điển thuật ngữ nghiệp vụ — code, UI và spec dùng chung một cách gọi.
+# term: cách gọi trong spec · meaning: nghĩa · code_name: tên trong code/DB · ui_label: chữ trên giao diện
+
+- term: cửa hàng
+  meaning: Đơn vị thuê bao (tenant). Mọi dữ liệu tách riêng theo cửa hàng.
+  code_name: store / store_id / storeId
+  ui_label: Cửa hàng
+
+- term: gói sử dụng
+  meaning: Hạn dùng (expiry_date) và số tài khoản hoạt động tối đa (max_employee_count) do superadmin đặt.
+  code_name: storePlan.service, max_employee_count, expiry_date
+  ui_label: Gói / Hạn dùng / Số chỗ
+
+- term: cửa hàng bị khoá
+  meaning: Cửa hàng tạm ngưng (is_active=false) hoặc quá hạn → mọi tài khoản bị chặn.
+  code_name: STORE_LOCKED, storeLockReason
+  ui_label: Cửa hàng tạm ngưng / hết hạn
+
+- term: superadmin
+  meaning: Quản trị hệ thống, tạo cửa hàng + admin đầu tiên; không quản lý nhân viên cửa hàng.
+  code_name: ROLE.SUPERADMIN
+  ui_label: Quản trị hệ thống
+
+- term: admin
+  meaning: Quản lý 1 cửa hàng; cũng chấm công và nhận lương như nhân viên.
+  code_name: ROLE.ADMIN
+  ui_label: Quản lý
+
+- term: nhân viên
+  meaning: Tài khoản role user của cửa hàng; hồ sơ 1–1 trong bảng employee.
+  code_name: ROLE.USER, employee
+  ui_label: Nhân viên
+
+- term: thiết lập cửa hàng
+  meaning: Cấu hình key-value của cửa hàng (giờ ca, phạt, vị trí, bán kính, Wi-Fi).
+  code_name: store_setting, SETTING_KEY, SETTING_DEFINITIONS
+  ui_label: Thiết lập
+
+- term: ca
+  meaning: Khung giờ làm chuẩn trong ngày; được chụp vào từng dòng chấm công lúc tạo.
+  code_name: shift_start_time, shift_end_time
+  ui_label: Giờ vào ca / Giờ tan ca
+
+- term: chấm công
+  meaning: Dòng tổng hợp 1 nhân viên × 1 ngày làm việc (giờ VN).
+  code_name: clocking, work_date
+  ui_label: Chấm công / Bảng công
+
+- term: lần chấm
+  meaning: Một lần bấm check-in/check-out hoặc một lần admin sửa; không sửa/xoá, chỉ huỷ.
+  code_name: clocking_history, CLOCKING_ACTION
+  ui_label: Lịch sử chấm công
+
+- term: huỷ lần chấm
+  meaning: Đánh dấu lần chấm không còn hiệu lực (khi admin sửa giờ hoặc xoá chấm công).
+  code_name: CLOCKING_HISTORY_STATUS.VOIDED, voidHistory
+  ui_label: Điều chỉnh / Xoá chấm công
+
+- term: hình thức chấm công
+  meaning: Cách nhân viên tự chấm — quét QR tại quầy hoặc Wi-Fi cửa hàng (+ GPS).
+  code_name: CLOCKING_METHOD (qr, wifi)
+  ui_label: Chấm công QR / Chấm bằng Wi-Fi
+
+- term: Wi-Fi cửa hàng
+  meaning: IP công cộng lúc admin đăng nhập gần nhất; nhân viên trùng IP + ở gần cửa hàng được chấm bằng Wi-Fi.
+  code_name: store_network, storeNetwork.service
+  ui_label: Wi-Fi cửa hàng
+
+- term: ngoài phạm vi
+  meaning: Vị trí GPS lúc chấm xa cửa hàng hơn bán kính — chỉ gắn cờ, không chặn.
+  code_name: is_out_of_range, check_in_radius_meters
+  ui_label: Ngoài phạm vi
+
+- term: đi muộn
+  meaning: Số phút từ giờ vào ca tới lần check-in đầu tiên, làm tròn xuống.
+  code_name: late_minutes
+  ui_label: Đi muộn
+
+- term: về sớm
+  meaning: Số phút từ lần check-out cuối tới giờ tan ca, làm tròn xuống.
+  code_name: early_leave_minutes
+  ui_label: Về sớm
+
+- term: thiếu check-out
+  meaning: Ngày có check-in nhưng không có check-out sau đó; giờ làm = 0 tới khi admin sửa.
+  code_name: is_missing_check_out
+  ui_label: Thiếu check-out
+
+- term: lương giờ
+  meaning: Mức lương duy nhất của nhân viên; đổi chỉ ảnh hưởng bảng lương chưa chốt.
+  code_name: hourly_wage
+  ui_label: Lương giờ
+
+- term: tiền phạt mỗi phút
+  meaning: Số tiền trừ cho mỗi phút đi muộn/về sớm.
+  code_name: penalty_amount_per_minute
+  ui_label: Phạt/phút
+
+- term: bảng lương
+  meaning: Bảng lương tháng của cửa hàng; vòng đời draft → finalized / cancelled.
+  code_name: paysheet, PAYSHEET_STATUS
+  ui_label: Bảng lương
+
+- term: tính lại
+  meaning: Tính lại bảng lương nháp theo chấm công/lương/thiết lập mới nhất.
+  code_name: recalculate
+  ui_label: Tính lại
+
+- term: chốt lương
+  meaning: Đóng băng bảng lương của tháng đã kết thúc; khoá chấm công tháng đó.
+  code_name: PAYSHEET_STATUS.FINALIZED, finalize, MONTH_LOCKED
+  ui_label: Chốt
+
+- term: lương tạm tính
+  meaning: Lương tính trực tiếp khi tháng chưa có bảng lương.
+  code_name: getEmployeeSalary (không có paysheet)
+  ui_label: Tạm tính
+
+- term: văn bản quy chế
+  meaning: File quy chế của cửa hàng, được tách đoạn + embedding để chatbot tra cứu.
+  code_name: document, document_detail, DOCUMENT_PROCESSING_STATUS
+  ui_label: Quy chế
+
+- term: tài liệu nhạy cảm
+  meaning: Văn bản chatbot không tự trả lời; câu hỏi khớp nội dung → chuyển admin.
+  code_name: is_sensitive
+  ui_label: Nhạy cảm
+
+- term: hội thoại
+  meaning: Một đoạn chat liên tục của 1 nhân viên (MongoDB).
+  code_name: Conversation, CONVERSATION_STATUS
+  ui_label: Hội thoại
+
+- term: cần admin trả lời
+  meaning: Hội thoại bị gắn cờ, chờ admin phản hồi trong hộp thư hỗ trợ.
+  code_name: CONVERSATION_STATUS.FLAGGED, supportInbox.service
+  ui_label: Cần trả lời

@@ -1,0 +1,4 @@
+[
+  { "pattern": "repos/smartclocking/backend/uploads/", "why": "dữ liệu runtime do người dùng upload" },
+  { "pattern": "repos/smartclocking/backend/sample-data/.*\\.docx$", "why": "file mẫu nhị phân dùng cho seed" }
+]

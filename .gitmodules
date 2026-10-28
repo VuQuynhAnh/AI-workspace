@@ -1,0 +1,4 @@
+[submodule "smartclocking"]
+	path = projects/smartclocking/repos/smartclocking
+	url = https://github.com/VuQuynhAnh/AI-quyche.git
+	branch = main
