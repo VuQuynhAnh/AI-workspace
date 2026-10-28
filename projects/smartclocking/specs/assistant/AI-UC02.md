@@ -1,7 +1,7 @@
 # AI-UC02 — Nhân viên hỏi đáp với trợ lý AI
 
 > Trạng thái: as-built · Việc: — · Cập nhật: 2026-10-28
-> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/`.
+> Kiểm ở commit `eb82f95`. Đường dẫn tính từ `repos/smartclocking/`.
 
 ## Mục tiêu
 Nhân viên (và admin cửa hàng) hỏi trợ lý AI về quy chế nội bộ của cửa hàng và về số liệu công/lương của chính mình, trong **một đoạn chat liên tục** giống Messenger. Trợ lý chỉ trả lời dựa trên văn bản của cửa hàng hoặc số liệu hệ thống tự tính. Câu hỏi đụng tới tài liệu nhạy cảm thì không tự trả lời mà chuyển cho admin. Nhân viên cũng có thể chủ động nhờ admin hỗ trợ.

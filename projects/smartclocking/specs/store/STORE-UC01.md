@@ -1,7 +1,7 @@
 # STORE-UC01 — Đặt vị trí cửa hàng và phạm vi chấm công
 
 > Trạng thái: implemented · Việc: 2026-10-28-chan-ngoai-ban-kinh · Cập nhật: 2026-10-28
-> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/`.
+> Kiểm ở commit `eb82f95`. Đường dẫn tính từ `repos/smartclocking/`.
 > Phạm vi UC này chỉ gồm phần **vị trí và phạm vi chấm công** của màn Thiết lập cửa hàng. Giờ ca, tiền phạt và Wi-Fi sẽ được bổ sung khi reverse toàn màn.
 
 ## Mục tiêu

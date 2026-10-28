@@ -1,7 +1,7 @@
 # CLK-UC01 — Nhân viên tự chấm công (QR / Wi-Fi + GPS)
 
 > Trạng thái: implemented · Việc: 2026-10-28-chan-ngoai-ban-kinh · Cập nhật: 2026-10-28
-> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/`.
+> Kiểm ở commit `eb82f95`. Đường dẫn tính từ `repos/smartclocking/`.
 
 ## Mục tiêu
 Nhân viên (và admin cửa hàng) tự ghi nhận giờ vào/ra trên điện thoại khi đang ở cửa hàng. Mục đích là có dữ liệu công chính xác để tính lương mà quản lý không phải nhập tay. Cửa hàng được chứng minh bằng mã QR dán tại quầy, hoặc bằng Wi-Fi cửa hàng kết hợp GPS. Giờ chấm luôn do server ghi.

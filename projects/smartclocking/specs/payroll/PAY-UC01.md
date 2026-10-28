@@ -1,7 +1,7 @@
 # PAY-UC01 — Vòng đời bảng lương tháng
 
 > Trạng thái: as-built · Việc: — · Cập nhật: 2026-10-28
-> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/`.
+> Kiểm ở commit `eb82f95`. Đường dẫn tính từ `repos/smartclocking/`.
 
 ## Mục tiêu
 Admin cửa hàng lập bảng lương tháng từ dữ liệu chấm công, lương giờ và mức phạt; tính lại khi dữ liệu đổi; chốt để đóng băng số liệu và khoá chấm công của tháng; huỷ khi cần làm lại; xuất bảng lương và phiếu lương từng người. Nhân viên thấy số lương lấy từ bảng lương, hoặc lương tạm tính khi tháng chưa có bảng.
@@ -161,10 +161,10 @@ Scenario: PAY-UC01-SC13 Lương nhân viên thấy
 | BR-3 | `backend/src/services/paysheet.service.js:54-96`, `backend/src/repositories/paysheet.repository.js:60-72`, `:93-99` | `payrollCalculator.test.js` |
 | BR-4 | `backend/src/services/paysheet.service.js:118-122`, `:167-175` | — |
 | BR-5 | `backend/src/services/paysheet.service.js:178-190`, `frontend/src/pages/admin/Paysheets.jsx:58-64`, `:96-104` | `vnTime.test.js` (tháng kết thúc) |
-| BR-6 | `backend/src/services/paysheet.service.js:193-201`, `frontend/src/pages/admin/Paysheets.jsx:239-255` | — |
+| BR-6 | `backend/src/services/paysheet.service.js:193-201`, `frontend/src/pages/admin/Paysheets.jsx:272-288` | — |
 | BR-7 | `backend/src/services/paysheet.service.js:99-108`, `backend/src/repositories/paysheet.repository.js:138-147` | — |
 | BR-8 | `backend/src/services/paysheet.service.js:25-29`, `:204-220`, `backend/src/routes/hr.routes.js:88-93` | — |
-| BR-9 | `frontend/src/utils/payslip.js:18`, `:58`, `frontend/src/pages/admin/Paysheets.jsx:267-275` | — |
+| BR-9 | `frontend/src/utils/payslip.js:18`, `:58`, `frontend/src/pages/admin/Paysheets.jsx:300-308` | — |
 | BR-10 | `backend/src/services/paysheet.service.js:226-259` | — |
 | BR-11 | `backend/src/cache/cachedServices.js:40-63`, `:83-88` | — |
 | BR-12 | `backend/src/services/paysheet.service.js:111-116`, `backend/src/repositories/paysheet.repository.js:55-58` | — |
@@ -182,6 +182,6 @@ Scenario: PAY-UC01-SC13 Lương nhân viên thấy
 - [ ] **Cờ "cần tính lại" báo thiếu:** khoá hoặc mở lại tài khoản là sửa bảng `account`, không phải `employee`. Thay đổi này làm đổi danh sách người trong bảng lương (PAY-BR-012) nhưng không bật cờ.
 - [ ] **Bảng đã chốt không giữ tên và chức danh:** CSV và chi tiết lấy họ tên, chức danh **hiện tại** qua join (`paysheet.repository.js:117-122`). Lương giờ và số liệu thì đã được lưu lại. Đổi tên một nhân viên sẽ làm đổi bảng lương đã chốt khi xuất lại.
 - [ ] **Người được thêm sau khi tạo bảng thấy lương tạm tính:** tháng có bảng nhưng người đó chưa có dòng (chưa tính lại) thì nhân viên thấy lương tạm tính, trong khi những người khác thấy số của bảng (BR-10). Đây có phải chủ đích không?
-- [ ] **Phiếu lương in không có tên cửa hàng:** `printPayslip` nhận tham số `storeName` nhưng `Paysheets.jsx:273` không truyền vào.
+- [ ] **Phiếu lương in không có tên cửa hàng:** `printPayslip` nhận tham số `storeName` nhưng `Paysheets.jsx:306` không truyền vào.
 - [ ] **Huỷ bảng đã chốt không cần điều kiện gì:** chỉ cần một bước xác nhận, lý do cũng không bắt buộc. Với bảng đã chốt, có nên bắt buộc ghi lý do không?
 - [ ] **Lệch R-DB-02:** `findInStore`, `listByMonth` và `findActiveByMonth` không lọc xoá mềm `paysheet` (`paysheet.repository.js:26-52`).

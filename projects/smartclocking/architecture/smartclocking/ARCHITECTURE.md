@@ -1,6 +1,6 @@
 # SmartClocking — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo `repos/smartclocking/`. Kiểm ở commit `4ac4c01`. Sửa code thì cập nhật lại các dòng bị lệch (`node tools/check-docs.mjs` báo).
+> Đường dẫn tính từ gốc repo `repos/smartclocking/`. Kiểm ở commit `eb82f95`. Sửa code thì cập nhật lại các dòng bị lệch (`node tools/check-docs.mjs` báo).
 > Repo có sẵn `CLAUDE.md` riêng (luật DB + nút bấm). File này bổ sung chứ không thay thế nó.
 
 ## 1. Tổng quan
@@ -87,6 +87,7 @@ Phía frontend gọi qua `frontend/src/api/client.js:119` (`api.post`). Khi nh�
 | R-FE-04 | Hộp thoại xác nhận và thông báo dùng `useNotification()` (`context/NotificationContext.jsx`), không dùng `window.alert/confirm` |
 | R-FE-05 | Trang cần đăng nhập được bọc `<ProtectedRoute allowedRoles={[ROLE.…]}>` trong `App.jsx`. Quyền thật vẫn kiểm ở backend |
 | R-FE-06 | Chữ hướng dẫn tĩnh đặt trong tooltip `HelpTip` ("?"), không viết thành đoạn văn trên trang |
+| R-FE-07 | Admin < md: bảng nhiều cột có thêm bản danh sách (`d-md-none`), bấm cả dòng để mở. Hộp thoại toàn màn hình < sm (`Modal.jsx`). Điều hướng < lg: 4 tab + "Thêm" (`AdminLayout.jsx`) |
 
 ## 6. Bẫy âm thầm (build vẫn chạy, sai khi chạy)
 
@@ -107,21 +108,7 @@ Phía frontend gọi qua `frontend/src/api/client.js:119` (`api.post`). Khi nh�
 
 ## 7. Test
 
-Runner: `node:test` + `node:assert/strict`, có sẵn trong Node, **không cần dependency**. Không cần DB, Mongo hay Gemini để chạy test.
-
-| Việc | Lệnh (trong `backend/`) |
-|---|---|
-| Chạy tất cả | `npm test` (= `node --test`, chạy được trên Node 18+) |
-| Một file | `node --test test/payrollCalculator.test.js` |
-| Lọc theo tên test | `node --test --test-name-pattern="đi muộn" test/payrollCalculator.test.js` |
-
-- **Vị trí:** test nằm ở `backend/test/<module>.test.js`. Helper **không** được đặt trong `test/`, vì `node --test` chạy mọi file `.js` trong thư mục `test/` như file test. Helper đặt ở `backend/test-support/`.
-- **Hàm thuần:** gọi thẳng hàm (mẫu: `test/payrollCalculator.test.js`). Mốc giờ dựng tường minh với `+07:00` hoặc `Z`, không dùng `new Date(y, m, d)` (bẫy §6.1–6.2).
-- **Service:** dựng `createXxxService({ … })` với repo giả trong `test-support/fakes.js`. Đi qua service thật ở tầng dưới khi được (mẫu: `test/clocking.service.test.js` dùng `createTimesheetService` thật). Fake chỉ cài các method mà service gọi, giữ đúng chữ ký và dữ liệu `snake_case` như dòng DB.
-- **Lỗi nghiệp vụ:** kiểm `err instanceof AppError` cùng `status`, `code` và một đoạn thông báo (helper `rejectsWith` trong `clocking.service.test.js`).
-- **Đặt tên:** tên test mô tả rule bằng tiếng Việt, kèm ID rule `(CLK-BR-006)` hoặc `// SC: <UC>-SCn` (CONVENTIONS §5).
-- **Kiểm tra test có thật sự bắt lỗi:** sửa tạm rule trong code, chạy để thấy test fail, rồi khôi phục bằng `git checkout -- <file>`.
-- **Chưa phủ:** repository (SQL thật), route và middleware, frontend. Kiểm tra phần UI bằng cách chạy `npm run dev` ở cả hai phần và đăng nhập tài khoản demo (`frontend/src/constants/demoAccounts.js`, tạo bởi `npm run seed`).
+Runner `node:test` (không cần dependency, DB, Mongo hay Gemini): `cd backend && npm test`. Cách viết test, repo giả, kiểm test bắt được lỗi: **`ARCHITECTURE-TEST.md`** — đọc trước khi viết test.
 
 ## 8. Checklist: thêm tính năng mới
 
@@ -139,4 +126,5 @@ Runner: `node:test` + `node:assert/strict`, có sẵn trong Node, **không cần
 - [ ] Trang trong `pages/<role>/`, route trong `App.jsx` có `ProtectedRoute`
 - [ ] Gọi API qua `api.*`, xử lý lỗi bằng `notifyError`
 - [ ] Bootstrap trước, CSS riêng trong `custom.css`, help text đặt trong `HelpTip`
+- [ ] Có bảng: thêm bản danh sách cho điện thoại, chụp thử 390 px (R-FE-07)
 - [ ] Dùng enum từ `constants/enums.js`, định dạng tiền/ngày bằng `utils/format.js`

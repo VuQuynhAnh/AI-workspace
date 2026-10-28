@@ -1,7 +1,7 @@
 # STORE-UC03 — Đăng nhập và kiểm soát truy cập
 
 > Trạng thái: as-built · Việc: — · Cập nhật: 2026-10-28
-> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/`.
+> Kiểm ở commit `eb82f95`. Đường dẫn tính từ `repos/smartclocking/`.
 
 ## Mục tiêu
 Người dùng đăng nhập bằng email và mật khẩu do quản trị cấp, rồi vào đúng trang theo vai trò. Mọi request sau đó đều được kiểm tra: phiên còn hợp lệ, đúng vai trò, tài khoản còn hoạt động, cửa hàng còn trong hạn dùng. Tài khoản bị khoá hoặc cửa hàng bị khoá thì bị chặn ngay, kể cả khi token vẫn còn hạn.

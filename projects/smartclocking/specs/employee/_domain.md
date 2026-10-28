@@ -1,6 +1,6 @@
 # Domain: Nhân viên & tài khoản (EMP)
 
-> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/` (tên file ngắn: tìm trong repo).
+> Kiểm ở commit `eb82f95`. Đường dẫn tính từ `repos/smartclocking/` (tên file ngắn: tìm trong repo).
 
 Rút từ code và README (*as-built*). Dòng nào có đánh dấu *(README)* thì chưa đối chiếu `file:line`. Cần chạy `/reverse` để xác minh.
 

@@ -1,6 +1,6 @@
 # Domain: Trợ lý AI & quy chế (AI)
 
-> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/` (tên file ngắn: tìm trong repo).
+> Kiểm ở commit `eb82f95`. Đường dẫn tính từ `repos/smartclocking/` (tên file ngắn: tìm trong repo).
 
 Rút từ code (*as-built*).
 

@@ -1,7 +1,7 @@
 # CLK-UC03 — Admin xem bảng công và sửa giờ chấm công
 
 > Trạng thái: as-built · Việc: — · Cập nhật: 2026-10-28
-> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/`.
+> Kiểm ở commit `eb82f95`. Đường dẫn tính từ `repos/smartclocking/`.
 
 ## Mục tiêu
 Admin cửa hàng theo dõi công của mọi người trong cửa hàng theo tuần hoặc tháng, xem chi tiết từng lần chấm (kèm vị trí), và sửa giờ vào/ra khi nhân viên quên chấm hoặc chấm sai. Mọi thay đổi được giữ lại thành nhật ký, không ghi đè dữ liệu gốc. Tháng đã chốt lương thì không sửa được nữa.
@@ -157,7 +157,7 @@ Scenario: CLK-UC03-SC11 Nhân viên cửa hàng khác
 | BR-3 | `frontend/src/pages/admin/Clockings.jsx:65-70` | — |
 | BR-4 | `backend/src/services/clockingManagement.service.js:47-60` | — |
 | BR-5 | `backend/src/services/clockingManagement.service.js:19-24`, `:81-104`, `backend/src/repositories/clocking.repository.js:110-121` | — |
-| BR-6 | `frontend/src/components/hr/DayDetail.jsx:271-345` | — |
+| BR-6 | `frontend/src/components/hr/DayDetail.jsx:297-371` | — |
 | BR-7 | `backend/src/services/clockingManagement.service.js:150-166`, `:180-195` | — |
 | BR-8 | `backend/src/services/clockingManagement.service.js:133-135`, `:167-178` | — |
 | BR-9 | `backend/src/services/clockingManagement.service.js:116-132`, `frontend/src/components/hr/DayDetail.jsx:63-81` | — |

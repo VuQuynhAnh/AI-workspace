@@ -1,6 +1,6 @@
 # Domain: Chấm công (CLK)
 
-> Kiểm ở commit `4ac4c01`. Đường dẫn tính từ `repos/smartclocking/` (tên file ngắn: tìm trong repo).
+> Kiểm ở commit `eb82f95`. Đường dẫn tính từ `repos/smartclocking/` (tên file ngắn: tìm trong repo).
 
 Rule dùng chung cho mọi UC chấm công. Rút từ code. Rule nào chưa có UC thì trạng thái là *as-built*.
 
