@@ -1,0 +1,95 @@
+# goldfolio — ARCHITECTURE
+
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `fe2c586` (nhánh `feat/mvp`, 2026-11-03)
+> Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
+
+## 1. Tổng quan
+
+npm workspaces, TypeScript, Node 22 (`.nvmrc`):
+
+| Workspace | Vai trò |
+|---|---|
+| `shared/` | Quy đổi khối lượng, tiền, lãi/lỗ, định dạng, ngày giờ VN. Server và web import thẳng mã nguồn TS (`shared/package.json` trỏ `main` vào `src/index.ts`) |
+| `server/` | Express 4, SQLite qua `node:sqlite` (experimental, in cảnh báo khi chạy), cheerio đọc HTML nguồn giá. Chạy bằng `tsx`, không build |
+| `web/` | Vite 6 + React 18 + Tailwind 4 + Recharts. Dev proxy `/api` → `:4000` (`web/vite.config.ts:14`) |
+
+| Kho | Dùng cho | Bắt buộc |
+|---|---|---|
+| SQLite `server/data/goldfolio.sqlite` (`DB_PATH`) | tài khoản, phiên, danh mục, ảnh chụp giá, lần mua | có |
+| Web Phú Quý (HTML) | giá hiện tại 15 phút/lần, giá theo ngày khi cần | không (lỗi thì giữ giá cũ) |
+
+Tách dữ liệu theo **tài khoản**: mọi bảng của người dùng có `user_id`, không có tenant khác.
+
+## 2. Khởi động và lắp ráp
+
+- `server/src/index.ts:11` đồng bộ danh mục (`seedCatalog`) mỗi lần khởi động; `server/src/index.ts:16` bật lịch lấy giá.
+- `server/src/app.ts:18` `createApp({ db, prices, now })`: không listen, test dùng chung. Đăng ký router ở `server/src/app.ts:23-28`, error handler cuối cùng `server/src/app.ts:30`.
+- `server/src/db.ts:10` mở DB, bật `foreign_keys`, chạy `schema.sql` (`CREATE TABLE IF NOT EXISTS`) ở `server/src/db.ts:14`. Chưa có migration.
+- Danh mục thương hiệu/sản phẩm: `server/src/catalog.ts:28`.
+
+## 3. Sơ đồ layer
+
+```
+web/src/pages, components  — gọi API qua web/src/api.ts; tính lại số trên form bằng shared (chỉ để hiển thị)
+server/src/*/routes.ts     — đọc request, gọi validate/service, trả JSON. Không tính tiền ở đây
+server/src/purchases/validate.ts — luật nhập liệu, ra HttpError 400 + fields
+server/src/portfolio/service.ts  — tổng hợp lãi/lỗ, biểu đồ
+server/src/prices/         — service.ts (lưu/tra giá) ← phuquy/adapter.ts (mạng) ← phuquy/parse.ts (HTML thuần)
+shared/src/                — công thức số học thuần, không I/O
+```
+
+## 4. Đường đi một request tiêu biểu: `POST /api/purchases`
+
+1. Cookie `sid` → `requireUser` tra `sessions` theo SHA-256 của token, hết hạn thì 401 — `server/src/auth/auth.ts:33`; gắn `res.locals.userId` — `server/src/auth/auth.ts:37`.
+2. Router — `server/src/purchases/routes.ts:56`.
+3. `validatePurchase` — `server/src/purchases/validate.ts:42`:
+   - Ngày giờ so với `now` theo giờ VN — `server/src/purchases/validate.ts:67`, `server/src/purchases/validate.ts:76`.
+   - Tính số còn lại theo cách nhập — `server/src/purchases/validate.ts:93-94`, dùng `shared/src/money.ts:18`.
+4. INSERT kèm `user_id`, đọc lại bằng `findOwn` (lọc `user_id`) — `server/src/purchases/routes.ts:44-46`.
+5. Lỗi: `HttpError` → `{ error, fields }` — `server/src/http.ts:22`; lỗi khác → 500 "Có lỗi xảy ra, vui lòng thử lại".
+
+Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `PriceService.refreshLive` (`server/src/prices/service.ts:74`) → `PhuQuySource.fetchLive` (`server/src/prices/phuquy/adapter.ts:19`) → `parseGoldLive` / `parseSilverLive` (`server/src/prices/phuquy/parse.ts:52`, `server/src/prices/phuquy/parse.ts:65`) → `matchRows` (`server/src/prices/match.ts:32`) → lưu `price_snapshots` + `price_points`.
+
+## 5. Luật bắt buộc
+
+| ID | Luật |
+|---|---|
+| R-MONEY-01 | Tiền là số nguyên VNĐ; khối lượng là số nguyên **miligram**. Quy đổi chỉ qua `shared` (`shared/src/units.ts:27`, `shared/src/money.ts:18`), nhân trước chia sau, làm tròn một lần. |
+| R-MONEY-02 | Khối lượng một lần mua ≤ 1.000 kg (`shared/src/units.ts:18`), tiền ≤ 1.000 tỷ đồng (`shared/src/money.ts:5`), kiểm cả số tự tính (`server/src/purchases/validate.ts:95`). Phép nhân-chia tiền dùng BigInt vì tích đơn giá × mg có thể vượt 2^53. |
+| R-PNL-01 | Giá trị hiện tại tính theo **giá mua vào** (`shared/src/pnl.ts:8`). Lần mua chưa có giá không cộng vào tổng, không coi là 0 (`server/src/portfolio/service.ts:67-68`). |
+| R-TIME-01 | "Hôm nay"/"hiện tại" tính theo `Asia/Ho_Chi_Minh` qua `vnDate`/`vnTime`/`vnToIso` (`shared/src/time.ts:3`). Không dùng `new Date().toISOString().slice(0,10)`. Đồng hồ tiêm qua `createApp({ now })` để test. |
+| R-OWN-01 | Mọi truy vấn lần mua có `user_id = currentUserId(res)`; không thấy thì 404 "Không tìm thấy lần mua", kể cả khi là của người khác (`server/src/purchases/routes.ts:46`, `server/src/purchases/routes.ts:87`). |
+| R-API-01 | Lỗi người dùng ném `HttpError(status, thông báo tiếng Việt, fields?)` (`server/src/http.ts:4`); handler async bọc `asyncHandler` (`server/src/http.ts:18`). Form hiện `fields[tên ô]` dưới ô. |
+| R-SRC-01 | Nguồn giá đi qua adapter `PriceSource` (`server/src/prices/types.ts:30`). Đọc HTML lỗi hoặc giá ≤ 0 thì ném lỗi, bỏ cả bảng, không ghi giá 0 (`server/src/prices/phuquy/parse.ts:10`). Mỗi bộ đọc có test bằng HTML thật trong `server/test/fixtures/`. |
+| R-SRC-02 | Gọi nguồn với User-Agent của app, không giả trình duyệt, không lách chặn bot. Giá theo ngày chỉ hỏi khi cần, mỗi ngày một lần (`server/src/prices/service.ts:171`, `server/src/prices/service.ts:183`). |
+| R-UI-02 | Kết quả async (gợi ý, tải lại) không ghi đè ô người dùng đang sửa: so với giá trị **hiện tại** qua `ref`, không so với closure lúc gửi yêu cầu (`web/src/components/PurchaseDialog.tsx:47`, `web/src/components/PurchaseDialog.tsx:89`). |
+| R-UI-01 | Số tiền và lãi/lỗ hiện thẳng (không hiệu ứng chạy số), lãi `text-gain` "+", lỗ `text-loss` "−" (`web/src/components/ui.tsx:20`). |
+
+## 6. Bẫy âm thầm (build vẫn chạy, sai khi chạy)
+
+1. **Bảng bạc có 2 dòng nhóm** (`server/src/prices/phuquy/parse.ts:78`): "BẠC THƯƠNG HIỆU PHÚ QUÝ" đứng trước, "… KHÁC" đứng sau. Coi mọi dòng nhóm là "hãng khác" thì mất toàn bộ bạc Phú Quý.
+2. **Bảng vàng trang chủ có dòng bạc theo chỉ** (`server/src/prices/phuquy/parse.ts:59`): bỏ khi lấy giá live; chỉ dùng trong giá theo ngày, nhân lên lượng qua `matchRows`. Sản phẩm theo kg không nhận giá quy từ chỉ (`server/src/prices/match.ts:46`).
+3. **Dữ liệu XemLai bẩn**: có ngày 2 dòng "Nhẫn tròn" trùng (lấy dòng đầu), tên viết hoa/dấu cách không đều, năm 2023 không có bạc. Thêm tên khác vào `aliases` trong `catalog.ts`, đừng sửa bộ đọc.
+4. **Ẩn sản phẩm theo bảng live** (`server/src/prices/service.ts:100-101`): mỗi lần lưu bảng mới, sản phẩm `live` cùng kim loại không có trong bảng bị `active = 0`. Bảng đọc thiếu dòng (nhưng không lỗi) sẽ ẩn nhầm sản phẩm khỏi form thêm mới; lần mua cũ vẫn giữ.
+5. **Lỗi mạng ≠ không có dữ liệu** (`server/src/prices/service.ts:178`): fetch lỗi thì không ghi `daily_misses`, để lần sau thử lại. Ghi nhầm thì ngày đó không bao giờ được gợi ý giá.
+6. **Mạng có chứng chỉ riêng**: `fetch` của Node báo `SELF_SIGNED_CERT_IN_CHAIN`, server vẫn chạy nhưng không có giá. Sửa bằng biến hệ thống `NODE_EXTRA_CA_CERTS` (README), không tắt TLS. Cùng lý do, `better-sqlite3` không cài được → dùng `node:sqlite`.
+7. **Gợi ý giá không ghi đè giá đã sửa tay** (`web/src/components/PurchaseDialog.tsx:89`): so ô giá với số gợi ý lần trước (`lastSuggested`). Đổi cách so sánh này dễ làm gợi ý đè lên giá người dùng gõ.
+8. **Vitest nhiều tiến trình tràn RAM** trên máy dev ít bộ nhớ: server chạy test một luồng (`server/vitest.config.ts:8`).
+9. **"Hôm nay chưa xong"** (`server/src/prices/service.ts:168`): cache kiểu "nguồn không có dữ liệu ngày X" chỉ được ghi cho ngày đã qua theo giờ VN. Ghi cho hôm nay thì ngày đó bị chặn vĩnh viễn; lỗi chỉ lộ khi chạy qua ngày.
+
+## 7. Test
+
+- Runner: vitest. `npm test` ở gốc chạy `shared` rồi `server`. Một file: `cd server && npx vitest run test/api.test.ts`.
+- API test: `createApp` + supertest + SQLite `:memory:` + `FakeSource` (nguồn giá giả, đếm số lần hỏi giá theo ngày) — `server/test/helpers.ts`. Đồng hồ cố định truyền qua `now`.
+- Bộ đọc HTML: fixture thật của Phú Quý tải ngày 03/11/2026 ở `server/test/fixtures/phuquy/`.
+- Tên test tiếng Việt, kèm `// SC: <UC>-SCn`. Web chưa có test tự động; kiểm bằng tay.
+
+## 8. Checklist thêm tính năng
+
+- [ ] Công thức số → `shared/src` + test trong `shared/test`.
+- [ ] Bảng mới → `server/src/schema.sql` (chỉ `CREATE … IF NOT EXISTS`; đổi cột cũ thì cần migration, hiện chưa có).
+- [ ] Route trong `server/src/<module>/routes.ts`, đăng ký ở `server/src/app.ts`, có `requireUser`; lọc `user_id`.
+- [ ] Validate trả `HttpError(400, …, fields)`.
+- [ ] Test API trong `server/test/api.test.ts` theo scenario.
+- [ ] Kiểu trả về khai báo lại trong `web/src/api.ts`.
+- [ ] Thương hiệu mới có nguồn giá: adapter `PriceSource` + fixture + đăng ký ở `server/src/index.ts`; sửa `hasSource` trong `catalog.ts`.

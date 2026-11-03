@@ -1,0 +1,98 @@
+# Từ điển thuật ngữ nghiệp vụ — code, UI và spec dùng chung một cách gọi.
+# term: cách gọi trong spec · meaning: nghĩa · code_name: tên trong code/DB · ui_label: chữ trên giao diện
+# code_name đã đối chiếu với code ngày 2026-11-03.
+
+- term: tài khoản
+  meaning: Người dùng đăng nhập. Mọi lần mua thuộc về đúng một tài khoản và chỉ tài khoản đó thấy được.
+  code_name: user / user_id
+  ui_label: Tài khoản
+
+- term: thương hiệu
+  meaning: Đơn vị phát hành và niêm yết giá (Phú Quý, SJC, DOJI…). Cũng là nguồn giá.
+  code_name: brand
+  ui_label: Thương hiệu
+
+- term: sản phẩm
+  meaning: Một dòng trong bảng giá của thương hiệu (vd "Nhẫn tròn Phú Quý 999.9", "Bạc thỏi Phú Quý 999"), có kim loại, độ tuổi và đơn vị niêm yết.
+  code_name: product
+  ui_label: Sản phẩm
+
+- term: kim loại
+  meaning: Vàng hoặc bạc.
+  code_name: metal (gold | silver)
+  ui_label: Vàng / Bạc
+
+- term: lần mua
+  meaning: Một lần người dùng mua một sản phẩm, gồm khối lượng, thời điểm mua và giá mua.
+  code_name: purchase
+  ui_label: Lần mua
+
+- term: danh mục
+  meaning: Toàn bộ các lần mua còn giữ của một tài khoản.
+  code_name: portfolio
+  ui_label: Tài sản của tôi
+
+- term: chỉ / lượng / gram / kg
+  meaning: Đơn vị khối lượng. 1 lượng (cây) = 10 chỉ, 1 chỉ = 3,75 g, 1 kg = 1000 g. Vàng thường niêm yết theo chỉ, bạc theo lượng hoặc kg.
+  code_name: unit (chi | luong | gram | kg)
+  ui_label: chỉ / lượng / g / kg
+
+- term: đơn vị niêm yết
+  meaning: Đơn vị mà thương hiệu dùng để báo giá một sản phẩm (VNĐ/chỉ, VNĐ/lượng, VNĐ/kg). Mỗi sản phẩm có một đơn vị niêm yết.
+  code_name: products.price_unit
+  ui_label: (đi kèm giá, vd "/chỉ")
+
+- term: biểu đồ lịch sử
+  meaning: Biểu đồ của một sản phẩm, chia theo ngày. Mỗi ngày mua là một điểm (đơn giá mua), điểm cuối là giá mua vào hôm nay, kèm đường giá vốn bình quân.
+  code_name: buildHistory (GET /api/portfolio/history)
+  ui_label: Lịch sử giá
+
+- term: giá vốn bình quân
+  meaning: Tổng tiền mua ÷ tổng khối lượng của một sản phẩm, tính theo đơn vị niêm yết. Bán được với giá mua vào cao hơn mức này thì có lãi.
+  code_name: avgCost
+  ui_label: Giá vốn bình quân
+
+- term: danh sách sản phẩm nhập sẵn
+  meaning: Sản phẩm khai báo sẵn cho thương hiệu chưa có nguồn giá, để người dùng vẫn ghi được lần mua.
+  code_name: products.source = seed
+  ui_label: (không hiện riêng)
+
+- term: giá mua vào
+  meaning: Giá cửa hàng mua lại từ khách. Dùng để định giá tài sản hiện tại.
+  code_name: price_points.buy_price
+  ui_label: Mua vào
+
+- term: giá bán ra
+  meaning: Giá cửa hàng bán cho khách. Thường là giá người dùng đã trả khi mua.
+  code_name: price_points.sell_price
+  ui_label: Bán ra
+
+- term: giá mua
+  meaning: Tên chung cho đơn giá mua và tổng tiền mua. Người dùng nhập một trong hai, số còn lại tự tính.
+  code_name: purchases.price_mode (unit | total)
+  ui_label: Giá mua
+
+- term: đơn giá mua
+  meaning: Giá đã trả cho một đơn vị niêm yết của sản phẩm (vd VNĐ/chỉ). Có thể được gợi ý từ giá bán ra của ảnh chụp giá.
+  code_name: purchases.unit_cost
+  ui_label: Đơn giá
+
+- term: tổng tiền mua
+  meaning: Tổng số tiền đã trả cho một lần mua (như trên hoá đơn). Đây là số dùng để tính lãi/lỗ.
+  code_name: purchases.total_cost
+  ui_label: Tổng tiền
+
+- term: giá trị hiện tại
+  meaning: Khối lượng quy đổi × giá mua vào mới nhất của đúng sản phẩm, tức số tiền nhận được nếu bán lại ngay.
+  code_name: current.value (buildPortfolio)
+  ui_label: Giá trị hiện tại
+
+- term: ảnh chụp giá
+  meaning: Bảng giá của một thương hiệu tại một thời điểm, do hệ thống lấy định kỳ và lưu lại để làm lịch sử giá.
+  code_name: price_snapshots (kind live | daily)
+  ui_label: Lịch sử giá
+
+- term: lãi/lỗ
+  meaning: Giá trị hiện tại (theo giá mua vào mới nhất) trừ tổng tiền đã mua.
+  code_name: pnl
+  ui_label: Lãi/Lỗ

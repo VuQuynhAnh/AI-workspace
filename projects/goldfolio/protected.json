@@ -1,0 +1,4 @@
+[
+  { "pattern": "repos/goldfolio/server/data/", "why": "SQLite runtime: tài khoản, lần mua, ảnh chụp giá" },
+  { "pattern": "repos/goldfolio/server/test/fixtures/", "why": "HTML thật của nguồn giá dùng làm chuẩn test; chỉ thay khi tải lại từ nguồn" }
+]

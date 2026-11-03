@@ -2,3 +2,7 @@
 	path = projects/smartclocking/repos/smartclocking
 	url = https://github.com/VuQuynhAnh/AI-quyche.git
 	branch = main
+[submodule "goldfolio"]
+	path = projects/goldfolio/repos/goldfolio
+	url = https://github.com/VuQuynhAnh/GoldFolio.git
+	branch = main
