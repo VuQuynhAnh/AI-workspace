@@ -1,6 +1,6 @@
 # Domain: Giá (PRICE)
 
-> Kiểm ở commit `37814b9` (nhánh `feat/gia-tu-dong`, 2026-11-03). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
+> Kiểm ở commit `d68a539` (nhánh `feat/postgres`, 2026-11-03). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
 
 ## Khảo sát nguồn giá (2026-11-02)
 
@@ -29,13 +29,13 @@
 | ID | Rule | Code |
 |---|---|---|
 | PRICE-BR-001 | Mỗi thương hiệu lấy giá qua một adapter riêng, đọc từ **trang chính thức** của thương hiệu. Adapter trả về danh sách sản phẩm gồm giá mua vào, giá bán ra (có thể thiếu), đơn vị niêm yết và thời điểm cập nhật do nguồn công bố. Phú Quý là adapter đầu tiên. | `server/src/prices/types.ts:30`, `server/src/prices/phuquy/adapter.ts:19` |
-| PRICE-BR-002 | Hệ thống lấy giá định kỳ và lưu thành ảnh chụp giá. Bảng giá giống hệt lần trước thì không lưu thêm. | `server/src/prices/scheduler.ts:8`, `server/src/prices/service.ts:95` |
+| PRICE-BR-002 | Hệ thống lấy giá định kỳ và lưu thành ảnh chụp giá. Bảng giá giống hệt lần trước thì không lưu thêm. | `server/src/prices/scheduler.ts:8`, `server/src/prices/service.ts:112` |
 | PRICE-BR-003 | Nguồn lỗi hoặc đổi cấu trúc trang thì giữ ảnh chụp giá gần nhất và báo "giá cập nhật lúc …". Không bao giờ ghi giá 0 hoặc giá rỗng. | `server/src/prices/phuquy/parse.ts:10`, `server/src/prices/phuquy/adapter.ts:19` |
-| PRICE-BR-004 | Gợi ý giá mua cho một lần mua: lấy ảnh chụp giá gần nhất ở **trước hoặc đúng** thời điểm mua của sản phẩm đó (không có giờ mua thì lấy cuối ngày mua). Trong ngày mua không có ảnh chụp nào thì dùng **giá theo ngày** do nguồn công bố, nếu nguồn có. Vẫn không có thì không gợi ý. | `server/src/prices/service.ts:127` |
-| PRICE-BR-007 | Giá theo ngày của một ngày chỉ hỏi nguồn **khi cần** (lúc gợi ý giá) và chỉ hỏi một lần, kể cả khi nguồn báo ngày đó không có dữ liệu. Không quét hàng loạt nhiều ngày. | `server/src/prices/service.ts:171`, `server/src/prices/service.ts:183` |
+| PRICE-BR-004 | Gợi ý giá mua cho một lần mua: lấy ảnh chụp giá gần nhất ở **trước hoặc đúng** thời điểm mua của sản phẩm đó (không có giờ mua thì lấy cuối ngày mua). Trong ngày mua không có ảnh chụp nào thì dùng **giá theo ngày** do nguồn công bố, nếu nguồn có. Vẫn không có thì không gợi ý. | `server/src/prices/service.ts:142` |
+| PRICE-BR-007 | Giá theo ngày của một ngày chỉ hỏi nguồn **khi cần** (lúc gợi ý giá) và chỉ hỏi một lần, kể cả khi nguồn báo ngày đó không có dữ liệu. Không quét hàng loạt nhiều ngày. | `server/src/prices/service.ts:177`, `server/src/prices/service.ts:189` |
 | PRICE-BR-008 | Dòng giá của nguồn được khớp với sản phẩm qua tên đã chuẩn hoá (không phân biệt hoa thường, gộp dấu cách) cùng danh sách tên khác của từng sản phẩm. Dòng không khớp sản phẩm nào thì bỏ qua và ghi log. Dòng trùng thì lấy dòng đầu. | `server/src/prices/match.ts:32` |
 | PRICE-BR-005 | Giá lưu theo đơn vị niêm yết của từng sản phẩm (chỉ, lượng hoặc kg). Khi tính toán thì quy đổi khối lượng của lần mua sang đơn vị đó theo `HOLD-BR-002`. | `server/src/prices/match.ts:32`, `shared/src/money.ts:18` |
-| PRICE-BR-006 | Một sản phẩm có thể chỉ có giá mua vào (vd vàng nguyên liệu của Bảo Tín Mạnh Hải, "phi SJC" của Phú Quý). Thiếu giá bán ra thì không gợi ý giá mua, nhưng vẫn tính được lãi/lỗ. | `server/src/schema.sql:63`, `server/src/routes.ts:42` |
+| PRICE-BR-006 | Một sản phẩm có thể chỉ có giá mua vào (vd vàng nguyên liệu của Bảo Tín Mạnh Hải, "phi SJC" của Phú Quý). Thiếu giá bán ra thì không gợi ý giá mua, nhưng vẫn tính được lãi/lỗ. | `server/src/schema.sql:66`, `server/src/routes.ts:41` |
 
 ## Câu hỏi mở
 

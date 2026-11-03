@@ -305,7 +305,7 @@ Scenario: HOLD-UC01-SC30 Danh sách không phân trang
 ```
 
 ## Cài đặt
-> Kiểm ở commit `37814b9` (nhánh `feat/gia-tu-dong`, 2026-11-03). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
+> Kiểm ở commit `d68a539` (nhánh `feat/postgres`, 2026-11-03). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
 
 | Mục | Code | Test |
 |---|---|---|
@@ -314,17 +314,17 @@ Scenario: HOLD-UC01-SC30 Danh sách không phân trang
 | BR-3 khối lượng, đơn vị | `shared/src/units.ts:42`, `shared/src/format.ts:35` | `units.test.ts`, `format.test.ts`, `api.test.ts` (SC4, SC5, SC25, SC33) |
 | BR-4 ngày giờ không ở tương lai (giờ VN) | `server/src/purchases/validate.ts:76-85` | `api.test.ts` (SC6, SC7) |
 | BR-5 đơn giá ↔ tổng tiền, nhớ cách nhập | `shared/src/money.ts:18-23`, `server/src/purchases/validate.ts:105-106` | `money.test.ts`, `api.test.ts` (SC2, SC3, SC8, SC20, SC24, SC33) |
-| BR-6 gợi ý giá, không ghi đè giá sửa tay (kể cả khi gõ trong lúc chờ gợi ý) | `server/src/routes.ts:42`, `server/src/prices/service.ts:127`, `web/src/pages/PurchaseFormPage.tsx:128` | `price-service.test.ts`, `api.test.ts` (SC10, SC11, SC12, SC32), `purchase-form.test.tsx` (SC13 + ca race R-UI-02) |
-| BR-7 sửa, không gợi ý lại | `server/src/purchases/routes.ts:80`, `web/src/pages/PurchaseFormPage.tsx:73` | `api.test.ts` (SC20, SC24) |
-| BR-8 xoá có xác nhận | `server/src/purchases/routes.ts:96`, `web/src/components/ConfirmSheet.tsx:2` | `api.test.ts` (SC21) |
-| BR-9 lãi/lỗ theo giá mua vào, loại lần mua chưa có giá | `shared/src/pnl.ts:8`, `server/src/portfolio/service.ts:69` | `pnl.test.ts`, `api.test.ts` (SC14, SC15, SC17) |
-| BR-10 tổng quan, nhóm kim loại/sản phẩm, giờ giá | `server/src/portfolio/service.ts:113`, `web/src/pages/OverviewPage.tsx:7` | `api.test.ts` (SC16, SC18, SC30) |
+| BR-6 gợi ý giá, không ghi đè giá sửa tay (kể cả khi gõ trong lúc chờ gợi ý) | `server/src/routes.ts:41`, `server/src/prices/service.ts:142`, `web/src/pages/PurchaseFormPage.tsx:128` | `price-service.test.ts`, `api.test.ts` (SC10, SC11, SC12, SC32), `purchase-form.test.tsx` (SC13 + ca race R-UI-02) |
+| BR-7 sửa, không gợi ý lại | `server/src/purchases/routes.ts:84`, `web/src/pages/PurchaseFormPage.tsx:73` | `api.test.ts` (SC20, SC24) |
+| BR-8 xoá có xác nhận | `server/src/purchases/routes.ts:101`, `web/src/components/ConfirmSheet.tsx:2` | `api.test.ts` (SC21) |
+| BR-9 lãi/lỗ theo giá mua vào, loại lần mua chưa có giá | `shared/src/pnl.ts:8`, `server/src/portfolio/service.ts:67` | `pnl.test.ts`, `api.test.ts` (SC14, SC15, SC17) |
+| BR-10 tổng quan, nhóm kim loại/sản phẩm, giờ giá | `server/src/portfolio/service.ts:112`, `web/src/pages/OverviewPage.tsx:7` | `api.test.ts` (SC16, SC18, SC30) |
 | BR-11 danh mục rỗng | `web/src/pages/OverviewPage.tsx:14` | `api.test.ts` (SC19) |
-| BR-12 lỗi theo ô, 404 lần mua của người khác | `server/src/purchases/routes.ts:49-51`, `web/src/components/ui.tsx:10` | `api.test.ts` (SC22, SC23) |
-| BR-13 biểu đồ theo mốc mua, giá vốn bình quân | `server/src/portfolio/service.ts:151`, `shared/src/pnl.ts:25-32`, `web/src/components/HistoryChart.tsx:62` | `pnl.test.ts`, `api.test.ts` (SC26, SC27) |
-| BR-14 thiếu giá hiện tại | `server/src/portfolio/service.ts:151` | `api.test.ts` (SC28) |
-| BR-16 tự lấy giá khi để trống | `server/src/purchases/validate.ts:124`, `server/src/prices/suggest.ts:11`, `server/src/db.ts:29`, `web/src/pages/PurchaseFormPage.tsx:84`, `web/src/pages/PurchasesPage.tsx:44` | `api.test.ts` (SC8, SC34, SC35, SC36, SC37), `db.test.ts`, `auto-price.test.tsx` (SC34, SC37) |
-| BR-15 sản phẩm biến mất khỏi bảng giá | `server/src/prices/service.ts:100-101`, `server/src/purchases/validate.ts:63` | `price-service.test.ts`, `api.test.ts` (SC29) |
+| BR-12 lỗi theo ô, 404 lần mua của người khác | `server/src/purchases/routes.ts:49-53`, `web/src/components/ui.tsx:10` | `api.test.ts` (SC22, SC23) |
+| BR-13 biểu đồ theo mốc mua, giá vốn bình quân | `server/src/portfolio/service.ts:150`, `shared/src/pnl.ts:25-32`, `web/src/components/HistoryChart.tsx:62` | `pnl.test.ts`, `api.test.ts` (SC26, SC27) |
+| BR-14 thiếu giá hiện tại | `server/src/portfolio/service.ts:150` | `api.test.ts` (SC28) |
+| BR-16 tự lấy giá khi để trống | `server/src/purchases/validate.ts:124`, `server/src/prices/suggest.ts:11`, `server/src/db.ts:85`, `web/src/pages/PurchaseFormPage.tsx:84`, `web/src/pages/PurchasesPage.tsx:44` | `api.test.ts` (SC8, SC34, SC35, SC36, SC37), `db.test.ts`, `auto-price.test.tsx` (SC34, SC37) |
+| BR-15 sản phẩm biến mất khỏi bảng giá | `server/src/prices/service.ts:117`, `server/src/purchases/validate.ts:63` | `price-service.test.ts`, `api.test.ts` (SC29) |
 
 Test web (vitest + Testing Library): `web/test/purchase-form.test.tsx` (SC1, SC9, SC13, race R-UI-02, SC20, SC24, SC21), `web/test/shell.test.tsx` (SC17, SC19, 3 tab, nút +), `web/test/auto-price.test.tsx` (nhãn giá tự lấy, form để trống giá), `web/test/states.test.tsx` (biểu đồ quay về sản phẩm mặc định sau SC21, lỗi/thử lại, SC22 phía web: trang sửa báo không tìm thấy).
 

@@ -6,7 +6,7 @@ Sổ tài sản vàng bạc cá nhân: ghi từng lần mua (thương hiệu, s�
 
 | Thư mục | Remote · branch | Stack | Kiến trúc |
 |---|---|---|---|
-| `repos/goldfolio/` | `VuQuynhAnh/GoldFolio` · `main` | Node 22 · TypeScript · npm workspaces (`shared`, `server`, `web`) · Express 4 + `node:sqlite` + cheerio · React 18 + Vite 6 + Tailwind 4 + Recharts | `architecture/goldfolio/ARCHITECTURE.md` |
+| `repos/goldfolio/` | `VuQuynhAnh/GoldFolio` · `main` | Node 22 · TypeScript · npm workspaces (`shared`, `server`, `web`) · Express 4 + PostgreSQL (`pg`, Supabase free) + cheerio · React 18 + Vite 6 + Tailwind 4 + Recharts | `architecture/goldfolio/ARCHITECTURE.md` |
 
 ## Lệnh (chạy trong `repos/goldfolio/`, đã chạy thử 2026-11-03)
 
@@ -18,7 +18,7 @@ Sổ tài sản vàng bạc cá nhân: ghi từng lần mua (thương hiệu, s�
 | Kiểm tra kiểu | `npm run lint` |
 | Build web | `npm run build` |
 | Đồng bộ danh mục sản phẩm | `npm run seed` |
-| Xoá sạch dữ liệu (**phá dữ liệu**) | dừng server, xoá `server/data/` |
+| Xoá sạch dữ liệu (**phá dữ liệu**, hỏi trước) | SQL Editor Supabase: `TRUNCATE users, purchases, sessions RESTART IDENTITY CASCADE;` |
 
 ## Domain spec
 

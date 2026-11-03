@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `37814b9` (nhánh `feat/gia-tu-dong`, 2026-11-03).
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `d68a539` (nhánh `feat/postgres`, 2026-11-03).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan
@@ -10,21 +10,21 @@ npm workspaces, TypeScript, Node 22 (`.nvmrc`):
 | Workspace | Vai trò |
 |---|---|
 | `shared/` | Quy đổi khối lượng, tiền, lãi/lỗ, định dạng, ngày giờ VN. Server và web import thẳng mã nguồn TS (`shared/package.json` trỏ `main` vào `src/index.ts`) |
-| `server/` | Express 4, SQLite qua `node:sqlite` (experimental, in cảnh báo khi chạy), cheerio đọc HTML nguồn giá. Chạy bằng `tsx`, không build |
+| `server/` | Express 4, PostgreSQL qua `pg` (Pool), cheerio đọc HTML nguồn giá. Chạy bằng `tsx`, không build |
 | `web/` | Vite 6 + React 18 + Tailwind 4 + Recharts, **mobile-first**. Dev proxy `/api` → `:4000` (`web/vite.config.ts:14`). Route ở `web/src/App.tsx:26`: 3 tab trong `AppShell` (`/`, `/lich-su`, `/lan-mua`) + trang form toàn màn hình (`/them`, `/sua/:id`). Dữ liệu dùng chung qua `PortfolioProvider` (`web/src/portfolio-context.tsx:15`) |
 
 | Kho | Dùng cho | Bắt buộc |
 |---|---|---|
-| SQLite `server/data/goldfolio.sqlite` (`DB_PATH`) | tài khoản, phiên, danh mục, ảnh chụp giá, lần mua | có |
+| PostgreSQL (Supabase free, `DATABASE_URL` + `DB_SSL_CA`; không có URL thì `pg` đọc `PG*`) | tài khoản, phiên, danh mục, ảnh chụp giá, lần mua | có — không kết nối được thì server thoát với thông báo rõ (`server/src/index.ts:12`) |
 | Web Phú Quý (HTML) | giá hiện tại 15 phút/lần, giá theo ngày khi cần | không (lỗi thì giữ giá cũ) |
 
 Tách dữ liệu theo **tài khoản**: mọi bảng của người dùng có `user_id`, không có tenant khác.
 
 ## 2. Khởi động và lắp ráp
 
-- `server/src/index.ts:11` đồng bộ danh mục (`seedCatalog`) mỗi lần khởi động; `server/src/index.ts:16` bật lịch lấy giá.
+- `server/src/index.ts:22` đồng bộ danh mục (`seedCatalog`) mỗi lần khởi động; `server/src/index.ts:27` bật lịch lấy giá.
 - `server/src/app.ts:18` `createApp({ db, prices, now })`: không listen, test dùng chung. Đăng ký router ở `server/src/app.ts:23-28`, error handler cuối cùng `server/src/app.ts:30`.
-- `server/src/db.ts:10` mở DB, bật `foreign_keys`, chạy `schema.sql` (`CREATE TABLE IF NOT EXISTS`) ở `server/src/db.ts:14`, rồi `migrate()` (`server/src/db.ts:29`) thêm cột mới cho DB cũ.
+- `server/src/db.ts:33` `poolDb`: Pool `pg`, SSL bằng CA của nhà cung cấp khi có `DB_SSL_CA`. Lớp `Db` (`query`/`one`/`exec`/`tx`) dùng chung cho app và test. `initSchema` (`server/src/db.ts:76`) chạy `schema.sql` rồi `migrate()` (`server/src/db.ts:85`) mỗi lần khởi động.
 - Danh mục thương hiệu/sản phẩm: `server/src/catalog.ts:28`.
 
 ## 3. Sơ đồ layer
@@ -41,17 +41,17 @@ shared/src/                — công thức số học thuần, không I/O
 
 ## 4. Đường đi một request tiêu biểu: `POST /api/purchases`
 
-1. Cookie `sid` → `requireUser` tra `sessions` theo SHA-256 của token, hết hạn thì 401 — `server/src/auth/auth.ts:33`; gắn `res.locals.userId` — `server/src/auth/auth.ts:37`.
-2. Router — `server/src/purchases/routes.ts:61`.
+1. Cookie `sid` → `requireUser` tra `sessions` theo SHA-256 của token, hết hạn thì 401 — `server/src/auth/auth.ts:31`; gắn `res.locals.userId` — `server/src/auth/auth.ts:32`.
+2. Router — `server/src/purchases/routes.ts:68`.
 3. `validatePurchase` — `server/src/purchases/validate.ts:51`:
    - Ngày giờ so với `now` theo giờ VN — `server/src/purchases/validate.ts:76`, `server/src/purchases/validate.ts:85`.
    - Tính số còn lại theo cách nhập — `server/src/purchases/validate.ts:105-106`, dùng `shared/src/money.ts:18`.
-4. INSERT kèm `user_id`, đọc lại bằng `findOwn` (lọc `user_id`) — `server/src/purchases/routes.ts:49-51`.
+4. INSERT kèm `user_id`, đọc lại bằng `findOwn` (lọc `user_id`) — `server/src/purchases/routes.ts:49-53`.
 5. Lỗi: `HttpError` → `{ error, fields }` — `server/src/http.ts:22`; lỗi khác → 500 "Có lỗi xảy ra, vui lòng thử lại".
 
 Tự lấy giá khi để trống (HOLD-UC01/BR-16): `validatePurchase` đánh dấu `priceSource = auto` → `resolvePrice` (`server/src/purchases/validate.ts:124`) gọi `sellPriceAt` (`server/src/prices/suggest.ts:11`, dùng chung với `/api/prices/suggest`) → lưu `price_source`, `price_note`. Không có giá thì 400 `fields.price`.
 
-Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `PriceService.refreshLive` (`server/src/prices/service.ts:74`) → `PhuQuySource.fetchLive` (`server/src/prices/phuquy/adapter.ts:19`) → `parseGoldLive` / `parseSilverLive` (`server/src/prices/phuquy/parse.ts:52`, `server/src/prices/phuquy/parse.ts:65`) → `matchRows` (`server/src/prices/match.ts:32`) → lưu `price_snapshots` + `price_points`.
+Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `PriceService.refreshLive` (`server/src/prices/service.ts:90`) → `PhuQuySource.fetchLive` (`server/src/prices/phuquy/adapter.ts:19`) → `parseGoldLive` / `parseSilverLive` (`server/src/prices/phuquy/parse.ts:52`, `server/src/prices/phuquy/parse.ts:65`) → `matchRows` (`server/src/prices/match.ts:32`) → lưu `price_snapshots` + `price_points`.
 
 ## 5. Luật bắt buộc
 
@@ -59,13 +59,14 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 |---|---|
 | R-MONEY-01 | Tiền là số nguyên VNĐ; khối lượng là số nguyên **miligram**. Quy đổi chỉ qua `shared` (`shared/src/units.ts:27`, `shared/src/money.ts:18`), nhân trước chia sau, làm tròn một lần. |
 | R-MONEY-02 | Khối lượng một lần mua ≤ 1.000 kg (`shared/src/units.ts:18`), tiền ≤ 1.000 tỷ đồng (`shared/src/money.ts:5`), kiểm cả số tự tính (`server/src/purchases/validate.ts:107`). Phép nhân-chia tiền dùng BigInt vì tích đơn giá × mg có thể vượt 2^53. |
-| R-DB-01 | Thêm cột vào bảng đã có: khai báo trong `schema.sql` **và** `ensureColumn` trong `migrate()` (`server/src/db.ts:29`), có test DB cũ (`server/test/db.test.ts`). Không xoá/đổi tên cột (SQLite cũ không hỗ trợ tốt); cần thì hỏi trước. |
-| R-PNL-01 | Giá trị hiện tại tính theo **giá mua vào** (`shared/src/pnl.ts:8`). Lần mua chưa có giá không cộng vào tổng, không coi là 0 (`server/src/portfolio/service.ts:69-70`). |
+| R-DB-01 | Thêm cột vào bảng đã có: khai báo trong `schema.sql` **và** `ALTER TABLE … ADD COLUMN IF NOT EXISTS` trong `migrate()` (`server/src/db.ts:85`), có test DB cũ (`server/test/db.test.ts`). Không xoá/đổi tên cột trên DB đang có dữ liệu (phá dữ liệu); cần thì hỏi trước. |
+| R-DB-02 | Truy vấn qua `Db` với tham số `$1, $2…`, không ghép chuỗi. Tiền/khối lượng/id là `BIGINT` (đọc thành number, `server/src/db.ts:21`); ngày/giờ/mốc ISO để `TEXT` (R-TIME-01). Id từ request phải `Number.isSafeInteger` trước khi đưa vào truy vấn, sai thì 404/400 (Postgres báo lỗi kiểu → 500). |
+| R-PNL-01 | Giá trị hiện tại tính theo **giá mua vào** (`shared/src/pnl.ts:8`). Lần mua chưa có giá không cộng vào tổng, không coi là 0 (`server/src/portfolio/service.ts:67-68`). |
 | R-TIME-01 | "Hôm nay"/"hiện tại" tính theo `Asia/Ho_Chi_Minh` qua `vnDate`/`vnTime`/`vnToIso` (`shared/src/time.ts:3`). Không dùng `new Date().toISOString().slice(0,10)`. Đồng hồ tiêm qua `createApp({ now })` để test. |
-| R-OWN-01 | Mọi truy vấn lần mua có `user_id = currentUserId(res)`; không thấy thì 404 "Không tìm thấy lần mua", kể cả khi là của người khác (`server/src/purchases/routes.ts:51`, `server/src/purchases/routes.ts:99`). |
+| R-OWN-01 | Mọi truy vấn lần mua có `user_id = currentUserId(res)`; không thấy thì 404 "Không tìm thấy lần mua", kể cả khi là của người khác (`server/src/purchases/routes.ts:53`, `server/src/purchases/routes.ts:106`). |
 | R-API-01 | Lỗi người dùng ném `HttpError(status, thông báo tiếng Việt, fields?)` (`server/src/http.ts:4`); handler async bọc `asyncHandler` (`server/src/http.ts:18`). Form hiện `fields[tên ô]` dưới ô. |
 | R-SRC-01 | Nguồn giá đi qua adapter `PriceSource` (`server/src/prices/types.ts:30`). Đọc HTML lỗi hoặc giá ≤ 0 thì ném lỗi, bỏ cả bảng, không ghi giá 0 (`server/src/prices/phuquy/parse.ts:10`). Mỗi bộ đọc có test bằng HTML thật trong `server/test/fixtures/`. |
-| R-SRC-02 | Gọi nguồn với User-Agent của app, không giả trình duyệt, không lách chặn bot. Giá theo ngày chỉ hỏi khi cần, mỗi ngày một lần (`server/src/prices/service.ts:171`, `server/src/prices/service.ts:183`). |
+| R-SRC-02 | Gọi nguồn với User-Agent của app, không giả trình duyệt, không lách chặn bot. Giá theo ngày chỉ hỏi khi cần, mỗi ngày một lần (`server/src/prices/service.ts:177`, `server/src/prices/service.ts:189`). |
 | R-UI-02 | Kết quả async (gợi ý, tải lại) không ghi đè ô người dùng đang sửa: so với giá trị **hiện tại** qua `ref`, không so với closure lúc gửi yêu cầu (`web/src/pages/PurchaseFormPage.tsx:60`, `web/src/pages/PurchaseFormPage.tsx:128`). |
 | R-UI-03 | Mobile-first: thiết kế cho 360–430px, màn rộng căn giữa `max-w-md`. Vùng bấm ≥ 44px; ô nhập cao 48px, chữ 16px (`web/src/components/ui.tsx:6`). Thao tác chính ở đáy (thanh tab, nút +, nút Lưu dính đáy, bảng xác nhận trượt từ đáy). Chừa vùng an toàn bằng `.safe-bottom`/`.safe-top` (`web/src/index.css:49`); chiều cao dùng `dvh`, không dùng `vh`. Form là route riêng để nút back của điện thoại hoạt động đúng. |
 | R-UI-04 | Mọi màn hình nạp dữ liệu có đủ 3 trạng thái: đang tải, lỗi kèm "Thử lại" (`LoadError`, `web/src/components/ui.tsx:22`), và rỗng/không tìm thấy. Không để "Đang tải…" là trạng thái cuối khi lỗi. Đã có dữ liệu mà nạp lại lỗi thì giữ dữ liệu, chỉ hiện dải lỗi. Form sửa khoá (`<fieldset disabled>`) tới khi nạp xong; 404 thì hiện "Không tìm thấy", không hiện form. |
@@ -77,18 +78,20 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 1. **Bảng bạc có 2 dòng nhóm** (`server/src/prices/phuquy/parse.ts:78`): "BẠC THƯƠNG HIỆU PHÚ QUÝ" đứng trước, "… KHÁC" đứng sau. Coi mọi dòng nhóm là "hãng khác" thì mất toàn bộ bạc Phú Quý.
 2. **Bảng vàng trang chủ có dòng bạc theo chỉ** (`server/src/prices/phuquy/parse.ts:59`): bỏ khi lấy giá live; chỉ dùng trong giá theo ngày, nhân lên lượng qua `matchRows`. Sản phẩm theo kg không nhận giá quy từ chỉ (`server/src/prices/match.ts:46`).
 3. **Dữ liệu XemLai bẩn**: có ngày 2 dòng "Nhẫn tròn" trùng (lấy dòng đầu), tên viết hoa/dấu cách không đều, năm 2023 không có bạc. Thêm tên khác vào `aliases` trong `catalog.ts`, đừng sửa bộ đọc.
-4. **Ẩn sản phẩm theo bảng live** (`server/src/prices/service.ts:100-101`): mỗi lần lưu bảng mới, sản phẩm `live` cùng kim loại không có trong bảng bị `active = 0`. Bảng đọc thiếu dòng (nhưng không lỗi) sẽ ẩn nhầm sản phẩm khỏi form thêm mới; lần mua cũ vẫn giữ.
-5. **Lỗi mạng ≠ không có dữ liệu** (`server/src/prices/service.ts:178`): fetch lỗi thì không ghi `daily_misses`, để lần sau thử lại. Ghi nhầm thì ngày đó không bao giờ được gợi ý giá.
-6. **Mạng có chứng chỉ riêng**: `fetch` của Node báo `SELF_SIGNED_CERT_IN_CHAIN`, server vẫn chạy nhưng không có giá. Sửa bằng biến hệ thống `NODE_EXTRA_CA_CERTS` (README), không tắt TLS. Cùng lý do, `better-sqlite3` không cài được → dùng `node:sqlite`.
+4. **Ẩn sản phẩm theo bảng live** (`server/src/prices/service.ts:117`): mỗi lần lưu bảng mới, sản phẩm `live` cùng kim loại không có trong bảng bị `active = 0`. Bảng đọc thiếu dòng (nhưng không lỗi) sẽ ẩn nhầm sản phẩm khỏi form thêm mới; lần mua cũ vẫn giữ.
+5. **Lỗi mạng ≠ không có dữ liệu** (`server/src/prices/service.ts:184`): fetch lỗi thì không ghi `daily_misses`, để lần sau thử lại. Ghi nhầm thì ngày đó không bao giờ được gợi ý giá.
+6. **Mạng có chứng chỉ riêng**: `fetch` của Node báo `SELF_SIGNED_CERT_IN_CHAIN`, server vẫn chạy nhưng không có giá. Sửa bằng biến hệ thống `NODE_EXTRA_CA_CERTS` (README), không tắt TLS. Kết nối Postgres ra ngoài qua mạng công ty cũng có thể bị chặn cổng hoặc chèn chứng chỉ.
 7. **Gợi ý giá không ghi đè giá đã sửa tay** (`web/src/pages/PurchaseFormPage.tsx:128`): so ô giá với số gợi ý lần trước (`lastSuggested`). Đổi cách so sánh này dễ làm gợi ý đè lên giá người dùng gõ.
 8. **Vitest nhiều tiến trình tràn RAM** trên máy dev ít bộ nhớ: server chạy test một luồng (`server/vitest.config.ts:8`).
-9. **"Hôm nay chưa xong"** (`server/src/prices/service.ts:168`): cache kiểu "nguồn không có dữ liệu ngày X" chỉ được ghi cho ngày đã qua theo giờ VN. Ghi cho hôm nay thì ngày đó bị chặn vĩnh viễn; lỗi chỉ lộ khi chạy qua ngày.
-10. **Cột mới không tự có trên DB cũ** (`server/src/db.ts:29`): `schema.sql` chỉ `CREATE TABLE IF NOT EXISTS`. Quên `ensureColumn` thì máy dev (DB mới) chạy đúng nhưng máy có dữ liệu cũ lỗi "no such column" ngay khi ghi.
+9. **"Hôm nay chưa xong"** (`server/src/prices/service.ts:174`): cache kiểu "nguồn không có dữ liệu ngày X" chỉ được ghi cho ngày đã qua theo giờ VN. Ghi cho hôm nay thì ngày đó bị chặn vĩnh viễn; lỗi chỉ lộ khi chạy qua ngày.
+10. **Cột mới không tự có trên DB cũ** (`server/src/db.ts:85`): `schema.sql` chỉ `CREATE TABLE IF NOT EXISTS`. Quên `ensureColumn` thì máy dev (DB mới) chạy đúng nhưng máy có dữ liệu cũ lỗi "no such column" ngay khi ghi.
+11. **BIGINT và DATE của pg:** `pg` trả `BIGINT` dạng chuỗi nếu không có `setTypeParser(20)` (cộng tiền thành nối chuỗi); kiểu `DATE`/`TIMESTAMP` bị đổi sang `Date` theo múi giờ máy chạy → lệch ngày. Vì vậy cấu hình parser ở `server/src/db.ts:21` và lưu ngày dạng `TEXT`.
+12. **Kết nối rảnh bị ngắt** (`server/src/db.ts:42`): Supabase/pooler đóng kết nối nhàn rỗi; thiếu `pool.on("error")` thì cả server sập. Gói Free tạm dừng project sau 7 ngày không truy cập → server báo không kết nối được cho tới khi bấm Restore.
 
 ## 7. Test
 
 - Runner: vitest. `npm test` ở gốc chạy `shared`, `server`, `web`. Một file: `cd server && npx vitest run test/api.test.ts`.
-- API test: `createApp` + supertest + SQLite `:memory:` + `FakeSource` (nguồn giá giả, đếm số lần hỏi giá theo ngày) — `server/test/helpers.ts`. Đồng hồ cố định truyền qua `now`.
+- API test: `createApp` + supertest + PGlite (Postgres thật chạy trong tiến trình, một instance mỗi file, `TRUNCATE` mỗi test — `server/test/helpers.ts`) + `FakeSource` (nguồn giá giả, đếm số lần hỏi giá theo ngày) — `server/test/helpers.ts`. Đồng hồ cố định truyền qua `now`.
 - Bộ đọc HTML: fixture thật của Phú Quý tải ngày 03/11/2026 ở `server/test/fixtures/phuquy/`.
 - Web: jsdom + Testing Library. Dựng `AppRoutes` trong `MemoryRouter`, giả lập `api` theo "METHOD /đường-dẫn" bằng `mockApi`; `deferred()` để giả phản hồi về muộn (test race) — `web/test/helpers.tsx`. `web/test/setup.ts` giả `ResizeObserver` (jsdom không có, Recharts cần). Chọn phần tử theo nhãn/role tiếng Việt, không theo class.
 - Tên test tiếng Việt, kèm `// SC: <UC>-SCn`. Bố cục trên điện thoại thật vẫn phải kiểm tay.
