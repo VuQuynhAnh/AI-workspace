@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `fe2c586` (nhánh `feat/mvp`, 2026-11-03)
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `15633bf` (nhánh `feat/mobile-ui`, 2026-11-03).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan
@@ -11,7 +11,7 @@ npm workspaces, TypeScript, Node 22 (`.nvmrc`):
 |---|---|
 | `shared/` | Quy đổi khối lượng, tiền, lãi/lỗ, định dạng, ngày giờ VN. Server và web import thẳng mã nguồn TS (`shared/package.json` trỏ `main` vào `src/index.ts`) |
 | `server/` | Express 4, SQLite qua `node:sqlite` (experimental, in cảnh báo khi chạy), cheerio đọc HTML nguồn giá. Chạy bằng `tsx`, không build |
-| `web/` | Vite 6 + React 18 + Tailwind 4 + Recharts. Dev proxy `/api` → `:4000` (`web/vite.config.ts:14`) |
+| `web/` | Vite 6 + React 18 + Tailwind 4 + Recharts, **mobile-first**. Dev proxy `/api` → `:4000` (`web/vite.config.ts:14`). Route ở `web/src/App.tsx:26`: 3 tab trong `AppShell` (`/`, `/lich-su`, `/lan-mua`) + trang form toàn màn hình (`/them`, `/sua/:id`). Dữ liệu dùng chung qua `PortfolioProvider` (`web/src/portfolio-context.tsx:15`) |
 
 | Kho | Dùng cho | Bắt buộc |
 |---|---|---|
@@ -30,7 +30,8 @@ Tách dữ liệu theo **tài khoản**: mọi bảng của người dùng có `
 ## 3. Sơ đồ layer
 
 ```
-web/src/pages, components  — gọi API qua web/src/api.ts; tính lại số trên form bằng shared (chỉ để hiển thị)
+web/src/pages, components  — gọi API qua web/src/api.ts; danh mục + thương hiệu lấy từ usePortfolio(), gọi reload() sau khi ghi;
+                             tính lại số trên form bằng shared (chỉ để hiển thị)
 server/src/*/routes.ts     — đọc request, gọi validate/service, trả JSON. Không tính tiền ở đây
 server/src/purchases/validate.ts — luật nhập liệu, ra HttpError 400 + fields
 server/src/portfolio/service.ts  — tổng hợp lãi/lỗ, biểu đồ
@@ -62,8 +63,10 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 | R-API-01 | Lỗi người dùng ném `HttpError(status, thông báo tiếng Việt, fields?)` (`server/src/http.ts:4`); handler async bọc `asyncHandler` (`server/src/http.ts:18`). Form hiện `fields[tên ô]` dưới ô. |
 | R-SRC-01 | Nguồn giá đi qua adapter `PriceSource` (`server/src/prices/types.ts:30`). Đọc HTML lỗi hoặc giá ≤ 0 thì ném lỗi, bỏ cả bảng, không ghi giá 0 (`server/src/prices/phuquy/parse.ts:10`). Mỗi bộ đọc có test bằng HTML thật trong `server/test/fixtures/`. |
 | R-SRC-02 | Gọi nguồn với User-Agent của app, không giả trình duyệt, không lách chặn bot. Giá theo ngày chỉ hỏi khi cần, mỗi ngày một lần (`server/src/prices/service.ts:171`, `server/src/prices/service.ts:183`). |
-| R-UI-02 | Kết quả async (gợi ý, tải lại) không ghi đè ô người dùng đang sửa: so với giá trị **hiện tại** qua `ref`, không so với closure lúc gửi yêu cầu (`web/src/components/PurchaseDialog.tsx:47`, `web/src/components/PurchaseDialog.tsx:89`). |
-| R-UI-01 | Số tiền và lãi/lỗ hiện thẳng (không hiệu ứng chạy số), lãi `text-gain` "+", lỗ `text-loss` "−" (`web/src/components/ui.tsx:20`). |
+| R-UI-02 | Kết quả async (gợi ý, tải lại) không ghi đè ô người dùng đang sửa: so với giá trị **hiện tại** qua `ref`, không so với closure lúc gửi yêu cầu (`web/src/pages/PurchaseFormPage.tsx:57`, `web/src/pages/PurchaseFormPage.tsx:119`). |
+| R-UI-03 | Mobile-first: thiết kế cho 360–430px, màn rộng căn giữa `max-w-md`. Vùng bấm ≥ 44px; ô nhập cao 48px, chữ 16px (`web/src/components/ui.tsx:6`). Thao tác chính ở đáy (thanh tab, nút +, nút Lưu dính đáy, bảng xác nhận trượt từ đáy). Chừa vùng an toàn bằng `.safe-bottom`/`.safe-top` (`web/src/index.css:35`); chiều cao dùng `dvh`, không dùng `vh`. Form là route riêng để nút back của điện thoại hoạt động đúng. |
+| R-UI-04 | Mọi màn hình nạp dữ liệu có đủ 3 trạng thái: đang tải, lỗi kèm "Thử lại" (`LoadError`, `web/src/components/ui.tsx:22`), và rỗng/không tìm thấy. Không để "Đang tải…" là trạng thái cuối khi lỗi. Đã có dữ liệu mà nạp lại lỗi thì giữ dữ liệu, chỉ hiện dải lỗi. Form sửa khoá (`<fieldset disabled>`) tới khi nạp xong; 404 thì hiện "Không tìm thấy", không hiện form. |
+| R-UI-01 | Số tiền và lãi/lỗ hiện thẳng (không hiệu ứng chạy số), lãi `text-gain` "+", lỗ `text-loss` "−" (`web/src/components/ui.tsx:34`). |
 
 ## 6. Bẫy âm thầm (build vẫn chạy, sai khi chạy)
 
@@ -73,16 +76,17 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 4. **Ẩn sản phẩm theo bảng live** (`server/src/prices/service.ts:100-101`): mỗi lần lưu bảng mới, sản phẩm `live` cùng kim loại không có trong bảng bị `active = 0`. Bảng đọc thiếu dòng (nhưng không lỗi) sẽ ẩn nhầm sản phẩm khỏi form thêm mới; lần mua cũ vẫn giữ.
 5. **Lỗi mạng ≠ không có dữ liệu** (`server/src/prices/service.ts:178`): fetch lỗi thì không ghi `daily_misses`, để lần sau thử lại. Ghi nhầm thì ngày đó không bao giờ được gợi ý giá.
 6. **Mạng có chứng chỉ riêng**: `fetch` của Node báo `SELF_SIGNED_CERT_IN_CHAIN`, server vẫn chạy nhưng không có giá. Sửa bằng biến hệ thống `NODE_EXTRA_CA_CERTS` (README), không tắt TLS. Cùng lý do, `better-sqlite3` không cài được → dùng `node:sqlite`.
-7. **Gợi ý giá không ghi đè giá đã sửa tay** (`web/src/components/PurchaseDialog.tsx:89`): so ô giá với số gợi ý lần trước (`lastSuggested`). Đổi cách so sánh này dễ làm gợi ý đè lên giá người dùng gõ.
+7. **Gợi ý giá không ghi đè giá đã sửa tay** (`web/src/pages/PurchaseFormPage.tsx:119`): so ô giá với số gợi ý lần trước (`lastSuggested`). Đổi cách so sánh này dễ làm gợi ý đè lên giá người dùng gõ.
 8. **Vitest nhiều tiến trình tràn RAM** trên máy dev ít bộ nhớ: server chạy test một luồng (`server/vitest.config.ts:8`).
 9. **"Hôm nay chưa xong"** (`server/src/prices/service.ts:168`): cache kiểu "nguồn không có dữ liệu ngày X" chỉ được ghi cho ngày đã qua theo giờ VN. Ghi cho hôm nay thì ngày đó bị chặn vĩnh viễn; lỗi chỉ lộ khi chạy qua ngày.
 
 ## 7. Test
 
-- Runner: vitest. `npm test` ở gốc chạy `shared` rồi `server`. Một file: `cd server && npx vitest run test/api.test.ts`.
+- Runner: vitest. `npm test` ở gốc chạy `shared`, `server`, `web`. Một file: `cd server && npx vitest run test/api.test.ts`.
 - API test: `createApp` + supertest + SQLite `:memory:` + `FakeSource` (nguồn giá giả, đếm số lần hỏi giá theo ngày) — `server/test/helpers.ts`. Đồng hồ cố định truyền qua `now`.
 - Bộ đọc HTML: fixture thật của Phú Quý tải ngày 03/11/2026 ở `server/test/fixtures/phuquy/`.
-- Tên test tiếng Việt, kèm `// SC: <UC>-SCn`. Web chưa có test tự động; kiểm bằng tay.
+- Web: jsdom + Testing Library. Dựng `AppRoutes` trong `MemoryRouter`, giả lập `api` theo "METHOD /đường-dẫn" bằng `mockApi`; `deferred()` để giả phản hồi về muộn (test race) — `web/test/helpers.tsx`. `web/test/setup.ts` giả `ResizeObserver` (jsdom không có, Recharts cần). Chọn phần tử theo nhãn/role tiếng Việt, không theo class.
+- Tên test tiếng Việt, kèm `// SC: <UC>-SCn`. Bố cục trên điện thoại thật vẫn phải kiểm tay.
 
 ## 8. Checklist thêm tính năng
 
@@ -92,4 +96,5 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 - [ ] Validate trả `HttpError(400, …, fields)`.
 - [ ] Test API trong `server/test/api.test.ts` theo scenario.
 - [ ] Kiểu trả về khai báo lại trong `web/src/api.ts`.
+- [ ] Màn hình mới: tab thì thêm vào `BottomNav` + route con của `AppShell`; trang nhập liệu thì route riêng toàn màn hình (R-UI-03). Test trong `web/test/`.
 - [ ] Thương hiệu mới có nguồn giá: adapter `PriceSource` + fixture + đăng ký ở `server/src/index.ts`; sửa `hasSource` trong `catalog.ts`.

@@ -1,6 +1,6 @@
 # HOLD-UC01 — Ghi lần mua và xem lãi/lỗ
 
-> Trạng thái: implemented · Việc: 2026-11-03-mvp · Cập nhật: 2026-11-03
+> Trạng thái: implemented · Việc: 2026-11-03-mvp, 2026-11-03-mobile-ui · Cập nhật: 2026-11-03
 
 ## Mục tiêu
 Người mua vàng bạc tích trữ (chủ yếu ở Phú Quý) ghi lại từng lần mua theo hoá đơn và luôn biết danh mục đang lãi hay lỗ bao nhiêu nếu bán lại cho cửa hàng ngay bây giờ. Thành công khi người dùng thêm được một lần mua trong dưới 1 phút và thấy ngay lãi/lỗ của lần mua đó cùng toàn danh mục.
@@ -9,10 +9,9 @@ Người mua vàng bạc tích trữ (chủ yếu ở Phú Quý) ghi lại từn
 - Vai trò: tài khoản đã đăng nhập, chỉ thao tác trên lần mua của chính mình (ACC-BR-002).
 - Thiết bị chính: **điện thoại** (thiết kế mobile-first, xem `projects/goldfolio/CLAUDE.md`).
 - Màn hình:
-  - **Tài sản của tôi:** khối tổng quan, nhóm theo kim loại và sản phẩm, danh sách lần mua.
-  - **Thêm / sửa lần mua:** form.
-  - **Xoá lần mua:** hộp xác nhận.
-  - **Biểu đồ lịch sử:** đặt trong "Tài sản của tôi".
+  - **"Tài sản của tôi" chia 3 tab dưới:** Tổng quan (khối tổng quan, nhóm kim loại → sản phẩm), Lịch sử (biểu đồ), Lần mua (danh sách lần mua). Nút "+" nổi để thêm.
+  - **Thêm / sửa lần mua:** trang riêng toàn màn hình; trang sửa có nút "Xoá lần mua".
+  - **Xoá lần mua:** bảng xác nhận trượt từ đáy màn hình.
 - Phụ thuộc:
   - Đăng nhập (domain ACC).
   - Giá mua vào hiện tại và ảnh chụp giá (domain PRICE). Khi chưa có giá thì UC vẫn chạy được theo BR-9.
@@ -274,27 +273,29 @@ Scenario: HOLD-UC01-SC30 Danh sách không phân trang
 ```
 
 ## Cài đặt
-> Kiểm ở commit `fe2c586` (nhánh `feat/mvp`, 2026-11-03). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
+> Kiểm ở commit `15633bf` (nhánh `feat/mobile-ui`, 2026-11-03). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
 
 | Mục | Code | Test |
 |---|---|---|
-| BR-1 thương hiệu mặc định, các ô form | `server/src/routes.ts:9`, `web/src/components/PurchaseDialog.tsx:27` | `api.test.ts` (SC1) |
-| BR-2 sản phẩm theo thương hiệu, danh sách nhập sẵn | `server/src/catalog.ts:28`, `web/src/components/PurchaseDialog.tsx:155` | `api.test.ts` (SC31); SC9 chạy tay |
+| BR-1 thương hiệu mặc định, các ô form | `server/src/routes.ts:9`, `web/src/pages/PurchaseFormPage.tsx:65` | `api.test.ts` (SC1) |
+| BR-2 sản phẩm theo thương hiệu, danh sách nhập sẵn | `server/src/catalog.ts:28`, `web/src/pages/PurchaseFormPage.tsx:226` | `api.test.ts` (SC31), `purchase-form.test.tsx` (SC9) |
 | BR-3 khối lượng, đơn vị | `shared/src/units.ts:42`, `shared/src/format.ts:35` | `units.test.ts`, `format.test.ts`, `api.test.ts` (SC4, SC5, SC25, SC33) |
 | BR-4 ngày giờ không ở tương lai (giờ VN) | `server/src/purchases/validate.ts:67-76` | `api.test.ts` (SC6, SC7) |
 | BR-5 đơn giá ↔ tổng tiền, nhớ cách nhập | `shared/src/money.ts:18-23`, `server/src/purchases/validate.ts:93-94` | `money.test.ts`, `api.test.ts` (SC2, SC3, SC8, SC20, SC24, SC33) |
-| BR-6 gợi ý giá, không ghi đè giá sửa tay (kể cả khi gõ trong lúc chờ gợi ý) | `server/src/routes.ts:42`, `server/src/prices/service.ts:127`, `web/src/components/PurchaseDialog.tsx:89` | `price-service.test.ts`, `api.test.ts` (SC10, SC11, SC12, SC32); SC13 chạy tay |
-| BR-7 sửa, không gợi ý lại | `server/src/purchases/routes.ts:72`, `web/src/components/PurchaseDialog.tsx:51` | `api.test.ts` (SC20, SC24) |
-| BR-8 xoá có xác nhận | `server/src/purchases/routes.ts:84`, `web/src/components/DeleteConfirm.tsx:2` | `api.test.ts` (SC21) |
+| BR-6 gợi ý giá, không ghi đè giá sửa tay (kể cả khi gõ trong lúc chờ gợi ý) | `server/src/routes.ts:42`, `server/src/prices/service.ts:127`, `web/src/pages/PurchaseFormPage.tsx:119` | `price-service.test.ts`, `api.test.ts` (SC10, SC11, SC12, SC32), `purchase-form.test.tsx` (SC13 + ca race R-UI-02) |
+| BR-7 sửa, không gợi ý lại | `server/src/purchases/routes.ts:72`, `web/src/pages/PurchaseFormPage.tsx:70` | `api.test.ts` (SC20, SC24) |
+| BR-8 xoá có xác nhận | `server/src/purchases/routes.ts:84`, `web/src/components/ConfirmSheet.tsx:2` | `api.test.ts` (SC21) |
 | BR-9 lãi/lỗ theo giá mua vào, loại lần mua chưa có giá | `shared/src/pnl.ts:8`, `server/src/portfolio/service.ts:67` | `pnl.test.ts`, `api.test.ts` (SC14, SC15, SC17) |
-| BR-10 tổng quan, nhóm kim loại/sản phẩm, giờ giá | `server/src/portfolio/service.ts:109`, `web/src/pages/PortfolioPage.tsx:141` | `api.test.ts` (SC16, SC18, SC30) |
-| BR-11 danh mục rỗng | `web/src/pages/PortfolioPage.tsx:71` | `api.test.ts` (SC19) |
-| BR-12 lỗi theo ô, 404 lần mua của người khác | `server/src/purchases/routes.ts:44-46`, `web/src/components/ui.tsx:8` | `api.test.ts` (SC22, SC23) |
-| BR-13 biểu đồ theo mốc mua, giá vốn bình quân | `server/src/portfolio/service.ts:147`, `shared/src/pnl.ts:25-32`, `web/src/components/HistoryChart.tsx:51` | `pnl.test.ts`, `api.test.ts` (SC26, SC27) |
+| BR-10 tổng quan, nhóm kim loại/sản phẩm, giờ giá | `server/src/portfolio/service.ts:109`, `web/src/pages/OverviewPage.tsx:7` | `api.test.ts` (SC16, SC18, SC30) |
+| BR-11 danh mục rỗng | `web/src/pages/OverviewPage.tsx:14` | `api.test.ts` (SC19) |
+| BR-12 lỗi theo ô, 404 lần mua của người khác | `server/src/purchases/routes.ts:44-46`, `web/src/components/ui.tsx:10` | `api.test.ts` (SC22, SC23) |
+| BR-13 biểu đồ theo mốc mua, giá vốn bình quân | `server/src/portfolio/service.ts:147`, `shared/src/pnl.ts:25-32`, `web/src/components/HistoryChart.tsx:60` | `pnl.test.ts`, `api.test.ts` (SC26, SC27) |
 | BR-14 thiếu giá hiện tại | `server/src/portfolio/service.ts:147` | `api.test.ts` (SC28) |
 | BR-15 sản phẩm biến mất khỏi bảng giá | `server/src/prices/service.ts:100-101`, `server/src/purchases/validate.ts:54` | `price-service.test.ts`, `api.test.ts` (SC29) |
 
-Chưa kiểm: các bước chạy tay trên trình duyệt (SC9, SC13, form sửa SC20/SC24, biểu đồ SC26, màn hình 375px).
+Test web (vitest + Testing Library): `web/test/purchase-form.test.tsx` (SC1, SC9, SC13, race R-UI-02, SC20, SC24, SC21), `web/test/shell.test.tsx` (SC17, SC19, 3 tab, nút +), `web/test/states.test.tsx` (biểu đồ quay về sản phẩm mặc định sau SC21, lỗi/thử lại, SC22 phía web: trang sửa báo không tìm thấy).
+
+Chưa kiểm: chạy trên điện thoại thật (bố cục 360–430px, bàn phím số, vùng an toàn iPhone, nút back) và biểu đồ SC26 trên màn hình thật.
 
 ## Câu hỏi mở
 - [ ] Danh sách sản phẩm nhập sẵn: xem `work/2026-11-03-mvp/plan.md` (mục Dữ liệu khởi tạo). SJC, DOJI, PNJ chưa đọc được trang chính thức.

@@ -14,7 +14,7 @@ Sổ tài sản vàng bạc cá nhân: ghi từng lần mua (thương hiệu, s�
 |---|---|
 | Cài đặt | `npm install` · `cp server/.env.example server/.env` |
 | Dev (server :4000 + web :5173) | `npm run dev` |
-| Test tất cả / một file | `npm test` / `cd server && npx vitest run test/api.test.ts` |
+| Test tất cả (shared + server + web) / một file | `npm test` / `cd server && npx vitest run test/api.test.ts` (web: `cd web && npx vitest run test/shell.test.tsx`) |
 | Kiểm tra kiểu | `npm run lint` |
 | Build web | `npm run build` |
 | Đồng bộ danh mục sản phẩm | `npm run seed` |

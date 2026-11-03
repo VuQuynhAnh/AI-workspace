@@ -1,6 +1,6 @@
 # Domain: Tài khoản (ACC)
 
-> Kiểm ở commit `fe2c586` (nhánh `feat/mvp`, 2026-11-03). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (email + mật khẩu, chốt 2026-11-03).
+> Kiểm ở commit `15633bf` (nhánh `feat/mobile-ui`, 2026-11-03). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (email + mật khẩu, chốt 2026-11-03).
 
 | ID | Rule | Code |
 |---|---|---|
