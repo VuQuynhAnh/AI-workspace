@@ -34,5 +34,6 @@ Sổ tài sản vàng bạc cá nhân: ghi từng lần mua (thương hiệu, s�
 - Lãi/lỗ theo **giá mua vào** (R-PNL-01).
 - Nguồn giá qua adapter; không giả trình duyệt, không lách chặn bot; lỗi thì giữ giá cũ (R-SRC-01, R-SRC-02).
 - **Dùng chủ yếu trên điện thoại:** thiết kế mobile-first (khung 360–430px trước, màn rộng sau), vùng bấm ≥ 44px, thao tác chính trong tầm ngón cái.
+- Giao diện **tối**, màu chỉ dùng token (R-UI-05); mỗi màn hình có trạng thái đang tải/lỗi/rỗng (R-UI-04). Thêm cột DB thì khai báo cả trong `migrate()` (R-DB-01).
 - Giao diện tham khảo [React Bits](https://reactbits.dev): `npx shadcn@latest add @react-bits/<Tên>-TS-TW` trong `web/`. Số tiền không chạy hiệu ứng (R-UI-01).
 - Mạng có chứng chỉ riêng: đặt `NODE_EXTRA_CA_CERTS` (ARCHITECTURE §6.6), không tắt TLS.

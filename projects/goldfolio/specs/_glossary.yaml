@@ -77,6 +77,11 @@
   code_name: purchases.unit_cost
   ui_label: Đơn giá
 
+- term: giá tự lấy
+  meaning: Đơn giá do hệ thống lấy (giá bán ra tại thời điểm mua) khi người dùng để trống giá mua. Không phải số trên hoá đơn.
+  code_name: purchases.price_source = auto, purchases.price_note
+  ui_label: Giá tự lấy
+
 - term: tổng tiền mua
   meaning: Tổng số tiền đã trả cho một lần mua (như trên hoá đơn). Đây là số dùng để tính lãi/lỗ.
   code_name: purchases.total_cost

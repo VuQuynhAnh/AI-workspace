@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `15633bf` (nhánh `feat/mobile-ui`, 2026-11-03).
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `37814b9` (nhánh `feat/gia-tu-dong`, 2026-11-03).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan
@@ -24,7 +24,7 @@ Tách dữ liệu theo **tài khoản**: mọi bảng của người dùng có `
 
 - `server/src/index.ts:11` đồng bộ danh mục (`seedCatalog`) mỗi lần khởi động; `server/src/index.ts:16` bật lịch lấy giá.
 - `server/src/app.ts:18` `createApp({ db, prices, now })`: không listen, test dùng chung. Đăng ký router ở `server/src/app.ts:23-28`, error handler cuối cùng `server/src/app.ts:30`.
-- `server/src/db.ts:10` mở DB, bật `foreign_keys`, chạy `schema.sql` (`CREATE TABLE IF NOT EXISTS`) ở `server/src/db.ts:14`. Chưa có migration.
+- `server/src/db.ts:10` mở DB, bật `foreign_keys`, chạy `schema.sql` (`CREATE TABLE IF NOT EXISTS`) ở `server/src/db.ts:14`, rồi `migrate()` (`server/src/db.ts:29`) thêm cột mới cho DB cũ.
 - Danh mục thương hiệu/sản phẩm: `server/src/catalog.ts:28`.
 
 ## 3. Sơ đồ layer
@@ -42,12 +42,14 @@ shared/src/                — công thức số học thuần, không I/O
 ## 4. Đường đi một request tiêu biểu: `POST /api/purchases`
 
 1. Cookie `sid` → `requireUser` tra `sessions` theo SHA-256 của token, hết hạn thì 401 — `server/src/auth/auth.ts:33`; gắn `res.locals.userId` — `server/src/auth/auth.ts:37`.
-2. Router — `server/src/purchases/routes.ts:56`.
-3. `validatePurchase` — `server/src/purchases/validate.ts:42`:
-   - Ngày giờ so với `now` theo giờ VN — `server/src/purchases/validate.ts:67`, `server/src/purchases/validate.ts:76`.
-   - Tính số còn lại theo cách nhập — `server/src/purchases/validate.ts:93-94`, dùng `shared/src/money.ts:18`.
-4. INSERT kèm `user_id`, đọc lại bằng `findOwn` (lọc `user_id`) — `server/src/purchases/routes.ts:44-46`.
+2. Router — `server/src/purchases/routes.ts:61`.
+3. `validatePurchase` — `server/src/purchases/validate.ts:51`:
+   - Ngày giờ so với `now` theo giờ VN — `server/src/purchases/validate.ts:76`, `server/src/purchases/validate.ts:85`.
+   - Tính số còn lại theo cách nhập — `server/src/purchases/validate.ts:105-106`, dùng `shared/src/money.ts:18`.
+4. INSERT kèm `user_id`, đọc lại bằng `findOwn` (lọc `user_id`) — `server/src/purchases/routes.ts:49-51`.
 5. Lỗi: `HttpError` → `{ error, fields }` — `server/src/http.ts:22`; lỗi khác → 500 "Có lỗi xảy ra, vui lòng thử lại".
+
+Tự lấy giá khi để trống (HOLD-UC01/BR-16): `validatePurchase` đánh dấu `priceSource = auto` → `resolvePrice` (`server/src/purchases/validate.ts:124`) gọi `sellPriceAt` (`server/src/prices/suggest.ts:11`, dùng chung với `/api/prices/suggest`) → lưu `price_source`, `price_note`. Không có giá thì 400 `fields.price`.
 
 Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `PriceService.refreshLive` (`server/src/prices/service.ts:74`) → `PhuQuySource.fetchLive` (`server/src/prices/phuquy/adapter.ts:19`) → `parseGoldLive` / `parseSilverLive` (`server/src/prices/phuquy/parse.ts:52`, `server/src/prices/phuquy/parse.ts:65`) → `matchRows` (`server/src/prices/match.ts:32`) → lưu `price_snapshots` + `price_points`.
 
@@ -56,16 +58,18 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 | ID | Luật |
 |---|---|
 | R-MONEY-01 | Tiền là số nguyên VNĐ; khối lượng là số nguyên **miligram**. Quy đổi chỉ qua `shared` (`shared/src/units.ts:27`, `shared/src/money.ts:18`), nhân trước chia sau, làm tròn một lần. |
-| R-MONEY-02 | Khối lượng một lần mua ≤ 1.000 kg (`shared/src/units.ts:18`), tiền ≤ 1.000 tỷ đồng (`shared/src/money.ts:5`), kiểm cả số tự tính (`server/src/purchases/validate.ts:95`). Phép nhân-chia tiền dùng BigInt vì tích đơn giá × mg có thể vượt 2^53. |
-| R-PNL-01 | Giá trị hiện tại tính theo **giá mua vào** (`shared/src/pnl.ts:8`). Lần mua chưa có giá không cộng vào tổng, không coi là 0 (`server/src/portfolio/service.ts:67-68`). |
+| R-MONEY-02 | Khối lượng một lần mua ≤ 1.000 kg (`shared/src/units.ts:18`), tiền ≤ 1.000 tỷ đồng (`shared/src/money.ts:5`), kiểm cả số tự tính (`server/src/purchases/validate.ts:107`). Phép nhân-chia tiền dùng BigInt vì tích đơn giá × mg có thể vượt 2^53. |
+| R-DB-01 | Thêm cột vào bảng đã có: khai báo trong `schema.sql` **và** `ensureColumn` trong `migrate()` (`server/src/db.ts:29`), có test DB cũ (`server/test/db.test.ts`). Không xoá/đổi tên cột (SQLite cũ không hỗ trợ tốt); cần thì hỏi trước. |
+| R-PNL-01 | Giá trị hiện tại tính theo **giá mua vào** (`shared/src/pnl.ts:8`). Lần mua chưa có giá không cộng vào tổng, không coi là 0 (`server/src/portfolio/service.ts:69-70`). |
 | R-TIME-01 | "Hôm nay"/"hiện tại" tính theo `Asia/Ho_Chi_Minh` qua `vnDate`/`vnTime`/`vnToIso` (`shared/src/time.ts:3`). Không dùng `new Date().toISOString().slice(0,10)`. Đồng hồ tiêm qua `createApp({ now })` để test. |
-| R-OWN-01 | Mọi truy vấn lần mua có `user_id = currentUserId(res)`; không thấy thì 404 "Không tìm thấy lần mua", kể cả khi là của người khác (`server/src/purchases/routes.ts:46`, `server/src/purchases/routes.ts:87`). |
+| R-OWN-01 | Mọi truy vấn lần mua có `user_id = currentUserId(res)`; không thấy thì 404 "Không tìm thấy lần mua", kể cả khi là của người khác (`server/src/purchases/routes.ts:51`, `server/src/purchases/routes.ts:99`). |
 | R-API-01 | Lỗi người dùng ném `HttpError(status, thông báo tiếng Việt, fields?)` (`server/src/http.ts:4`); handler async bọc `asyncHandler` (`server/src/http.ts:18`). Form hiện `fields[tên ô]` dưới ô. |
 | R-SRC-01 | Nguồn giá đi qua adapter `PriceSource` (`server/src/prices/types.ts:30`). Đọc HTML lỗi hoặc giá ≤ 0 thì ném lỗi, bỏ cả bảng, không ghi giá 0 (`server/src/prices/phuquy/parse.ts:10`). Mỗi bộ đọc có test bằng HTML thật trong `server/test/fixtures/`. |
 | R-SRC-02 | Gọi nguồn với User-Agent của app, không giả trình duyệt, không lách chặn bot. Giá theo ngày chỉ hỏi khi cần, mỗi ngày một lần (`server/src/prices/service.ts:171`, `server/src/prices/service.ts:183`). |
-| R-UI-02 | Kết quả async (gợi ý, tải lại) không ghi đè ô người dùng đang sửa: so với giá trị **hiện tại** qua `ref`, không so với closure lúc gửi yêu cầu (`web/src/pages/PurchaseFormPage.tsx:57`, `web/src/pages/PurchaseFormPage.tsx:119`). |
-| R-UI-03 | Mobile-first: thiết kế cho 360–430px, màn rộng căn giữa `max-w-md`. Vùng bấm ≥ 44px; ô nhập cao 48px, chữ 16px (`web/src/components/ui.tsx:6`). Thao tác chính ở đáy (thanh tab, nút +, nút Lưu dính đáy, bảng xác nhận trượt từ đáy). Chừa vùng an toàn bằng `.safe-bottom`/`.safe-top` (`web/src/index.css:35`); chiều cao dùng `dvh`, không dùng `vh`. Form là route riêng để nút back của điện thoại hoạt động đúng. |
+| R-UI-02 | Kết quả async (gợi ý, tải lại) không ghi đè ô người dùng đang sửa: so với giá trị **hiện tại** qua `ref`, không so với closure lúc gửi yêu cầu (`web/src/pages/PurchaseFormPage.tsx:60`, `web/src/pages/PurchaseFormPage.tsx:128`). |
+| R-UI-03 | Mobile-first: thiết kế cho 360–430px, màn rộng căn giữa `max-w-md`. Vùng bấm ≥ 44px; ô nhập cao 48px, chữ 16px (`web/src/components/ui.tsx:6`). Thao tác chính ở đáy (thanh tab, nút +, nút Lưu dính đáy, bảng xác nhận trượt từ đáy). Chừa vùng an toàn bằng `.safe-bottom`/`.safe-top` (`web/src/index.css:49`); chiều cao dùng `dvh`, không dùng `vh`. Form là route riêng để nút back của điện thoại hoạt động đúng. |
 | R-UI-04 | Mọi màn hình nạp dữ liệu có đủ 3 trạng thái: đang tải, lỗi kèm "Thử lại" (`LoadError`, `web/src/components/ui.tsx:22`), và rỗng/không tìm thấy. Không để "Đang tải…" là trạng thái cuối khi lỗi. Đã có dữ liệu mà nạp lại lỗi thì giữ dữ liệu, chỉ hiện dải lỗi. Form sửa khoá (`<fieldset disabled>`) tới khi nạp xong; 404 thì hiện "Không tìm thấy", không hiện form. |
+| R-UI-05 | Màu chỉ dùng token trong `@theme` (`web/src/index.css:8`): `bg`, `surface`, `surface-2`, `line`, `ink`, `muted`, `gold`, `gold-deep`, `gold-soft`, `gain`, `loss`. Không dùng màu cố định (`stone-*`, `white`, mã hex) trong component; riêng Recharts nhận chuỗi màu thì lấy từ hằng `C` trùng token (`web/src/components/HistoryChart.tsx:19`). Chỉ có giao diện tối (`color-scheme: dark`); cặp màu chữ/nền phải ≥ 4.5:1. Font Be Vietnam Pro đóng gói qua `@fontsource` (`web/src/main.tsx:5`). |
 | R-UI-01 | Số tiền và lãi/lỗ hiện thẳng (không hiệu ứng chạy số), lãi `text-gain` "+", lỗ `text-loss` "−" (`web/src/components/ui.tsx:34`). |
 
 ## 6. Bẫy âm thầm (build vẫn chạy, sai khi chạy)
@@ -76,9 +80,10 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 4. **Ẩn sản phẩm theo bảng live** (`server/src/prices/service.ts:100-101`): mỗi lần lưu bảng mới, sản phẩm `live` cùng kim loại không có trong bảng bị `active = 0`. Bảng đọc thiếu dòng (nhưng không lỗi) sẽ ẩn nhầm sản phẩm khỏi form thêm mới; lần mua cũ vẫn giữ.
 5. **Lỗi mạng ≠ không có dữ liệu** (`server/src/prices/service.ts:178`): fetch lỗi thì không ghi `daily_misses`, để lần sau thử lại. Ghi nhầm thì ngày đó không bao giờ được gợi ý giá.
 6. **Mạng có chứng chỉ riêng**: `fetch` của Node báo `SELF_SIGNED_CERT_IN_CHAIN`, server vẫn chạy nhưng không có giá. Sửa bằng biến hệ thống `NODE_EXTRA_CA_CERTS` (README), không tắt TLS. Cùng lý do, `better-sqlite3` không cài được → dùng `node:sqlite`.
-7. **Gợi ý giá không ghi đè giá đã sửa tay** (`web/src/pages/PurchaseFormPage.tsx:119`): so ô giá với số gợi ý lần trước (`lastSuggested`). Đổi cách so sánh này dễ làm gợi ý đè lên giá người dùng gõ.
+7. **Gợi ý giá không ghi đè giá đã sửa tay** (`web/src/pages/PurchaseFormPage.tsx:128`): so ô giá với số gợi ý lần trước (`lastSuggested`). Đổi cách so sánh này dễ làm gợi ý đè lên giá người dùng gõ.
 8. **Vitest nhiều tiến trình tràn RAM** trên máy dev ít bộ nhớ: server chạy test một luồng (`server/vitest.config.ts:8`).
 9. **"Hôm nay chưa xong"** (`server/src/prices/service.ts:168`): cache kiểu "nguồn không có dữ liệu ngày X" chỉ được ghi cho ngày đã qua theo giờ VN. Ghi cho hôm nay thì ngày đó bị chặn vĩnh viễn; lỗi chỉ lộ khi chạy qua ngày.
+10. **Cột mới không tự có trên DB cũ** (`server/src/db.ts:29`): `schema.sql` chỉ `CREATE TABLE IF NOT EXISTS`. Quên `ensureColumn` thì máy dev (DB mới) chạy đúng nhưng máy có dữ liệu cũ lỗi "no such column" ngay khi ghi.
 
 ## 7. Test
 

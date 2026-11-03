@@ -1,6 +1,6 @@
 # Domain: Giá (PRICE)
 
-> Kiểm ở commit `15633bf` (nhánh `feat/mobile-ui`, 2026-11-03). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
+> Kiểm ở commit `37814b9` (nhánh `feat/gia-tu-dong`, 2026-11-03). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
 
 ## Khảo sát nguồn giá (2026-11-02)
 

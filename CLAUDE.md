@@ -8,11 +8,22 @@ Quy ước chung: `.claude/kit/CONVENTIONS.md`. Đọc file này trước khi ch
 | Dự án | Mô tả | Bản đồ |
 |---|---|---|
 | `smartclocking` | Chấm công, bảng lương, trợ lý AI hỏi đáp quy chế (Node/Express + React) | `projects/smartclocking/CLAUDE.md` |
-| `goldfolio` | Sổ tài sản vàng bạc, lãi/lỗ theo giá hiện tại, nguồn giá Phú Quý (chưa có code) | `projects/goldfolio/CLAUDE.md` |
+| `goldfolio` | Sổ tài sản vàng bạc, lãi/lỗ theo giá hiện tại, nguồn giá Phú Quý (Node/Express + React, mobile-first) | `projects/goldfolio/CLAUDE.md` |
 
 Khi làm việc trong một dự án, đọc `projects/<p>/CLAUDE.md`, rồi tới ARCHITECTURE của repo đang sửa. Các dự án không đọc chéo nhau.
 
-## Luồng làm việc
+## Luồng mặc định: yêu cầu → plan → đồng ý → code
+
+User đưa yêu cầu bằng lời (không gõ lệnh) thì làm theo luồng ngắn này, không bắt user chạy từng skill:
+
+1. **Plan ngay:** tự đọc code/spec, viết `work/<ngày>-<slug>/plan.md` và báo plan ngắn gọn trong chat: làm gì, file nào, quy tắc nghiệp vụ đổi gì, rủi ro. Yêu cầu đổi hành vi thì sửa spec luôn trong bước này (ghi rõ BR/SC đổi gì).
+2. **Hỏi khi vướng:** chỉ hỏi điều user phải quyết (nghiệp vụ, dependency mới, lệnh phá dữ liệu); gom vào một lần hỏi. Điều có mặc định hợp lý thì tự chọn và nói ra.
+3. **User đồng ý → code luôn:** TDD, tự review theo luật `R-*`, sửa luôn lỗi tự phát hiện, cập nhật tài liệu (CONVENTIONS §6), chạy test/lint/`check-docs`. Không tách thành các lượt `/build` → `/review` riêng.
+4. **Báo kết quả:** việc đã làm, lệnh đã chạy và kết quả thật, điều còn lại cần user (vd kiểm trên máy thật). Commit chỉ khi user bảo.
+
+Các lệnh dưới đây vẫn dùng được khi user gọi đích danh hoặc việc lớn cần làm từng bước.
+
+## Lệnh
 
 | Lệnh | Việc |
 |---|---|
@@ -25,7 +36,7 @@ Khi làm việc trong một dự án, đọc `projects/<p>/CLAUDE.md`, rồi t�
 | `/track [slug] [commit]` | Việc còn thiếu gì, lệnh nào chạy tiếp; `commit` = commit trọn việc |
 | `/reverse <p> <tính năng>` | Code có sẵn → spec `as-built`, xác minh độc lập |
 
-Luồng chuẩn: `/spec` → `/plan` → `/build` → `/review` → `/track <slug> commit`.
+Luồng từng bước (khi cần): `/spec` → `/plan` → `/build` → `/review` → `/track <slug> commit`.
 
 ## Luật chung (chi tiết ở CONVENTIONS)
 
