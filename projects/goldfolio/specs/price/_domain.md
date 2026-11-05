@@ -1,6 +1,6 @@
 # Domain: Giá (PRICE)
 
-> Kiểm ở commit `304fa10` (nhánh `main`, 2026-11-05). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
+> Kiểm ở commit `23a0d44` (nhánh `main`, 2026-11-05). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
 
 ## Khảo sát nguồn giá (2026-11-02)
 
@@ -35,8 +35,8 @@
 | PRICE-BR-004 | Gợi ý giá mua cho một lần mua: lấy ảnh chụp giá gần nhất ở **trước hoặc đúng** thời điểm mua của sản phẩm đó (không có giờ mua thì lấy cuối ngày mua). Trong ngày mua không có ảnh chụp nào thì dùng **giá theo ngày** do nguồn công bố, nếu nguồn có. Vẫn không có thì không gợi ý. | `server/src/prices/service.ts:142` |
 | PRICE-BR-007 | Giá theo ngày của một ngày chỉ hỏi nguồn **khi cần** (lúc gợi ý giá) và chỉ hỏi một lần, kể cả khi nguồn báo ngày đó không có dữ liệu. Không quét hàng loạt nhiều ngày. | `server/src/prices/service.ts:177`, `server/src/prices/service.ts:189` |
 | PRICE-BR-008 | Dòng giá của nguồn được khớp với sản phẩm qua tên đã chuẩn hoá (không phân biệt hoa thường, gộp dấu cách) cùng danh sách tên khác của từng sản phẩm. Dòng không khớp sản phẩm nào thì bỏ qua và ghi log. Dòng trùng thì lấy dòng đầu. | `server/src/prices/match.ts:32` |
-| PRICE-BR-005 | Giá lưu theo đơn vị niêm yết của từng sản phẩm (chỉ, lượng hoặc kg). Khi tính toán thì quy đổi khối lượng của lần mua sang đơn vị đó theo `HOLD-BR-002`. | `server/src/prices/match.ts:32`, `shared/src/money.ts:18` |
-| PRICE-BR-006 | Một sản phẩm có thể chỉ có giá mua vào (vd vàng nguyên liệu của Bảo Tín Mạnh Hải, "phi SJC" của Phú Quý). Thiếu giá bán ra thì không gợi ý giá mua, nhưng vẫn tính được lãi/lỗ. | `server/src/schema.sql:66`, `server/src/routes.ts:41` |
+| PRICE-BR-005 | Giá lưu theo đơn vị niêm yết của từng sản phẩm (chỉ, lượng hoặc kg). Khi tính toán thì quy đổi khối lượng của lần mua sang đơn vị đó theo `HOLD-BR-002`. | `server/src/prices/match.ts:32`, `shared/src/money.ts:21` |
+| PRICE-BR-006 | Một sản phẩm có thể chỉ có giá mua vào (vd vàng nguyên liệu của Bảo Tín Mạnh Hải, "phi SJC" của Phú Quý). Thiếu giá bán ra thì không gợi ý giá mua, nhưng vẫn tính được lãi/lỗ. | `server/src/schema.sql:66`, `server/src/routes.ts:42` |
 
 ## Câu hỏi mở
 

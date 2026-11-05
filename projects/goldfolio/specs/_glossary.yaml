@@ -73,7 +73,7 @@
   ui_label: Giá mua
 
 - term: đơn giá mua
-  meaning: Giá đã trả cho một đơn vị niêm yết của sản phẩm (vd VNĐ/chỉ). Có thể được gợi ý từ giá bán ra của ảnh chụp giá.
+  meaning: Giá đã trả cho một đơn vị khối lượng người dùng chọn khi nhập (VNĐ/chỉ, VNĐ/lượng, VNĐ/g, VNĐ/kg; từ 2026-11-05). Có thể được gợi ý từ giá bán ra của ảnh chụp giá (quy từ đơn vị niêm yết).
   code_name: purchases.unit_cost
   ui_label: Đơn giá
 
@@ -81,6 +81,11 @@
   meaning: Đơn giá do hệ thống lấy (giá bán ra tại thời điểm mua) khi người dùng để trống giá mua. Không phải số trên hoá đơn.
   code_name: purchases.price_source = auto, purchases.price_note
   ui_label: Giá tự lấy
+
+- term: thêm tài sản
+  meaning: Form nhập một hoặc nhiều sản phẩm mua cùng lúc (mỗi sản phẩm một dòng); lưu ra mỗi dòng một lần mua.
+  code_name: POST /api/purchases/batch
+  ui_label: Thêm tài sản
 
 - term: tổng tiền mua
   meaning: Tổng số tiền đã trả cho một lần mua (như trên hoá đơn). Đây là số dùng để tính lãi/lỗ.
