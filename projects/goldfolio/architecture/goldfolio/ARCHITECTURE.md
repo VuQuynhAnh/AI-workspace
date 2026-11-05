@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `6a84c5d` (nhánh `main`, 2026-11-05).
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `59a6180` (nhánh `main`, 2026-11-05).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan
@@ -11,7 +11,7 @@ npm workspaces, TypeScript, Node 22 (`.nvmrc`):
 |---|---|
 | `shared/` | Quy đổi khối lượng, tiền, lãi/lỗ, định dạng, ngày giờ VN. Server và web import thẳng mã nguồn TS (`shared/package.json` trỏ `main` vào `src/index.ts`) |
 | `server/` | Express 4, PostgreSQL qua `pg` (Pool), cheerio đọc HTML nguồn giá. Chạy bằng `tsx`, không build. Có `web/dist` thì trả luôn giao diện (`server/src/app.ts:38`, `server/src/index.ts:38`); `/api` lạ trả 404 JSON (`server/src/app.ts:33`). Deploy Render: README |
-| `web/` | Vite 6 + React 18 + Tailwind 4 + Recharts, **mobile-first**. Dev proxy `/api` → `:4000` (`web/vite.config.ts:14`). Route ở `web/src/App.tsx:26`: 3 tab trong `AppShell` (`/`, `/lich-su`, `/lan-mua`) + trang form toàn màn hình (`/them`, `/sua/:id`). Dữ liệu dùng chung qua `PortfolioProvider` (`web/src/portfolio-context.tsx:20`) |
+| `web/` | Vite 6 + React 18 + Tailwind 4 + Recharts, **mobile-first**. Dev proxy `/api` → `:4000` (`web/vite.config.ts:14`). Route ở `web/src/App.tsx:26`: 3 tab trong `AppShell` (`/`, `/bieu-do`, `/chi-tiet`; đường dẫn cũ `/lich-su`, `/lan-mua` chuyển hướng) + trang form toàn màn hình (`/them`, `/sua/:id`). Dữ liệu dùng chung qua `PortfolioProvider` (`web/src/portfolio-context.tsx:20`) |
 
 | Kho | Dùng cho | Bắt buộc |
 |---|---|---|
@@ -51,7 +51,7 @@ shared/src/                — công thức số học thuần, không I/O
 
 Thêm tài sản nhiều sản phẩm (BR-18): `POST /api/purchases/batch` (`server/src/purchases/routes.ts:97`) kiểm mọi dòng + tự lấy giá trước, gom lỗi `items.<i>.<ô>`, rồi ghi tất cả trong một transaction (`server/src/purchases/routes.ts:118`).
 
-Tự lấy giá khi để trống (HOLD-UC01/BR-16): `validatePurchase` đánh dấu `priceSource = auto` → `resolvePrice` (`server/src/purchases/validate.ts:126`) gọi `sellPriceAt` (`server/src/prices/suggest.ts:11`, dùng chung với `/api/prices/suggest`) → lưu `price_source`, `price_note`. Không có giá thì 400 `fields.price`.
+Tự lấy giá khi để trống (HOLD-UC01/BR-16): `validatePurchase` đánh dấu `priceSource = auto` → `resolvePrice` (`server/src/purchases/validate.ts:130`) gọi `sellPriceAt` (`server/src/prices/suggest.ts:11`, dùng chung với `/api/prices/suggest`) → lưu `price_source`, `price_note`. Không có giá thì 400 `fields.price`.
 
 Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `PriceService.refreshLive` (`server/src/prices/service.ts:90`) → `PhuQuySource.fetchLive` (`server/src/prices/phuquy/adapter.ts:19`) → `parseGoldLive` / `parseSilverLive` (`server/src/prices/phuquy/parse.ts:52`, `server/src/prices/phuquy/parse.ts:65`) → `matchRows` (`server/src/prices/match.ts:32`) → lưu `price_snapshots` + `price_points`.
 
@@ -69,7 +69,7 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 | R-API-01 | Lỗi người dùng ném `HttpError(status, thông báo tiếng Việt, fields?)` (`server/src/http.ts:4`); handler async bọc `asyncHandler` (`server/src/http.ts:18`). Form hiện `fields[tên ô]` dưới ô. |
 | R-SRC-01 | Nguồn giá đi qua adapter `PriceSource` (`server/src/prices/types.ts:30`). Đọc HTML lỗi hoặc giá ≤ 0 thì ném lỗi, bỏ cả bảng, không ghi giá 0 (`server/src/prices/phuquy/parse.ts:10`). Mỗi bộ đọc có test bằng HTML thật trong `server/test/fixtures/`. |
 | R-SRC-02 | Gọi nguồn với User-Agent của app, không giả trình duyệt, không lách chặn bot. Giá theo ngày chỉ hỏi khi cần, mỗi ngày một lần (`server/src/prices/service.ts:177`, `server/src/prices/service.ts:189`). |
-| R-UI-02 | Kết quả async (gợi ý, tải lại) không ghi đè ô người dùng đang sửa: so với giá trị **hiện tại** qua `ref`, không so với closure lúc gửi yêu cầu (`web/src/components/PurchaseLine.tsx:73`, `web/src/components/PurchaseLine.tsx:82`). |
+| R-UI-02 | Kết quả async (gợi ý, tải lại) không ghi đè ô người dùng đang sửa: so với giá trị **hiện tại** qua `ref`, không so với closure lúc gửi yêu cầu (`web/src/components/PurchaseLine.tsx:74`, `web/src/components/PurchaseLine.tsx:89`). |
 | R-UI-03 | Mobile-first: thiết kế cho 360–430px, màn rộng căn giữa `max-w-md`. Vùng bấm ≥ 44px; ô nhập cao 48px, chữ 16px (`web/src/components/ui.tsx:6`). Thao tác chính ở đáy (thanh tab, nút +, nút Lưu dính đáy, bảng xác nhận trượt từ đáy). Chừa vùng an toàn bằng `.safe-bottom`/`.safe-top` (`web/src/index.css:49`); chiều cao dùng `dvh`, không dùng `vh`. Form là route riêng để nút back của điện thoại hoạt động đúng. |
 | R-UI-04 | Mọi màn hình nạp dữ liệu có đủ 3 trạng thái: đang tải, lỗi kèm "Thử lại" (`LoadError`, `web/src/components/ui.tsx:22`), và rỗng/không tìm thấy. Không để "Đang tải…" là trạng thái cuối khi lỗi. Đã có dữ liệu mà nạp lại lỗi thì giữ dữ liệu, chỉ hiện dải lỗi. Form sửa khoá (`<fieldset disabled>`) tới khi nạp xong; 404 thì hiện "Không tìm thấy", không hiện form. |
 | R-UI-05 | Màu chỉ dùng token trong `@theme` (`web/src/index.css:8`): `bg`, `surface`, `surface-2`, `line`, `ink`, `muted`, `gold`, `gold-deep`, `gold-soft`, `gain`, `loss`. Không dùng màu cố định (`stone-*`, `white`, mã hex) trong component; riêng Recharts nhận chuỗi màu thì lấy từ hằng `C` trùng token (`web/src/components/HistoryChart.tsx:19`). Chỉ có giao diện tối (`color-scheme: dark`); cặp màu chữ/nền phải ≥ 4.5:1. Font Be Vietnam Pro đóng gói qua `@fontsource` (`web/src/main.tsx:5`). |
@@ -79,7 +79,7 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 
 1–5, 9. **Bẫy nguồn giá** (đọc HTML Phú Quý, dữ liệu XemLai, ẩn sản phẩm theo bảng live, lỗi mạng vs không có dữ liệu, "hôm nay chưa xong"): xem `ARCHITECTURE-PRICES.md`.
 6. **Mạng có chứng chỉ riêng**: `fetch` của Node báo `SELF_SIGNED_CERT_IN_CHAIN`, server vẫn chạy nhưng không có giá. Sửa bằng biến hệ thống `NODE_EXTRA_CA_CERTS` (README), không tắt TLS. Kết nối Postgres ra ngoài qua mạng công ty cũng có thể bị chặn cổng hoặc chèn chứng chỉ.
-7. **Gợi ý giá không ghi đè giá đã sửa tay** (`web/src/components/PurchaseLine.tsx:82`): so ô giá với số gợi ý lần trước (`lastSuggested`). Đổi cách so sánh này dễ làm gợi ý đè lên giá người dùng gõ. Đổi đơn vị thì quy đổi từ giá gợi ý gốc `suggestedRaw` (`web/src/components/PurchaseLine.tsx:123`), không gọi lại server; lấy giá lỗi phải xoá `suggestedRaw`, kẻo quy đổi nhầm giá của sản phẩm trước.
+7. **Gợi ý giá không ghi đè giá đã sửa tay** (`web/src/components/PurchaseLine.tsx:89`): so ô giá với số gợi ý lần trước (`lastSuggested`). Đổi cách so sánh này dễ làm gợi ý đè lên giá người dùng gõ. Đổi đơn vị thì quy đổi từ giá gợi ý gốc `suggestedRaw` (`web/src/components/PurchaseLine.tsx:138`), không gọi lại server; lấy giá lỗi phải xoá `suggestedRaw`, kẻo quy đổi nhầm giá của sản phẩm trước. Trang sửa: `lastSuggested` khởi tạo bằng giá đã lưu, `openedWith` (`web/src/components/PurchaseLine.tsx:77`) chặn gợi ý lúc mở bằng cách so giá trị sản phẩm/ngày/giờ, không dùng cờ "lần chạy đầu" vì StrictMode chạy effect hai lần.
 8. **Vitest nhiều tiến trình tràn RAM** trên máy dev ít bộ nhớ: server chạy test một luồng (`server/vitest.config.ts:8`).
 10. **Cột mới không tự có trên DB cũ** (`server/src/db.ts:88`): `schema.sql` chỉ `CREATE TABLE IF NOT EXISTS`. Quên `ensureColumn` thì máy dev (DB mới) chạy đúng nhưng máy có dữ liệu cũ lỗi "no such column" ngay khi ghi.
 11. **BIGINT và DATE của pg:** `pg` trả `BIGINT` dạng chuỗi nếu không có `setTypeParser(20)` (cộng tiền thành nối chuỗi); kiểu `DATE`/`TIMESTAMP` bị đổi sang `Date` theo múi giờ máy chạy → lệch ngày. Vì vậy cấu hình parser ở `server/src/db.ts:21` và lưu ngày dạng `TEXT`.

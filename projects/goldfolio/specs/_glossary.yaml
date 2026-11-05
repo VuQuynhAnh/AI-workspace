@@ -45,7 +45,7 @@
 - term: biểu đồ lịch sử
   meaning: Biểu đồ của một sản phẩm, chia theo ngày. Mỗi ngày mua là một điểm (đơn giá mua), điểm cuối là giá mua vào hôm nay, kèm đường giá vốn bình quân.
   code_name: buildHistory (GET /api/portfolio/history)
-  ui_label: Lịch sử giá
+  ui_label: Biểu đồ giá (tab "Biểu đồ")
 
 - term: giá vốn bình quân
   meaning: Tổng tiền mua ÷ tổng khối lượng của một sản phẩm, tính theo đơn vị niêm yết. Bán được với giá mua vào cao hơn mức này thì có lãi.
