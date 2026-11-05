@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE-PRICES (bẫy nguồn giá)
 
-> Tách từ `ARCHITECTURE.md` §6 vì file chính vượt 15 KB; giữ nguyên số thứ tự bẫy (§6.n) để các chỗ đang trích không đổi. Kiểm ở commit `b08cec4` (nhánh `main`, 2026-11-05).
+> Tách từ `ARCHITECTURE.md` §6 vì file chính vượt 15 KB; giữ nguyên số thứ tự bẫy (§6.n) để các chỗ đang trích không đổi. Kiểm ở commit `bb71089` (nhánh `main`, 2026-11-05).
 
 1. **Bảng bạc có 2 dòng nhóm** (`server/src/prices/phuquy/parse.ts:78`): "BẠC THƯƠNG HIỆU PHÚ QUÝ" đứng trước, "… KHÁC" đứng sau. Coi mọi dòng nhóm là "hãng khác" thì mất toàn bộ bạc Phú Quý.
 2. **Bảng vàng trang chủ có dòng bạc theo chỉ** (`server/src/prices/phuquy/parse.ts:59`): bỏ khi lấy giá live; chỉ dùng trong giá theo ngày, nhân lên lượng qua `matchRows`. Sản phẩm theo kg không nhận giá quy từ chỉ (`server/src/prices/match.ts:46`).
@@ -17,6 +17,7 @@ Luồng: lịch lấy giá tải bù giá theo ngày 30 ngày (`server/src/price
 |---|---|
 | R-AI-01 | Con số trên màn hình (giá, %, thấp/cao nhất) do server tính từ giá thật; AI chỉ viết lời nhận xét. Kết quả AI luôn qua `parseTrendAnalysis` (`server/src/ai/trend.ts:98`), sai định dạng thì không lưu. |
 | R-AI-02 | Chỉ gửi giá và giá vốn; không gửi email, id hay thông tin tài khoản (gói miễn phí có thể bị dùng để cải thiện sản phẩm). |
+| R-AI-04 | Chat (PRICE-UC03): số liệu danh mục do server ghép (`server/src/chat/service.ts:42`), không nhận ngữ cảnh từ trình duyệt; chỉ đếm số câu (`chat_usage`), không lưu nội dung. |
 | R-AI-03 | Gọi AI qua giao diện `TrendModel`, không gọi SDK của nhà cung cấp ở chỗ khác. Test dùng model giả, không gọi mạng. Thiếu `GEMINI_API_KEY` thì API trả 503, phần khác vẫn chạy. |
 
 Bẫy:

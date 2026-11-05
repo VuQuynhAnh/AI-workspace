@@ -47,6 +47,11 @@
   code_name: getTrend, trend_insights (GET /api/trends, POST /api/trends/refresh)
   ui_label: Nhận định xu hướng
 
+- term: hỏi AI
+  meaning: Khung chat hỏi đáp với AI (Gemini) về giá vàng bạc và danh mục của người dùng; server gửi kèm số liệu danh mục và giá. Tối đa 20 câu/ngày, lịch sử chỉ trong phiên. Chỉ để tham khảo.
+  code_name: answer, chat_usage (GET/POST /api/chat), ChatSheet
+  ui_label: Hỏi AI
+
 - term: biểu đồ lịch sử
   meaning: Biểu đồ của một sản phẩm, chia theo ngày. Mỗi ngày mua là một điểm (đơn giá mua), điểm cuối là giá mua vào hôm nay, kèm đường giá vốn bình quân.
   code_name: buildHistory (GET /api/portfolio/history)

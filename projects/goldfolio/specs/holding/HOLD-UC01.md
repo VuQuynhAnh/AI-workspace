@@ -103,6 +103,10 @@ Người mua vàng bạc tích trữ (chủ yếu ở Phú Quý) ghi lại từn
 - BR-20: Trang sửa vẫn là một lần mua (không thêm sản phẩm), tiêu đề "Sửa lần mua".
 - Áp dụng: ACC-BR-002, HOLD-BR-002, HOLD-BR-003, HOLD-BR-004, HOLD-BR-005, HOLD-BR-006, HOLD-BR-007, PRICE-BR-004, PRICE-BR-005.
 
+- BR-21: **Từ Tổng quan sang Chi tiết, giá tham chiếu** (user yêu cầu 2026-11-05).
+  - Chạm thẻ Vàng / Bạc (dòng tên nhóm hoặc tên sản phẩm) ở Tổng quan thì sang tab Chi tiết với bộ lọc đúng kim loại đó. Ô giá trị / % lãi/lỗ của sản phẩm dành cho bong bóng nhận định AI (PRICE-UC02/BR-11).
+  - Tab Chi tiết có khối **"Giá hiện tại"** dưới bộ lọc: mỗi sản phẩm đang có (theo bộ lọc) một dòng "Mua vào … · Bán ra …/đơn vị niêm yết", để so với đơn giá từng lần mua.
+
 ## Scenario
 ```gherkin
 Scenario: HOLD-UC01-SC1 Form thêm lần mua mặc định thương hiệu Phú Quý
@@ -267,6 +271,17 @@ Scenario: HOLD-UC01-SC56 Trang sửa ghi nguồn của giá đã lưu
   Given lần mua khác là giá hệ thống lấy
   When tôi mở trang sửa
   Then dưới ô đơn giá ghi "Hệ thống lấy · Giá Phú Quý ngày …", không có nhãn "Người dùng nhập"
+
+Scenario: HOLD-UC01-SC57 Chạm thẻ kim loại sang Chi tiết
+  When tôi chạm thẻ "Bạc" ở Tổng quan
+  Then mở tab Chi tiết, bộ lọc đang là "Bạc", chỉ thấy lần mua bạc
+
+Scenario: HOLD-UC01-SC58 Giá hiện tại ở Chi tiết
+  Given giá nhẫn tròn mua vào 13.900.000, bán ra 14.200.000/chỉ; bạc miếng 1.598.000 / 1.647.000/lượng
+  When tôi mở tab Chi tiết (Tất cả)
+  Then khối "Giá hiện tại" có "Mua vào 13.900.000 · Bán ra 14.200.000/chỉ" và "Mua vào 1.598.000 · Bán ra 1.647.000/lượng"
+  When tôi chọn "Vàng"
+  Then khối chỉ còn giá nhẫn tròn
 
 Scenario: HOLD-UC01-SC6 Ngày mua ở tương lai bị chặn
   When tôi chọn ngày mua là ngày mai (giờ Việt Nam) rồi bấm Lưu
@@ -467,7 +482,7 @@ Scenario: HOLD-UC01-SC30 Danh sách không phân trang
 ```
 
 ## Cài đặt
-> Kiểm ở commit `b08cec4` (nhánh `main`, 2026-11-05). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
+> Kiểm ở commit `bb71089` (nhánh `main`, 2026-11-05). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
 
 | Mục | Code | Test |
 |---|---|---|
@@ -480,18 +495,19 @@ Scenario: HOLD-UC01-SC30 Danh sách không phân trang
 | BR-7 sửa: giữ giá đã lưu, đổi sản phẩm/ngày/giờ thì gợi ý lại | `server/src/purchases/routes.ts:129`, `web/src/pages/PurchaseFormPage.tsx:68`, `web/src/components/PurchaseLine.tsx:71`, `web/src/components/PurchaseLine.tsx:80` | `api.test.ts` (SC20, SC24), `assets.test.tsx` (SC50, SC51) |
 | BR-8 xoá có xác nhận | `server/src/purchases/routes.ts:146`, `web/src/components/ConfirmSheet.tsx:2` | `api.test.ts` (SC21) |
 | BR-9 lãi/lỗ theo giá mua vào, loại lần mua chưa có giá | `shared/src/pnl.ts:8`, `server/src/portfolio/service.ts:67` | `pnl.test.ts`, `api.test.ts` (SC14, SC15, SC17) |
-| BR-10 tổng quan, nhóm kim loại/sản phẩm, giờ giá, giá hiện tại từng sản phẩm | `server/src/portfolio/service.ts:114`, `server/src/portfolio/service.ts:130`, `web/src/pages/OverviewPage.tsx:12`, `web/src/pages/OverviewPage.tsx:89` | `api.test.ts` (SC16, SC18, SC30, SC46), `assets.test.tsx` (SC46) |
-| BR-11 danh mục rỗng | `web/src/pages/OverviewPage.tsx:19` | `api.test.ts` (SC19) |
+| BR-10 tổng quan, nhóm kim loại/sản phẩm, giờ giá, giá hiện tại từng sản phẩm | `server/src/portfolio/service.ts:114`, `server/src/portfolio/service.ts:130`, `web/src/pages/OverviewPage.tsx:15`, `web/src/pages/OverviewPage.tsx:105` | `api.test.ts` (SC16, SC18, SC30, SC46), `assets.test.tsx` (SC46) |
+| BR-11 danh mục rỗng | `web/src/pages/OverviewPage.tsx:24` | `api.test.ts` (SC19) |
 | BR-12 lỗi theo ô, 404 lần mua của người khác | `server/src/purchases/routes.ts:53-57`, `web/src/components/ui.tsx:10` | `api.test.ts` (SC22, SC23) |
 | BR-13 biểu đồ theo mốc mua, giá vốn bình quân | `server/src/portfolio/service.ts:155`, `shared/src/pnl.ts:25-32`, `web/src/components/HistoryChart.tsx:71` | `pnl.test.ts`, `api.test.ts` (SC26, SC27) |
 | BR-14 thiếu giá hiện tại | `server/src/portfolio/service.ts:155` | `api.test.ts` (SC28) |
-| BR-17 lọc Tất cả/Vàng/Bạc, mặc định Tất cả; Biểu đồ chỉ Vàng/Bạc | `web/src/components/MetalFilter.tsx:15`, `web/src/portfolio-context.tsx:25`, `web/src/pages/OverviewPage.tsx:34`, `web/src/pages/HistoryPage.tsx:14` | `assets.test.tsx` (SC40, SC52) |
+| BR-17 lọc Tất cả/Vàng/Bạc, mặc định Tất cả; Biểu đồ chỉ Vàng/Bạc | `web/src/components/MetalFilter.tsx:15`, `web/src/portfolio-context.tsx:25`, `web/src/pages/OverviewPage.tsx:39`, `web/src/pages/HistoryPage.tsx:14` | `assets.test.tsx` (SC40, SC52) |
 | BR-18 thêm tài sản nhiều sản phẩm, tất cả hoặc không | `server/src/purchases/routes.ts:97`, `server/src/purchases/routes.ts:118`, `web/src/pages/PurchaseFormPage.tsx:140`, `web/src/components/PurchaseLine.tsx:65` | `api.test.ts` (SC41, SC42), `assets.test.tsx` (SC41, SC42) |
 | BR-5 (2026-11-05) đơn giá theo đơn vị đang chọn | `shared/src/money.ts:31`, `server/src/purchases/validate.ts:107-108`, `server/src/purchases/validate.ts:136`, `web/src/components/PurchaseLine.tsx:98`, đổi đơn vị quy đổi đơn giá `web/src/components/PurchaseLine.tsx:141`, nâng cấp dữ liệu cũ `server/src/db.ts:102` | `money.test.ts`, `api.test.ts` (SC44), `db.test.ts` (SC45), `assets.test.tsx` (SC44, SC50) |
 | BR-19 ô tiền dạng VNĐ | `web/src/components/MoneyInput.tsx:9` | `assets.test.tsx` (SC43) |
 | BR-20 trang sửa một sản phẩm | `web/src/pages/PurchaseFormPage.tsx:68` | `purchase-form.test.tsx` (SC20, SC24) |
 | BR-3 (2026-11-05) bước 0,1 chỉ, ô khối lượng chọn/gõ, sản phẩm mặc định | `shared/src/units.ts:42`, `shared/src/units.ts:54`, `web/src/components/WeightCombo.tsx:13`, `server/src/catalog.ts:134` | `units.test.ts`, `api.test.ts` (SC1, SC5, SC39), `assets.test.tsx` (SC38) |
-| BR-16 tự lấy giá khi để trống | `server/src/purchases/validate.ts:130`, `server/src/prices/suggest.ts:11`, `server/src/db.ts:88`, `web/src/pages/PurchaseFormPage.tsx:77`, `web/src/pages/PurchasesPage.tsx:52` (Chi tiết: đơn giá, chỉ giá người dùng nhập có nhãn); so giá lúc lưu `server/src/purchases/validate.ts:143`; dữ liệu cũ `server/src/db.ts:114`; trang sửa điền sẵn giá và ghi nguồn giá đã lưu `web/src/pages/PurchaseFormPage.tsx:86`, `web/src/components/PurchaseLine.tsx:31` | `api.test.ts` (SC8, SC34, SC35, SC36, SC37, SC53, SC55), `db.test.ts` (SC54), `auto-price.test.tsx` (SC34, SC37), `assets.test.tsx` (SC53, SC56) |
+| BR-16 tự lấy giá khi để trống | `server/src/purchases/validate.ts:130`, `server/src/prices/suggest.ts:11`, `server/src/db.ts:88`, `web/src/pages/PurchaseFormPage.tsx:77`, `web/src/pages/PurchasesPage.tsx:70` (Chi tiết: đơn giá, chỉ giá người dùng nhập có nhãn); so giá lúc lưu `server/src/purchases/validate.ts:143`; dữ liệu cũ `server/src/db.ts:114`; trang sửa điền sẵn giá và ghi nguồn giá đã lưu `web/src/pages/PurchaseFormPage.tsx:86`, `web/src/components/PurchaseLine.tsx:31` | `api.test.ts` (SC8, SC34, SC35, SC36, SC37, SC53, SC55), `db.test.ts` (SC54), `auto-price.test.tsx` (SC34, SC37), `assets.test.tsx` (SC53, SC56) |
+| BR-21 thẻ kim loại sang Chi tiết, giá tham chiếu | `web/src/pages/OverviewPage.tsx:67`, `web/src/pages/PurchasesPage.tsx:26` | `chat.test.tsx` (SC57, SC58) |
 | BR-15 sản phẩm biến mất khỏi bảng giá | `server/src/prices/service.ts:129`, `server/src/purchases/validate.ts:64` | `price-service.test.ts`, `api.test.ts` (SC29) |
 
 Test web (vitest + Testing Library): `web/test/purchase-form.test.tsx` (SC1, SC9, SC13, race R-UI-02, SC20, SC24, SC21), `web/test/shell.test.tsx` (SC17, SC19, 3 tab, nút +), `web/test/auto-price.test.tsx` (nhãn giá tự lấy, form để trống giá), `web/test/states.test.tsx` (biểu đồ quay về sản phẩm mặc định sau SC21, lỗi/thử lại, SC22 phía web: trang sửa báo không tìm thấy).

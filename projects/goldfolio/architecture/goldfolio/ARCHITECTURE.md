@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `b08cec4` (nhánh `main`, 2026-11-05).
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `bb71089` (nhánh `main`, 2026-11-05).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan
@@ -10,8 +10,8 @@ npm workspaces, TypeScript, Node 22 (`.nvmrc`):
 | Workspace | Vai trò |
 |---|---|
 | `shared/` | Quy đổi khối lượng, tiền, lãi/lỗ, định dạng, ngày giờ VN. Server và web import thẳng mã nguồn TS (`shared/package.json` trỏ `main` vào `src/index.ts`) |
-| `server/` | Express 4, PostgreSQL qua `pg` (Pool), cheerio đọc HTML nguồn giá. Chạy bằng `tsx`, không build. AI nhận định xu hướng: `server/src/ai/`, `server/src/trends/` (xem `ARCHITECTURE-PRICES.md`). Có `web/dist` thì trả luôn giao diện (`server/src/app.ts:43`, `server/src/index.ts:44`); `/api` lạ trả 404 JSON (`server/src/app.ts:38`). Deploy Render: README |
-| `web/` | Vite 6 + React 18 + Tailwind 4 + Recharts, **mobile-first**. Dev proxy `/api` → `:4000` (`web/vite.config.ts:14`). Route ở `web/src/App.tsx:26`: 3 tab trong `AppShell` (`/`, `/bieu-do`, `/chi-tiet`; đường dẫn cũ `/lich-su`, `/lan-mua` chuyển hướng) + trang form toàn màn hình (`/them`, `/sua/:id`). Dữ liệu dùng chung qua `PortfolioProvider` (`web/src/portfolio-context.tsx:20`) |
+| `server/` | Express 4, PostgreSQL qua `pg` (Pool), cheerio đọc HTML nguồn giá. Chạy bằng `tsx`, không build. AI nhận định xu hướng: `server/src/ai/`, `server/src/trends/` (xem `ARCHITECTURE-PRICES.md`). Có `web/dist` thì trả luôn giao diện (`server/src/app.ts:48`, `server/src/index.ts:45`); `/api` lạ trả 404 JSON (`server/src/app.ts:43`). Deploy Render: README |
+| `web/` | Vite 6 + React 18 + Tailwind 4 + Recharts, **mobile-first**. Dev proxy `/api` → `:4000` (`web/vite.config.ts:14`). Route ở `web/src/App.tsx:29`: 3 tab trong `AppShell` (`/`, `/bieu-do`, `/chi-tiet`; đường dẫn cũ `/lich-su`, `/lan-mua` chuyển hướng) + trang form toàn màn hình (`/them`, `/sua/:id`). Dữ liệu dùng chung qua `PortfolioProvider` (`web/src/portfolio-context.tsx:20`) |
 
 | Kho | Dùng cho | Bắt buộc |
 |---|---|---|
@@ -23,7 +23,7 @@ Tách dữ liệu theo **tài khoản**: mọi bảng của người dùng có `
 ## 2. Khởi động và lắp ráp
 
 - `server/src/index.ts:26` đồng bộ danh mục (`seedCatalog`) mỗi lần khởi động; `server/src/index.ts:32` bật lịch lấy giá.
-- `server/src/app.ts:25` `createApp({ db, prices, now })`: không listen, test dùng chung. Đăng ký router ở `server/src/app.ts:30-36`, error handler cuối cùng `server/src/app.ts:50`.
+- `server/src/app.ts:29` `createApp({ db, prices, now })`: không listen, test dùng chung. Đăng ký router ở `server/src/app.ts:34-41`, error handler cuối cùng `server/src/app.ts:55`.
 - `server/src/db.ts:33` `poolDb`: Pool `pg`, SSL bằng CA của nhà cung cấp khi có `DB_SSL_CA`. Lớp `Db` (`query`/`one`/`exec`/`tx`) dùng chung cho app và test. `initSchema` (`server/src/db.ts:79`) chạy `schema.sql` rồi `migrate()` (`server/src/db.ts:88`) mỗi lần khởi động.
 - Danh mục thương hiệu/sản phẩm: `server/src/catalog.ts:30`.
 
