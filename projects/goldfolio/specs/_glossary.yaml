@@ -42,6 +42,11 @@
   code_name: products.price_unit
   ui_label: (đi kèm giá, vd "/chỉ")
 
+- term: nhận định xu hướng
+  meaning: Đoạn nhận xét do AI (Gemini, gói miễn phí) viết về giá 30 ngày của một sản phẩm vàng hoặc bạc (tăng, giảm, đi ngang) và so với giá vốn của người dùng. Chỉ để tham khảo, không phải lời khuyên đầu tư. Số liệu đi kèm do server tính.
+  code_name: getTrend, trend_insights (GET /api/trends, POST /api/trends/refresh)
+  ui_label: Nhận định xu hướng
+
 - term: biểu đồ lịch sử
   meaning: Biểu đồ của một sản phẩm, chia theo ngày. Mỗi ngày mua là một điểm (đơn giá mua), điểm cuối là giá mua vào hôm nay, kèm đường giá vốn bình quân.
   code_name: buildHistory (GET /api/portfolio/history)

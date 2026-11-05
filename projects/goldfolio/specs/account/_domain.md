@@ -1,10 +1,10 @@
 # Domain: Tài khoản (ACC)
 
-> Kiểm ở commit `59a6180` (nhánh `main`, 2026-11-05). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (email + mật khẩu, chốt 2026-11-03).
+> Kiểm ở commit `b08cec4` (nhánh `main`, 2026-11-05). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (email + mật khẩu, chốt 2026-11-03).
 
 | ID | Rule | Code |
 |---|---|---|
-| ACC-BR-001 | Phải đăng nhập mới dùng được ứng dụng; chưa đăng nhập thì 401 "Vui lòng đăng nhập". Đăng nhập bằng email + mật khẩu (≥ 8 ký tự), phiên lưu bằng cookie httpOnly 30 ngày. | `server/src/auth/auth.ts:25`, `server/src/app.ts:24` |
+| ACC-BR-001 | Phải đăng nhập mới dùng được ứng dụng; chưa đăng nhập thì 401 "Vui lòng đăng nhập". Đăng nhập bằng email + mật khẩu (≥ 8 ký tự), phiên lưu bằng cookie httpOnly 30 ngày. | `server/src/auth/auth.ts:25`, `server/src/app.ts:31` |
 | ACC-BR-002 | Mỗi lần mua thuộc về đúng một tài khoản. Mọi truy vấn lần mua phải lọc theo tài khoản đang đăng nhập; lần mua của người khác trả 404. | `server/src/purchases/routes.ts:53-57` |
 | ACC-BR-003 | Sai email hay sai mật khẩu đều báo chung "Email hoặc mật khẩu không đúng", không lộ email nào đã đăng ký. *(as-built)* | `server/src/auth/auth.ts:92` |
 

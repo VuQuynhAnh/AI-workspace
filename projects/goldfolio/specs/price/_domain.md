@@ -1,6 +1,6 @@
 # Domain: Giá (PRICE)
 
-> Kiểm ở commit `59a6180` (nhánh `main`, 2026-11-05). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
+> Kiểm ở commit `b08cec4` (nhánh `main`, 2026-11-05). UC: `PRICE-UC02` (AI nhận định xu hướng). Phần còn lại là cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
 
 ## Khảo sát nguồn giá (2026-11-02)
 
@@ -30,10 +30,10 @@
 | ID | Rule | Code |
 |---|---|---|
 | PRICE-BR-001 | Mỗi thương hiệu lấy giá qua một adapter riêng, đọc từ **trang chính thức** của thương hiệu. Adapter trả về danh sách sản phẩm gồm giá mua vào, giá bán ra (có thể thiếu), đơn vị niêm yết và thời điểm cập nhật do nguồn công bố. Phú Quý là adapter đầu tiên. | `server/src/prices/types.ts:30`, `server/src/prices/phuquy/adapter.ts:19` |
-| PRICE-BR-002 | Hệ thống lấy giá định kỳ và lưu thành ảnh chụp giá. Bảng giá giống hệt lần trước thì không lưu thêm. | `server/src/prices/scheduler.ts:8`, `server/src/prices/service.ts:112` |
+| PRICE-BR-002 | Hệ thống lấy giá định kỳ và lưu thành ảnh chụp giá. Bảng giá giống hệt lần trước thì không lưu thêm. | `server/src/prices/scheduler.ts:11`, `server/src/prices/service.ts:124` |
 | PRICE-BR-003 | Nguồn lỗi hoặc đổi cấu trúc trang thì giữ ảnh chụp giá gần nhất và báo "giá cập nhật lúc …". Không bao giờ ghi giá 0 hoặc giá rỗng. | `server/src/prices/phuquy/parse.ts:10`, `server/src/prices/phuquy/adapter.ts:19` |
-| PRICE-BR-004 | Gợi ý giá mua cho một lần mua: lấy ảnh chụp giá gần nhất ở **trước hoặc đúng** thời điểm mua của sản phẩm đó (không có giờ mua thì lấy cuối ngày mua). Trong ngày mua không có ảnh chụp nào thì dùng **giá theo ngày** do nguồn công bố, nếu nguồn có. Vẫn không có thì không gợi ý. | `server/src/prices/service.ts:142` |
-| PRICE-BR-007 | Giá theo ngày của một ngày chỉ hỏi nguồn **khi cần** (lúc gợi ý giá, hoặc lúc lưu lần mua để so giá theo HOLD-UC01/BR-16) và chỉ hỏi một lần, kể cả khi nguồn báo ngày đó không có dữ liệu. Không quét hàng loạt nhiều ngày. | `server/src/prices/service.ts:177`, `server/src/prices/service.ts:189` |
+| PRICE-BR-004 | Gợi ý giá mua cho một lần mua: lấy ảnh chụp giá gần nhất ở **trước hoặc đúng** thời điểm mua của sản phẩm đó (không có giờ mua thì lấy cuối ngày mua). Trong ngày mua không có ảnh chụp nào thì dùng **giá theo ngày** do nguồn công bố, nếu nguồn có. Vẫn không có thì không gợi ý. | `server/src/prices/service.ts:154` |
+| PRICE-BR-007 | Giá theo ngày của một ngày chỉ hỏi nguồn **khi cần** (lúc gợi ý giá, hoặc lúc lưu lần mua để so giá theo HOLD-UC01/BR-16) và chỉ hỏi một lần, kể cả khi nguồn báo ngày đó không có dữ liệu. Ngoại lệ duy nhất (user chốt 2026-11-05): tải bù **30 ngày đã qua gần nhất** cho nhận định xu hướng (PRICE-UC02/BR-1), tuần tự, nghỉ 1,5 giây giữa hai lần hỏi; không quét xa hơn. | `server/src/prices/service.ts:195`, `server/src/prices/service.ts:206`, `server/src/prices/service.ts:219` |
 | PRICE-BR-008 | Dòng giá của nguồn được khớp với sản phẩm qua tên đã chuẩn hoá (không phân biệt hoa thường, gộp dấu cách) cùng danh sách tên khác của từng sản phẩm. Dòng không khớp sản phẩm nào thì bỏ qua và ghi log. Dòng trùng thì lấy dòng đầu. | `server/src/prices/match.ts:32` |
 | PRICE-BR-005 | Giá lưu theo đơn vị niêm yết của từng sản phẩm (chỉ, lượng hoặc kg). Khi tính toán thì quy đổi khối lượng của lần mua sang đơn vị đó theo `HOLD-BR-002`. | `server/src/prices/match.ts:32`, `shared/src/money.ts:21` |
 | PRICE-BR-006 | Một sản phẩm có thể chỉ có giá mua vào (vd vàng nguyên liệu của Bảo Tín Mạnh Hải, "phi SJC" của Phú Quý). Thiếu giá bán ra thì không gợi ý giá mua, nhưng vẫn tính được lãi/lỗ. | `server/src/schema.sql:66`, `server/src/routes.ts:42` |
@@ -43,4 +43,4 @@
 - Tần suất lấy giá hiện tại: **15 phút** (đã chốt 2026-11-03).
 - Khảo sát nguồn của hãng khác (2026-11-03): Bảo Tín Minh Châu (`btmc.vn`) và Bảo Tín Mạnh Hải (`baotinmanhhai.vn/bang-gia-vang`) đọc được, giá vàng theo nghìn đồng/chỉ, bạc theo lượng hoặc kg. SJC trả 403. DOJI và PNJ nạp bảng giá bằng JavaScript nên chưa đọc được.
 - Nguồn chính thức của SJC, Bảo Tín Minh Châu, Bảo Tín Mạnh Hải, DOJI, PNJ: cần khảo sát từng trang (có API không, có chặn bot không) trước khi viết adapter.
-- Lịch sử giá chỉ có từ lúc app bắt đầu lưu ảnh chụp giá. Có cần nhập lịch sử cũ từ nguồn khác không, nếu tìm được nguồn được phép dùng?
+- Lịch sử giá: có giá theo ngày của 30 ngày gần nhất (tải bù, PRICE-BR-007) cộng ảnh chụp từ lúc app chạy. Có cần lịch sử xa hơn không?

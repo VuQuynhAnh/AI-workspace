@@ -83,11 +83,11 @@ Người mua vàng bạc tích trữ (chủ yếu ở Phú Quý) ghi lại từn
 - BR-15: Sản phẩm đã biến mất khỏi bảng giá của thương hiệu thì không chọn được cho lần mua mới. Lần mua cũ vẫn giữ tên sản phẩm và hiện "Chưa có giá" (theo BR-9).
 - BR-16: Để trống cả đơn giá và tổng tiền thì khi bấm Lưu, hệ thống **tự lấy giá** (user chốt 2026-11-03).
   - Đơn giá = **giá bán ra** tại thời điểm mua (quy sang đơn vị khối lượng đã nhập), tìm theo PRICE-BR-004 (ảnh chụp trong ngày trước giờ mua, không có thì giá theo ngày của nguồn). Tổng tiền tính theo BR-5.
-  - Lần mua ghi là "giá tự lấy" kèm nguồn. Trang sửa ghi "Giá tự lấy · Giá Phú Quý ngày 15/01/2025".
-  - Tab Chi tiết: mỗi lần mua có dòng "Đơn giá 13.850.000/chỉ" theo đơn vị đã nhập. Giá người dùng nhập có nhãn đánh dấu **"Bạn nhập"**; giá hệ thống tự lấy ghi "Tự lấy · Giá Phú Quý ngày 15/01/2025", để người dùng biết số đó không phải số trên hoá đơn (2026-11-05).
+  - Lần mua ghi là "giá tự lấy" kèm nguồn. Trang sửa ghi "Hệ thống lấy · Giá Phú Quý ngày 15/01/2025".
+  - Tab Chi tiết: mỗi lần mua có dòng "Đơn giá 13.850.000/chỉ" theo đơn vị đã nhập. Chỉ giá người dùng nhập có nhãn đánh dấu **"Người dùng nhập"**; giá hệ thống lấy không ghi nhãn ở danh sách cho gọn, nguồn giá xem ở trang sửa ("Hệ thống lấy · Giá Phú Quý ngày 15/01/2025") (user chốt 2026-11-05).
   - Không tìm được giá (thương hiệu chưa có nguồn giá, ngày không có dữ liệu, sản phẩm chỉ có giá mua vào, hoặc nguồn đang lỗi) thì không lưu và báo dưới ô giá: "Không tìm được giá ngày này, vui lòng nhập giá mua".
   - **Nguồn giá quyết định lúc lưu** (thêm hoặc sửa, user chốt 2026-11-05): giá có nhập thì so với giá bán ra của hệ thống tại thời điểm mua đã chọn (quy cùng đơn vị; nhập theo tổng tiền thì so tổng tiền). **Trùng** thì là giá hệ thống, kèm nhãn nguồn. **Khác** thì là giá người dùng nhập. Không tra được giá (chưa có nguồn, nguồn lỗi) thì coi là người dùng nhập, vẫn lưu.
-  - Trang sửa điền sẵn số đã lưu vào ô giá, kể cả giá tự lấy (kèm nhãn "Giá tự lấy · …"); gõ giá khác thì bỏ nhãn. Xoá trống ô giá thì lấy lại giá theo ngày giờ mua mới.
+  - Trang sửa điền sẵn số đã lưu vào ô giá, kể cả giá tự lấy. Ngay dưới ô đơn giá ghi nguồn của giá đã lưu bằng chữ thường (không khung nhãn): "Người dùng nhập", hoặc "Hệ thống lấy · Giá Phú Quý ngày …". Gõ giá khác hoặc giá được thay bằng gợi ý mới thì bỏ nhãn (lưu xong server so giá lại). Xoá trống ô giá thì lấy lại giá theo ngày giờ mua mới.
   - **Dữ liệu cũ** (lần mua có trước 2026-11-05) được đánh dấu một lần là giá hệ thống, nhãn "Dữ liệu cũ, chưa xác nhận", số tiền giữ nguyên. Người dùng mở sửa và lưu thì nguồn giá được xác định lại theo quy tắc so giá ở trên.
   - Ô giá trên form ghi gợi ý "Để trống để tự lấy giá ngày mua".
 - BR-17: **Lọc Tất cả | Vàng | Bạc** ở đầu cả 3 tab, mặc định **Tất cả** (đứng đầu); lựa chọn giữ nguyên khi chuyển tab (2026-11-05: trước mặc định Vàng).
@@ -255,8 +255,18 @@ Scenario: HOLD-UC01-SC52 Tab Biểu đồ chỉ lọc Vàng | Bạc
 Scenario: HOLD-UC01-SC53 Tab Chi tiết đánh dấu đơn giá người dùng nhập
   Given lần mua A nhập đơn giá 13.850.000/chỉ, lần mua B để trống giá (tự lấy 140.000.000/lượng)
   When tôi mở tab Chi tiết
-  Then A ghi "Đơn giá 13.850.000/chỉ" kèm nhãn "Bạn nhập"
-  And B ghi "Đơn giá 140.000.000/lượng" và "Tự lấy · Giá Phú Quý ngày 01/11/2026", không có nhãn "Bạn nhập"
+  Then A ghi "Đơn giá 13.850.000/chỉ" kèm nhãn "Người dùng nhập"
+  And B chỉ ghi "Đơn giá 140.000.000/lượng", không có nhãn nào
+
+Scenario: HOLD-UC01-SC56 Trang sửa ghi nguồn của giá đã lưu
+  Given lần mua 2 lượng bạc miếng, đơn giá 1.436.000/lượng là giá người dùng nhập
+  When tôi mở trang sửa
+  Then ngay dưới ô đơn giá có nhãn "Người dùng nhập"
+  When tôi gõ đơn giá 1.500.000
+  Then nhãn "Người dùng nhập" mất
+  Given lần mua khác là giá hệ thống lấy
+  When tôi mở trang sửa
+  Then dưới ô đơn giá ghi "Hệ thống lấy · Giá Phú Quý ngày …", không có nhãn "Người dùng nhập"
 
 Scenario: HOLD-UC01-SC6 Ngày mua ở tương lai bị chặn
   When tôi chọn ngày mua là ngày mai (giờ Việt Nam) rồi bấm Lưu
@@ -367,12 +377,12 @@ Scenario: HOLD-UC01-SC34 Để trống giá thì tự lấy giá bán ra của n
   Given Phú Quý công bố giá ngày 15/01/2025: "Nhẫn tròn Phú Quý 999.9" bán ra 8.610.000
   When tôi thêm lần mua 2 chỉ sản phẩm đó, ngày 15/01/2025, để trống đơn giá và tổng tiền rồi bấm Lưu
   Then lần mua được lưu với đơn giá 8.610.000, tổng tiền 17.220.000
-  And lần mua ở tab Chi tiết hiện "Tự lấy · Giá Phú Quý ngày 15/01/2025"
+  And trang sửa lần mua đó ghi "Hệ thống lấy · Giá Phú Quý ngày 15/01/2025"; tab Chi tiết không có nhãn "Người dùng nhập"
 
 Scenario: HOLD-UC01-SC35 Có giờ mua thì tự lấy theo ảnh chụp trước giờ đó
   Given có ảnh chụp giá lúc 09:00 (bán ra 13.800.000) và 14:00 (bán ra 13.900.000) ngày 01/11/2026
   When tôi thêm lần mua 1 chỉ ngày 01/11/2026 lúc 10:30, để trống giá rồi bấm Lưu
-  Then đơn giá được lưu là 13.800.000 và nhãn ghi "Giá tự lấy · Giá Phú Quý lúc 09:00 01/11/2026"
+  Then đơn giá được lưu là 13.800.000 và nhãn ghi "Hệ thống lấy · Giá Phú Quý lúc 09:00 01/11/2026"
 
 Scenario Outline: HOLD-UC01-SC36 Không tìm được giá thì bắt nhập tay
   Given <tình huống>
@@ -387,7 +397,7 @@ Scenario Outline: HOLD-UC01-SC36 Không tìm được giá thì bắt nhập tay
 Scenario: HOLD-UC01-SC37 Sửa lần mua giá tự lấy
   Given lần mua có giá tự lấy 8.610.000/chỉ
   When tôi mở trang sửa
-  Then thấy nhãn "Giá tự lấy · …" và ô đơn giá điền sẵn 8.610.000
+  Then thấy nhãn "Hệ thống lấy · …" và ô đơn giá điền sẵn 8.610.000
   When tôi nhập đơn giá 13.700.000 rồi bấm Lưu
   Then đơn giá là 13.700.000 và lần mua là giá người dùng nhập
 
@@ -457,17 +467,17 @@ Scenario: HOLD-UC01-SC30 Danh sách không phân trang
 ```
 
 ## Cài đặt
-> Kiểm ở commit `59a6180` (nhánh `main`, 2026-11-05). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
+> Kiểm ở commit `b08cec4` (nhánh `main`, 2026-11-05). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
 
 | Mục | Code | Test |
 |---|---|---|
 | BR-1 thương hiệu mặc định, các ô form; giờ mua ẩn sau nút | `server/src/routes.ts:10`, `web/src/pages/PurchaseFormPage.tsx:64`, `web/src/pages/PurchaseFormPage.tsx:43`; không có ô ghi chú, giữ ghi chú cũ khi sửa `web/src/pages/PurchaseFormPage.tsx:45` | `api.test.ts` (SC1), `assets.test.tsx` (SC47, SC49) |
-| BR-2 sản phẩm theo thương hiệu, danh sách nhập sẵn | `server/src/catalog.ts:30`, `web/src/pages/PurchaseFormPage.tsx:210` | `api.test.ts` (SC31), `purchase-form.test.tsx` (SC9) |
+| BR-2 sản phẩm theo thương hiệu, danh sách nhập sẵn | `server/src/catalog.ts:30`, `web/src/pages/PurchaseFormPage.tsx:211` | `api.test.ts` (SC31), `purchase-form.test.tsx` (SC9) |
 | BR-3 khối lượng, đơn vị | `shared/src/units.ts:54`, `shared/src/format.ts:35` | `units.test.ts`, `format.test.ts`, `api.test.ts` (SC4, SC5, SC25, SC33) |
 | BR-4 ngày giờ không ở tương lai (giờ VN) | `server/src/purchases/validate.ts:77-86` | `api.test.ts` (SC6, SC7) |
 | BR-5 đơn giá ↔ tổng tiền, nhớ cách nhập | `shared/src/money.ts:21-26`, `server/src/purchases/validate.ts:107-108` | `money.test.ts`, `api.test.ts` (SC2, SC3, SC8, SC20, SC24, SC33) |
-| BR-6 gợi ý giá, không ghi đè giá sửa tay (kể cả khi gõ trong lúc chờ gợi ý) | `server/src/routes.ts:42`, `server/src/prices/service.ts:142`, `web/src/components/PurchaseLine.tsx:89`; "Đang lấy giá…" và quy đổi khi đổi đơn vị `web/src/components/PurchaseLine.tsx:65`, `web/src/components/PurchaseLine.tsx:138` | `price-service.test.ts`, `api.test.ts` (SC10, SC11, SC12, SC32), `purchase-form.test.tsx` (SC13 + ca race R-UI-02), `assets.test.tsx` (SC48) |
-| BR-7 sửa: giữ giá đã lưu, đổi sản phẩm/ngày/giờ thì gợi ý lại | `server/src/purchases/routes.ts:129`, `web/src/pages/PurchaseFormPage.tsx:68`, `web/src/components/PurchaseLine.tsx:68`, `web/src/components/PurchaseLine.tsx:77` | `api.test.ts` (SC20, SC24), `assets.test.tsx` (SC50, SC51) |
+| BR-6 gợi ý giá, không ghi đè giá sửa tay (kể cả khi gõ trong lúc chờ gợi ý) | `server/src/routes.ts:42`, `server/src/prices/service.ts:154`, `web/src/components/PurchaseLine.tsx:92`; "Đang lấy giá…" và quy đổi khi đổi đơn vị `web/src/components/PurchaseLine.tsx:68`, `web/src/components/PurchaseLine.tsx:141` | `price-service.test.ts`, `api.test.ts` (SC10, SC11, SC12, SC32), `purchase-form.test.tsx` (SC13 + ca race R-UI-02), `assets.test.tsx` (SC48) |
+| BR-7 sửa: giữ giá đã lưu, đổi sản phẩm/ngày/giờ thì gợi ý lại | `server/src/purchases/routes.ts:129`, `web/src/pages/PurchaseFormPage.tsx:68`, `web/src/components/PurchaseLine.tsx:71`, `web/src/components/PurchaseLine.tsx:80` | `api.test.ts` (SC20, SC24), `assets.test.tsx` (SC50, SC51) |
 | BR-8 xoá có xác nhận | `server/src/purchases/routes.ts:146`, `web/src/components/ConfirmSheet.tsx:2` | `api.test.ts` (SC21) |
 | BR-9 lãi/lỗ theo giá mua vào, loại lần mua chưa có giá | `shared/src/pnl.ts:8`, `server/src/portfolio/service.ts:67` | `pnl.test.ts`, `api.test.ts` (SC14, SC15, SC17) |
 | BR-10 tổng quan, nhóm kim loại/sản phẩm, giờ giá, giá hiện tại từng sản phẩm | `server/src/portfolio/service.ts:114`, `server/src/portfolio/service.ts:130`, `web/src/pages/OverviewPage.tsx:12`, `web/src/pages/OverviewPage.tsx:89` | `api.test.ts` (SC16, SC18, SC30, SC46), `assets.test.tsx` (SC46) |
@@ -476,13 +486,13 @@ Scenario: HOLD-UC01-SC30 Danh sách không phân trang
 | BR-13 biểu đồ theo mốc mua, giá vốn bình quân | `server/src/portfolio/service.ts:155`, `shared/src/pnl.ts:25-32`, `web/src/components/HistoryChart.tsx:71` | `pnl.test.ts`, `api.test.ts` (SC26, SC27) |
 | BR-14 thiếu giá hiện tại | `server/src/portfolio/service.ts:155` | `api.test.ts` (SC28) |
 | BR-17 lọc Tất cả/Vàng/Bạc, mặc định Tất cả; Biểu đồ chỉ Vàng/Bạc | `web/src/components/MetalFilter.tsx:15`, `web/src/portfolio-context.tsx:25`, `web/src/pages/OverviewPage.tsx:34`, `web/src/pages/HistoryPage.tsx:14` | `assets.test.tsx` (SC40, SC52) |
-| BR-18 thêm tài sản nhiều sản phẩm, tất cả hoặc không | `server/src/purchases/routes.ts:97`, `server/src/purchases/routes.ts:118`, `web/src/pages/PurchaseFormPage.tsx:139`, `web/src/components/PurchaseLine.tsx:62` | `api.test.ts` (SC41, SC42), `assets.test.tsx` (SC41, SC42) |
-| BR-5 (2026-11-05) đơn giá theo đơn vị đang chọn | `shared/src/money.ts:31`, `server/src/purchases/validate.ts:107-108`, `server/src/purchases/validate.ts:136`, `web/src/components/PurchaseLine.tsx:95`, đổi đơn vị quy đổi đơn giá `web/src/components/PurchaseLine.tsx:138`, nâng cấp dữ liệu cũ `server/src/db.ts:102` | `money.test.ts`, `api.test.ts` (SC44), `db.test.ts` (SC45), `assets.test.tsx` (SC44, SC50) |
+| BR-18 thêm tài sản nhiều sản phẩm, tất cả hoặc không | `server/src/purchases/routes.ts:97`, `server/src/purchases/routes.ts:118`, `web/src/pages/PurchaseFormPage.tsx:140`, `web/src/components/PurchaseLine.tsx:65` | `api.test.ts` (SC41, SC42), `assets.test.tsx` (SC41, SC42) |
+| BR-5 (2026-11-05) đơn giá theo đơn vị đang chọn | `shared/src/money.ts:31`, `server/src/purchases/validate.ts:107-108`, `server/src/purchases/validate.ts:136`, `web/src/components/PurchaseLine.tsx:98`, đổi đơn vị quy đổi đơn giá `web/src/components/PurchaseLine.tsx:141`, nâng cấp dữ liệu cũ `server/src/db.ts:102` | `money.test.ts`, `api.test.ts` (SC44), `db.test.ts` (SC45), `assets.test.tsx` (SC44, SC50) |
 | BR-19 ô tiền dạng VNĐ | `web/src/components/MoneyInput.tsx:9` | `assets.test.tsx` (SC43) |
 | BR-20 trang sửa một sản phẩm | `web/src/pages/PurchaseFormPage.tsx:68` | `purchase-form.test.tsx` (SC20, SC24) |
 | BR-3 (2026-11-05) bước 0,1 chỉ, ô khối lượng chọn/gõ, sản phẩm mặc định | `shared/src/units.ts:42`, `shared/src/units.ts:54`, `web/src/components/WeightCombo.tsx:13`, `server/src/catalog.ts:134` | `units.test.ts`, `api.test.ts` (SC1, SC5, SC39), `assets.test.tsx` (SC38) |
-| BR-16 tự lấy giá khi để trống | `server/src/purchases/validate.ts:130`, `server/src/prices/suggest.ts:11`, `server/src/db.ts:88`, `web/src/pages/PurchaseFormPage.tsx:77`, `web/src/pages/PurchasesPage.tsx:52` (Chi tiết: đơn giá kèm "Bạn nhập" / "Tự lấy"); so giá lúc lưu `server/src/purchases/validate.ts:143`; dữ liệu cũ `server/src/db.ts:114`; trang sửa điền sẵn giá `web/src/pages/PurchaseFormPage.tsx:86` | `api.test.ts` (SC8, SC34, SC35, SC36, SC37, SC53, SC55), `db.test.ts` (SC54), `auto-price.test.tsx` (SC34, SC37), `assets.test.tsx` (SC53) |
-| BR-15 sản phẩm biến mất khỏi bảng giá | `server/src/prices/service.ts:117`, `server/src/purchases/validate.ts:64` | `price-service.test.ts`, `api.test.ts` (SC29) |
+| BR-16 tự lấy giá khi để trống | `server/src/purchases/validate.ts:130`, `server/src/prices/suggest.ts:11`, `server/src/db.ts:88`, `web/src/pages/PurchaseFormPage.tsx:77`, `web/src/pages/PurchasesPage.tsx:52` (Chi tiết: đơn giá, chỉ giá người dùng nhập có nhãn); so giá lúc lưu `server/src/purchases/validate.ts:143`; dữ liệu cũ `server/src/db.ts:114`; trang sửa điền sẵn giá và ghi nguồn giá đã lưu `web/src/pages/PurchaseFormPage.tsx:86`, `web/src/components/PurchaseLine.tsx:31` | `api.test.ts` (SC8, SC34, SC35, SC36, SC37, SC53, SC55), `db.test.ts` (SC54), `auto-price.test.tsx` (SC34, SC37), `assets.test.tsx` (SC53, SC56) |
+| BR-15 sản phẩm biến mất khỏi bảng giá | `server/src/prices/service.ts:129`, `server/src/purchases/validate.ts:64` | `price-service.test.ts`, `api.test.ts` (SC29) |
 
 Test web (vitest + Testing Library): `web/test/purchase-form.test.tsx` (SC1, SC9, SC13, race R-UI-02, SC20, SC24, SC21), `web/test/shell.test.tsx` (SC17, SC19, 3 tab, nút +), `web/test/auto-price.test.tsx` (nhãn giá tự lấy, form để trống giá), `web/test/states.test.tsx` (biểu đồ quay về sản phẩm mặc định sau SC21, lỗi/thử lại, SC22 phía web: trang sửa báo không tìm thấy).
 
