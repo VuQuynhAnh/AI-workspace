@@ -1,6 +1,6 @@
 # Domain: Danh mục và lãi/lỗ (HOLD)
 
-> Kiểm ở commit `d68a539` (nhánh `feat/postgres`, 2026-11-03). Chi tiết theo UC: `HOLD-UC01.md` mục Cài đặt.
+> Kiểm ở commit `304fa10` (nhánh `main`, 2026-11-05). Chi tiết theo UC: `HOLD-UC01.md` mục Cài đặt.
 
 | ID | Rule | Code |
 |---|---|---|

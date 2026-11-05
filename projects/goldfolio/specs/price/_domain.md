@@ -1,6 +1,6 @@
 # Domain: Giá (PRICE)
 
-> Kiểm ở commit `d68a539` (nhánh `feat/postgres`, 2026-11-03). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
+> Kiểm ở commit `304fa10` (nhánh `main`, 2026-11-05). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
 
 ## Khảo sát nguồn giá (2026-11-02)
 
@@ -17,6 +17,7 @@
   - Tên viết hoa và dấu cách không thống nhất: "Phú quý 1 lượng 99.9", "Vàng 999.0  phi SJC".
 - Trang bạc lấy bảng qua `GET /PhuQuyPrice/SilverPricePartial` (HTML) và giờ cập nhật qua `GET /PhuQuyPrice/GetDateTimeUpdate`, trả về JSON `{"success":true,"lastTime":"08:42","lastDate":"03/11/2026"}`. Trang bạc không có lịch sử. Lịch sử bạc chỉ có trong `XemLai`, theo VNĐ/chỉ.
 - Không có API công khai. Các endpoint trên là endpoint nội bộ của trang, có thể đổi bất cứ lúc nào.
+- **API JSON phía sau `phuquy.com.vn` (khảo sát 2026-11-05):** `GET https://be.phuquy.com.vn/jewelry/product-payment-service/api/products/statistics-price/{id}?type=1&duration=&fromDate=dd/MM/yyyy&toDate=dd/MM/yyyy` (có lịch sử theo khoảng ngày). Gọi từ server với User-Agent của app → **403 thử thách Cloudflare**; trình duyệt chạy được nhờ cookie Cloudflare. Không dùng: phải giả trình duyệt/chép cookie = lách chặn bot (R-SRC-02). Chỉ dùng được nếu Phú Quý cấp quyền (API key / allowlist).
 
 **Trang tổng hợp webgia.com** (có trang riêng cho Phú Quý, SJC, Bảo Tín Minh Châu, Bảo Tín Mạnh Hải, DOJI, PNJ)
 - **Không dùng làm nguồn giá.** Lý do:

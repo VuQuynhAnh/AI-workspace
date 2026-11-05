@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `d68a539` (nhánh `feat/postgres`, 2026-11-03).
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `304fa10` (nhánh `main`, 2026-11-05).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan
@@ -10,7 +10,7 @@ npm workspaces, TypeScript, Node 22 (`.nvmrc`):
 | Workspace | Vai trò |
 |---|---|
 | `shared/` | Quy đổi khối lượng, tiền, lãi/lỗ, định dạng, ngày giờ VN. Server và web import thẳng mã nguồn TS (`shared/package.json` trỏ `main` vào `src/index.ts`) |
-| `server/` | Express 4, PostgreSQL qua `pg` (Pool), cheerio đọc HTML nguồn giá. Chạy bằng `tsx`, không build |
+| `server/` | Express 4, PostgreSQL qua `pg` (Pool), cheerio đọc HTML nguồn giá. Chạy bằng `tsx`, không build. Có `web/dist` thì trả luôn giao diện (`server/src/app.ts:38`, `server/src/index.ts:38`); `/api` lạ trả 404 JSON (`server/src/app.ts:33`). Deploy Render: README |
 | `web/` | Vite 6 + React 18 + Tailwind 4 + Recharts, **mobile-first**. Dev proxy `/api` → `:4000` (`web/vite.config.ts:14`). Route ở `web/src/App.tsx:26`: 3 tab trong `AppShell` (`/`, `/lich-su`, `/lan-mua`) + trang form toàn màn hình (`/them`, `/sua/:id`). Dữ liệu dùng chung qua `PortfolioProvider` (`web/src/portfolio-context.tsx:15`) |
 
 | Kho | Dùng cho | Bắt buộc |
@@ -87,6 +87,7 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 10. **Cột mới không tự có trên DB cũ** (`server/src/db.ts:85`): `schema.sql` chỉ `CREATE TABLE IF NOT EXISTS`. Quên `ensureColumn` thì máy dev (DB mới) chạy đúng nhưng máy có dữ liệu cũ lỗi "no such column" ngay khi ghi.
 11. **BIGINT và DATE của pg:** `pg` trả `BIGINT` dạng chuỗi nếu không có `setTypeParser(20)` (cộng tiền thành nối chuỗi); kiểu `DATE`/`TIMESTAMP` bị đổi sang `Date` theo múi giờ máy chạy → lệch ngày. Vì vậy cấu hình parser ở `server/src/db.ts:21` và lưu ngày dạng `TEXT`.
 12. **Kết nối rảnh bị ngắt** (`server/src/db.ts:42`): Supabase/pooler đóng kết nối nhàn rỗi; thiếu `pool.on("error")` thì cả server sập. Gói Free tạm dừng project sau 7 ngày không truy cập → server báo không kết nối được cho tới khi bấm Restore.
+13. **`NODE_ENV=production` lúc build:** `npm ci` bỏ qua devDependencies → thiếu vite, build web hỏng. Build Command phải có `--include=dev`; `tsx` để ở dependencies vì lệnh start cần.
 
 ## 7. Test
 
