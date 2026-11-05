@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `bb71089` (nhánh `main`, 2026-11-05).
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `3478da4` (nhánh `main`, 2026-11-05).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan
@@ -10,7 +10,7 @@ npm workspaces, TypeScript, Node 22 (`.nvmrc`):
 | Workspace | Vai trò |
 |---|---|
 | `shared/` | Quy đổi khối lượng, tiền, lãi/lỗ, định dạng, ngày giờ VN. Server và web import thẳng mã nguồn TS (`shared/package.json` trỏ `main` vào `src/index.ts`) |
-| `server/` | Express 4, PostgreSQL qua `pg` (Pool), cheerio đọc HTML nguồn giá. Chạy bằng `tsx`, không build. AI nhận định xu hướng: `server/src/ai/`, `server/src/trends/` (xem `ARCHITECTURE-PRICES.md`). Có `web/dist` thì trả luôn giao diện (`server/src/app.ts:48`, `server/src/index.ts:45`); `/api` lạ trả 404 JSON (`server/src/app.ts:43`). Deploy Render: README |
+| `server/` | Express 4, PostgreSQL qua `pg` (Pool), cheerio đọc HTML nguồn giá. Chạy bằng `tsx`, không build. AI nhận định xu hướng: `server/src/ai/`, `server/src/trends/` (xem `ARCHITECTURE-PRICES.md`). Có `web/dist` thì trả luôn giao diện (`server/src/app.ts:48`, `server/src/index.ts:48`); `/api` lạ trả 404 JSON (`server/src/app.ts:43`). Deploy Render: README |
 | `web/` | Vite 6 + React 18 + Tailwind 4 + Recharts, **mobile-first**. Dev proxy `/api` → `:4000` (`web/vite.config.ts:14`). Route ở `web/src/App.tsx:29`: 3 tab trong `AppShell` (`/`, `/bieu-do`, `/chi-tiet`; đường dẫn cũ `/lich-su`, `/lan-mua` chuyển hướng) + trang form toàn màn hình (`/them`, `/sua/:id`). Dữ liệu dùng chung qua `PortfolioProvider` (`web/src/portfolio-context.tsx:20`) |
 
 | Kho | Dùng cho | Bắt buộc |

@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE-PRICES (bẫy nguồn giá)
 
-> Tách từ `ARCHITECTURE.md` §6 vì file chính vượt 15 KB; giữ nguyên số thứ tự bẫy (§6.n) để các chỗ đang trích không đổi. Kiểm ở commit `bb71089` (nhánh `main`, 2026-11-05).
+> Tách từ `ARCHITECTURE.md` §6 vì file chính vượt 15 KB; giữ nguyên số thứ tự bẫy (§6.n) để các chỗ đang trích không đổi. Kiểm ở commit `3478da4` (nhánh `main`, 2026-11-05).
 
 1. **Bảng bạc có 2 dòng nhóm** (`server/src/prices/phuquy/parse.ts:78`): "BẠC THƯƠNG HIỆU PHÚ QUÝ" đứng trước, "… KHÁC" đứng sau. Coi mọi dòng nhóm là "hãng khác" thì mất toàn bộ bạc Phú Quý.
 2. **Bảng vàng trang chủ có dòng bạc theo chỉ** (`server/src/prices/phuquy/parse.ts:59`): bỏ khi lấy giá live; chỉ dùng trong giá theo ngày, nhân lên lượng qua `matchRows`. Sản phẩm theo kg không nhận giá quy từ chỉ (`server/src/prices/match.ts:46`).
@@ -11,7 +11,7 @@
 
 ## Nhận định xu hướng bằng AI (PRICE-UC02)
 
-Luồng: lịch lấy giá tải bù giá theo ngày 30 ngày (`server/src/prices/scheduler.ts:21` → `server/src/prices/service.ts:219`) → `GET /api/trends` → `getTrend` (`server/src/trends/service.ts:102`): chọn sản phẩm, lấy chuỗi giá (`server/src/prices/service.ts:274`), tính số liệu, gọi `TrendModel` (`server/src/ai/trend.ts:37`; bản Gemini `server/src/ai/gemini.ts:9`), kiểm JSON, lưu `trend_insights`.
+Luồng: lịch lấy giá tải bù giá theo ngày 30 ngày (`server/src/prices/scheduler.ts:21` → `server/src/prices/service.ts:219`) → `GET /api/trends` → `getTrend` (`server/src/trends/service.ts:102`): chọn sản phẩm, lấy chuỗi giá (`server/src/prices/service.ts:274`), tính số liệu, gọi `TrendModel` (`server/src/ai/trend.ts:37`; bản Gemini `server/src/ai/gemini.ts:18`), kiểm JSON, lưu `trend_insights`.
 
 | ID | Luật |
 |---|---|
@@ -21,5 +21,5 @@ Luồng: lịch lấy giá tải bù giá theo ngày 30 ngày (`server/src/price
 | R-AI-03 | Gọi AI qua giao diện `TrendModel`, không gọi SDK của nhà cung cấp ở chỗ khác. Test dùng model giả, không gọi mạng. Thiếu `GEMINI_API_KEY` thì API trả 503, phần khác vẫn chạy. |
 
 Bẫy:
-- **Hạn mức miễn phí** (`server/src/ai/gemini.ts:37`): 429 là hết lượt, báo người dùng thử lại sau; không tự thử lại liên tục, sẽ càng bị chặn lâu. "Phân tích lại" giới hạn 3 lần/ngày (`server/src/trends/service.ts:115`).
+- **Hạn mức miễn phí, quá tải** (`server/src/ai/gemini.ts:37`): 429 hết lượt, 503/500 quá tải ("high demand" gặp thật trên Render) → thử model dự phòng một lần, vẫn lỗi thì báo người dùng; không tự thử lại liên tục, sẽ càng bị chặn lâu. "Phân tích lại" giới hạn 3 lần/ngày (`server/src/trends/service.ts:115`).
 - **Tải bù dồn request**: lần chạy đầu hỏi 30 ngày, phải tuần tự và có nghỉ giữa các lần (R-SRC-02); đừng đổi sang `Promise.all`.

@@ -1,6 +1,6 @@
 # PRICE-UC03 — Chat hỏi AI về giá và tài sản
 
-> Trạng thái: implemented · Việc: 2026-11-05-ai-chat · Cập nhật: 2026-11-05 · Kiểm ở commit `bb71089` (nhánh `main`, 2026-11-05)
+> Trạng thái: implemented · Việc: 2026-11-05-ai-chat · Cập nhật: 2026-11-05 · Kiểm ở commit `3478da4` (nhánh `main`, 2026-11-05)
 
 ## Mục tiêu
 Người dùng hỏi bằng lời thường ("vàng của tôi đang lỗ vì sao?", "bạc tháng này thế nào?") và nhận câu trả lời ngắn dựa trên chính danh mục và giá thật trong GoldFolio. Chỉ để tham khảo, không phải lời khuyên đầu tư.
@@ -20,7 +20,7 @@ Người dùng hỏi bằng lời thường ("vàng của tôi đang lỗ vì sa
 - BR-3: **Số liệu gửi kèm** do server ghép, trình duyệt không gửi được: danh mục (từng sản phẩm: khối lượng, số lần mua, tổng tiền mua, giá vốn bình quân, giá mua vào/bán ra hiện tại, lãi/lỗ), giá mua vào 30 ngày của tối đa 4 sản phẩm bỏ nhiều tiền nhất, nhận định xu hướng hôm nay (nếu đã có). Không gửi email hay thông tin tài khoản (R-AI-02).
 - BR-4: **Lịch sử gửi lên:** tối đa 12 tin gần nhất; tin cuối phải là câu hỏi; mỗi tin tối đa 1.000 ký tự, không rỗng; sai thì 400.
 - BR-5: **AI trả lời** bằng tiếng Việt, ngắn (khoảng 150 chữ), chỉ về giá vàng bạc và danh mục trong app, dựa trên số liệu được gửi, không khuyên chắc chắn mua/bán. Khung chat luôn ghi "Nhận định tham khảo, không phải lời khuyên đầu tư".
-- BR-6: **Lỗi:** chưa cấu hình AI báo "Chưa bật AI (thiếu GEMINI_API_KEY)"; hết hạn mức miễn phí báo "AI đã hết lượt miễn phí, thử lại sau"; lỗi khác báo "Chưa trả lời được, thử lại sau". Câu hỏi lỗi được bỏ khỏi khung, chữ trả lại ô nhập để gửi lại.
+- BR-6: **Lỗi:** chưa cấu hình AI báo "Chưa bật AI (thiếu GEMINI_API_KEY)"; hết hạn mức miễn phí báo "AI đã hết lượt miễn phí, thử lại sau"; quá tải (sau khi đã thử model dự phòng, PRICE-UC02/BR-9a) báo "AI đang quá tải, thử lại sau ít phút"; lỗi khác báo "Chưa trả lời được, thử lại sau". Câu hỏi lỗi được bỏ khỏi khung, chữ trả lại ô nhập để gửi lại.
 - BR-7: **Khung chat:** đầu khung là thẻ nhận định xu hướng Vàng | Bạc (PRICE-UC02/BR-10); nút "Hỏi AI" và nút "+" cùng cỡ 48px (user chốt 2026-11-05). Gửi thì ô nhập xoá ngay, hiện "AI đang trả lời…"; khung trống có vài câu hỏi gợi ý; Esc, nút "Đóng" hoặc chạm nền tối thì đóng.
 
 ## Scenario
@@ -61,7 +61,7 @@ PRICE-UC03-SC5 (bong bóng nhận định, "Hỏi thêm") nằm trong `PRICE-UC0
 | BR-2 lịch sử trong phiên | `web/src/chat-context.tsx:32` | `chat.test.tsx` (SC4, SC5) |
 | BR-3 số liệu gửi kèm | `server/src/chat/service.ts:42` | `chat.test.ts` (SC1) |
 | BR-4 kiểm tin nhắn | `server/src/chat/service.ts:19` | `chat.test.ts` (SC3) |
-| BR-5 prompt, gọi Gemini | `server/src/ai/chat.ts:20`, `server/src/ai/gemini.ts:51` | (chưa kiểm với Gemini thật) |
+| BR-5 prompt, gọi Gemini | `server/src/ai/chat.ts:20`, `server/src/ai/gemini.ts:77` | (chưa kiểm với Gemini thật) |
 | BR-6 lỗi | `server/src/chat/service.ts:93`, `web/src/chat-context.tsx:60` | `chat.test.ts` (SC2), `chat.test.tsx` |
 | BR-7 khung chat, nút nổi | `web/src/components/ChatSheet.tsx:16`, `web/src/components/AppShell.tsx:47` | `chat.test.tsx` (SC4) |
 

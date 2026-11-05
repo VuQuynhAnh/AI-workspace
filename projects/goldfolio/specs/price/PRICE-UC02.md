@@ -1,6 +1,6 @@
 # PRICE-UC02 — AI nhận định xu hướng giá vàng, bạc
 
-> Trạng thái: implemented · Việc: 2026-11-05-ai-xu-huong · Cập nhật: 2026-11-05 · Kiểm ở commit `bb71089` (nhánh `main`, 2026-11-05)
+> Trạng thái: implemented · Việc: 2026-11-05-ai-xu-huong · Cập nhật: 2026-11-05 · Kiểm ở commit `3478da4` (nhánh `main`, 2026-11-05)
 
 ## Mục tiêu
 Người dùng mở khung chat "Hỏi AI" và đọc được ngay ở đầu khung, bằng lời dễ hiểu, giá vàng (hoặc bạc) 30 ngày qua đang tăng, giảm hay đi ngang, và giá mua vào hiện tại đang ở đâu so với giá vốn của mình. Đây là nhận định tham khảo, không phải lời khuyên đầu tư.
@@ -29,7 +29,8 @@ Người dùng mở khung chat "Hỏi AI" và đọc được ngay ở đầu kh
 - BR-6: **AI trả về JSON**: xu hướng (tăng / giảm / đi ngang), độ tin cậy (thấp / trung bình / cao), tóm tắt 2–3 câu, tối đa 4 ý, nhận xét so với giá vốn (chỉ khi người dùng đang có sản phẩm). Server kiểm định dạng; sai thì không lưu, báo lỗi.
 - BR-7: **Mỗi ngày một bản** cho mỗi người, mỗi kim loại: lần đầu mở trong ngày thì phân tích và lưu, mở lại dùng bản đã lưu (không tốn lượt AI). Sản phẩm được nhận định đổi (vd vừa mua sản phẩm khác nhiều tiền hơn) thì phân tích lại.
 - BR-8: **"Phân tích lại"**: gọi AI lần nữa, tối đa **3 lần mỗi ngày** cho mỗi kim loại. Nút ghi số lượt còn lại; hết lượt thì báo "Hôm nay đã phân tích lại đủ 3 lần, mai thử lại nhé".
-- BR-9: **Lỗi không làm hỏng trang:** chưa cấu hình AI (thiếu `GEMINI_API_KEY`) báo "Chưa bật AI nhận định (thiếu GEMINI_API_KEY)"; hết hạn mức miễn phí báo "AI đã hết lượt miễn phí, thử lại sau"; lỗi khác báo "Chưa phân tích được, thử lại sau". Biểu đồ và các tab khác vẫn dùng bình thường. Phân tích lại bị lỗi thì giữ nhận định cũ.
+- BR-9: **Lỗi không làm hỏng trang:** chưa cấu hình AI (thiếu `GEMINI_API_KEY`) báo "Chưa bật AI nhận định (thiếu GEMINI_API_KEY)"; hết hạn mức miễn phí báo "AI đã hết lượt miễn phí, thử lại sau"; Gemini quá tải (503 "high demand", gặp thật trên Render 2026-11-05) báo "AI đang quá tải, thử lại sau ít phút"; lỗi khác báo "Chưa phân tích được, thử lại sau". Biểu đồ và các tab khác vẫn dùng bình thường. Phân tích lại bị lỗi thì giữ nhận định cũ.
+- BR-9a: **Model dự phòng:** model chính quá tải (503, 500) hoặc hết lượt (429) thì tự thử model dự phòng (mặc định `gemini-3.5-flash-lite`, đổi bằng `GEMINI_FALLBACK_MODEL`); lỗi khác không thử tiếp. Cả hai đều không được mới báo lỗi theo BR-9. Chat (PRICE-UC03) dùng chung cơ chế này.
 - BR-10: **Hiển thị** (đầu khung chat; kim loại mặc định là kim loại vừa xem ở bong bóng, không thì theo bộ lọc đang dùng, đang "Tất cả" thì Vàng): xu hướng (tăng màu xanh, giảm màu đỏ, đi ngang màu xám), độ tin cậy, tên sản phẩm, dòng số liệu "30 ngày: mua vào 13.400.000 → 13.690.000/chỉ +2,16%", tóm tắt, các ý, nhận xét so với giá vốn, và dòng cuối "Nhận định tham khảo, không phải lời khuyên đầu tư · model · giờ tạo". Đang chờ AI thì hiện "Đang phân tích…".
 
 - BR-11: **Bong bóng ở Tổng quan** (user yêu cầu 2026-11-05): chạm ô giá trị / % lãi/lỗ của một sản phẩm thì mở bong bóng ngay dưới dòng đó: xu hướng 30 ngày của kim loại, tóm tắt, "Theo <sản phẩm được nhận định> · tham khảo, không phải lời khuyên đầu tư", nút **"Hỏi thêm"** mở chat (PRICE-UC03) có sẵn tin "Nhận định <vàng/bạc> hôm nay: <tóm tắt>". Mỗi lúc một bong bóng; chạm lại, nút ✕ hoặc Esc thì đóng. Dùng bản đã lưu trong ngày (BR-7), không tốn thêm lượt.
@@ -78,6 +79,13 @@ Scenario: PRICE-UC02-SC6 AI hết lượt hoặc lỗi
   When AI lỗi khác
   Then báo "Chưa phân tích được, thử lại sau" và không lưu bản hỏng
 
+Scenario: PRICE-UC02-SC10 Model chính quá tải thì dùng model dự phòng
+  Given gemini-3.6-flash trả 503 "high demand"
+  When phân tích xu hướng hoặc hỏi AI
+  Then dùng gemini-3.5-flash-lite và vẫn có kết quả
+  Given cả hai model đều quá tải
+  Then báo "AI đang quá tải, thử lại sau ít phút"
+
 Scenario: PRICE-UC02-SC7 Thẻ nhận định ở đầu khung chat
   When nhận định trả về xu hướng tăng
   Then thẻ ghi "Xu hướng tăng", dòng số liệu 30 ngày, tóm tắt, nhận xét so với giá vốn
@@ -110,13 +118,14 @@ Scenario: PRICE-UC02-SC8 Đang phân tích lại
 | BR-1 tải bù 30 ngày, chuỗi giá theo ngày | `server/src/prices/service.ts:219`, `server/src/prices/service.ts:274`, `server/src/prices/scheduler.ts:21` | `trends.test.ts` (SC1) |
 | BR-2 chọn sản phẩm | `server/src/trends/service.ts:51` | `trends.test.ts` (SC2, SC4) |
 | BR-3, BR-4 đủ dữ liệu (thiếu thì tự tải bù), số liệu do server tính | `server/src/trends/service.ts:70`, `server/src/trends/service.ts:124`, `server/src/prices/service.ts:239`, `web/src/components/TrendCard.tsx:35` | `trends.test.ts` (SC2, SC5), `trend.test.tsx` (SC9) |
-| BR-5, BR-6 dữ liệu gửi AI, kiểm JSON | `server/src/ai/trend.ts:75`, `server/src/ai/trend.ts:98`, `server/src/ai/gemini.ts:9` | `trend-parse.test.ts`, `trends.test.ts` (SC2) |
+| BR-5, BR-6 dữ liệu gửi AI, kiểm JSON | `server/src/ai/trend.ts:75`, `server/src/ai/trend.ts:98`, `server/src/ai/gemini.ts:18` | `trend-parse.test.ts`, `trends.test.ts` (SC2) |
 | BR-7, BR-8 mỗi ngày một bản, phân tích lại 3 lần | `server/src/trends/service.ts:115`, `server/src/trends/routes.ts:14` | `trends.test.ts` (SC2, SC3) |
+| BR-9a model dự phòng | `server/src/ai/gemini.ts:37` | `gemini.test.ts` (SC10) |
 | BR-9 lỗi không làm hỏng trang | `server/src/ai/gemini.ts:37`, `web/src/components/TrendCard.tsx:35` | `trends.test.ts` (SC6), `trend.test.tsx` |
 | BR-10 hiển thị | `web/src/components/TrendCard.tsx:35`, `web/src/hooks/useTrend.ts:13` | `trend.test.tsx` (SC7, SC8) |
 | BR-11 bong bóng ở Tổng quan | `web/src/components/TrendPopover.tsx:12`, `web/src/pages/OverviewPage.tsx:116` | `chat.test.tsx` (PRICE-UC03-SC5) |
 
-Bảng `trend_insights`: `server/src/schema.sql:80`. Bật AI khi có `GEMINI_API_KEY`: `server/src/index.ts:41`.
+Bảng `trend_insights`: `server/src/schema.sql:80`. Bật AI khi có `GEMINI_API_KEY`: `server/src/index.ts:42`.
 
 Chưa kiểm: gọi Gemini thật (test dùng model giả, không gọi mạng); chất lượng nhận định tiếng Việt và hạn mức thật của gói miễn phí cần kiểm khi đã có API key.
 
