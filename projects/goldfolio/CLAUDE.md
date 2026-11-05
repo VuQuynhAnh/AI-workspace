@@ -36,4 +36,5 @@ Sổ tài sản vàng bạc cá nhân: ghi từng lần mua (thương hiệu, s�
 - **Dùng chủ yếu trên điện thoại:** thiết kế mobile-first (khung 360–430px trước, màn rộng sau), vùng bấm ≥ 44px, thao tác chính trong tầm ngón cái.
 - Giao diện **tối**, màu chỉ dùng token (R-UI-05); mỗi màn hình có trạng thái đang tải/lỗi/rỗng (R-UI-04). Thêm cột DB thì khai báo cả trong `migrate()` (R-DB-01).
 - Giao diện tham khảo [React Bits](https://reactbits.dev): `npx shadcn@latest add @react-bits/<Tên>-TS-TW` trong `web/`. Số tiền không chạy hiệu ứng (R-UI-01).
+- **Deploy một service** (Render Web Service, Root Directory trống): server trả cả API lẫn web build, không tách FE/BE vì cookie phiên cần cùng domain (user chốt 2026-11-05). Cách cấu hình: README mục Deploy.
 - Mạng có chứng chỉ riêng: đặt `NODE_EXTRA_CA_CERTS` (ARCHITECTURE §6.6), không tắt TLS.
