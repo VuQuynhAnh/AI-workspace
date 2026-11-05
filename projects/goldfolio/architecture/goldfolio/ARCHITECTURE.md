@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `23a0d44` (nhánh `main`, 2026-11-05).
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `6a84c5d` (nhánh `main`, 2026-11-05).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan
@@ -69,7 +69,7 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 | R-API-01 | Lỗi người dùng ném `HttpError(status, thông báo tiếng Việt, fields?)` (`server/src/http.ts:4`); handler async bọc `asyncHandler` (`server/src/http.ts:18`). Form hiện `fields[tên ô]` dưới ô. |
 | R-SRC-01 | Nguồn giá đi qua adapter `PriceSource` (`server/src/prices/types.ts:30`). Đọc HTML lỗi hoặc giá ≤ 0 thì ném lỗi, bỏ cả bảng, không ghi giá 0 (`server/src/prices/phuquy/parse.ts:10`). Mỗi bộ đọc có test bằng HTML thật trong `server/test/fixtures/`. |
 | R-SRC-02 | Gọi nguồn với User-Agent của app, không giả trình duyệt, không lách chặn bot. Giá theo ngày chỉ hỏi khi cần, mỗi ngày một lần (`server/src/prices/service.ts:177`, `server/src/prices/service.ts:189`). |
-| R-UI-02 | Kết quả async (gợi ý, tải lại) không ghi đè ô người dùng đang sửa: so với giá trị **hiện tại** qua `ref`, không so với closure lúc gửi yêu cầu (`web/src/components/PurchaseLine.tsx:69`, `web/src/components/PurchaseLine.tsx:88`). |
+| R-UI-02 | Kết quả async (gợi ý, tải lại) không ghi đè ô người dùng đang sửa: so với giá trị **hiện tại** qua `ref`, không so với closure lúc gửi yêu cầu (`web/src/components/PurchaseLine.tsx:73`, `web/src/components/PurchaseLine.tsx:82`). |
 | R-UI-03 | Mobile-first: thiết kế cho 360–430px, màn rộng căn giữa `max-w-md`. Vùng bấm ≥ 44px; ô nhập cao 48px, chữ 16px (`web/src/components/ui.tsx:6`). Thao tác chính ở đáy (thanh tab, nút +, nút Lưu dính đáy, bảng xác nhận trượt từ đáy). Chừa vùng an toàn bằng `.safe-bottom`/`.safe-top` (`web/src/index.css:49`); chiều cao dùng `dvh`, không dùng `vh`. Form là route riêng để nút back của điện thoại hoạt động đúng. |
 | R-UI-04 | Mọi màn hình nạp dữ liệu có đủ 3 trạng thái: đang tải, lỗi kèm "Thử lại" (`LoadError`, `web/src/components/ui.tsx:22`), và rỗng/không tìm thấy. Không để "Đang tải…" là trạng thái cuối khi lỗi. Đã có dữ liệu mà nạp lại lỗi thì giữ dữ liệu, chỉ hiện dải lỗi. Form sửa khoá (`<fieldset disabled>`) tới khi nạp xong; 404 thì hiện "Không tìm thấy", không hiện form. |
 | R-UI-05 | Màu chỉ dùng token trong `@theme` (`web/src/index.css:8`): `bg`, `surface`, `surface-2`, `line`, `ink`, `muted`, `gold`, `gold-deep`, `gold-soft`, `gain`, `loss`. Không dùng màu cố định (`stone-*`, `white`, mã hex) trong component; riêng Recharts nhận chuỗi màu thì lấy từ hằng `C` trùng token (`web/src/components/HistoryChart.tsx:19`). Chỉ có giao diện tối (`color-scheme: dark`); cặp màu chữ/nền phải ≥ 4.5:1. Font Be Vietnam Pro đóng gói qua `@fontsource` (`web/src/main.tsx:5`). |
@@ -79,7 +79,7 @@ Luồng giá: `startPriceScheduler` (`server/src/prices/scheduler.ts:8`) → `Pr
 
 1–5, 9. **Bẫy nguồn giá** (đọc HTML Phú Quý, dữ liệu XemLai, ẩn sản phẩm theo bảng live, lỗi mạng vs không có dữ liệu, "hôm nay chưa xong"): xem `ARCHITECTURE-PRICES.md`.
 6. **Mạng có chứng chỉ riêng**: `fetch` của Node báo `SELF_SIGNED_CERT_IN_CHAIN`, server vẫn chạy nhưng không có giá. Sửa bằng biến hệ thống `NODE_EXTRA_CA_CERTS` (README), không tắt TLS. Kết nối Postgres ra ngoài qua mạng công ty cũng có thể bị chặn cổng hoặc chèn chứng chỉ.
-7. **Gợi ý giá không ghi đè giá đã sửa tay** (`web/src/components/PurchaseLine.tsx:88`): so ô giá với số gợi ý lần trước (`lastSuggested`). Đổi cách so sánh này dễ làm gợi ý đè lên giá người dùng gõ.
+7. **Gợi ý giá không ghi đè giá đã sửa tay** (`web/src/components/PurchaseLine.tsx:82`): so ô giá với số gợi ý lần trước (`lastSuggested`). Đổi cách so sánh này dễ làm gợi ý đè lên giá người dùng gõ. Đổi đơn vị thì quy đổi từ giá gợi ý gốc `suggestedRaw` (`web/src/components/PurchaseLine.tsx:123`), không gọi lại server; lấy giá lỗi phải xoá `suggestedRaw`, kẻo quy đổi nhầm giá của sản phẩm trước.
 8. **Vitest nhiều tiến trình tràn RAM** trên máy dev ít bộ nhớ: server chạy test một luồng (`server/vitest.config.ts:8`).
 10. **Cột mới không tự có trên DB cũ** (`server/src/db.ts:88`): `schema.sql` chỉ `CREATE TABLE IF NOT EXISTS`. Quên `ensureColumn` thì máy dev (DB mới) chạy đúng nhưng máy có dữ liệu cũ lỗi "no such column" ngay khi ghi.
 11. **BIGINT và DATE của pg:** `pg` trả `BIGINT` dạng chuỗi nếu không có `setTypeParser(20)` (cộng tiền thành nối chuỗi); kiểu `DATE`/`TIMESTAMP` bị đổi sang `Date` theo múi giờ máy chạy → lệch ngày. Vì vậy cấu hình parser ở `server/src/db.ts:21` và lưu ngày dạng `TEXT`.

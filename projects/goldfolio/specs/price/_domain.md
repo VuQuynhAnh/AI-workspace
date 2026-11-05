@@ -1,6 +1,6 @@
 # Domain: Giá (PRICE)
 
-> Kiểm ở commit `23a0d44` (nhánh `main`, 2026-11-05). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
+> Kiểm ở commit `6a84c5d` (nhánh `main`, 2026-11-05). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
 
 ## Khảo sát nguồn giá (2026-11-02)
 

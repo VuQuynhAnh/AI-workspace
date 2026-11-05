@@ -25,7 +25,9 @@ Người mua vàng bạc tích trữ (chủ yếu ở Phú Quý) ghi lại từn
 ## Quy tắc nghiệp vụ
 - BR-1: Form thêm lần mua gồm các ô sau.
   - Bắt buộc: thương hiệu, sản phẩm, khối lượng + đơn vị, ngày mua, giá mua.
-  - Không bắt buộc: giờ mua, ghi chú (tối đa 200 ký tự).
+  - Không bắt buộc: giờ mua.
+  - Không có ô ghi chú (2026-11-05: user thấy không dùng). Cột ghi chú vẫn giữ trong dữ liệu và API (tối đa 200 ký tự) cho lần mua cũ: sửa lần mua cũ thì giữ nguyên ghi chú đã có, danh sách lần mua không hiện ghi chú.
+  - Ô giờ mua ẩn mặc định, ô ngày mua đứng một hàng; bấm "+ Thêm giờ mua" mới hiện ô giờ, "Bỏ giờ mua" thì xoá giờ và ẩn lại. Lần mua đang sửa có giờ, hoặc ô giờ đang báo lỗi, thì ô giờ hiện sẵn (2026-11-05: nhãn dài làm vỡ hàng trên màn nhỏ).
   - Thương hiệu mặc định là Phú Quý và đổi được (HOLD-BR-007). Sản phẩm mặc định là **Nhẫn tròn Phú Quý 999.9**; đổi thương hiệu thì sản phẩm về sản phẩm mặc định của thương hiệu đó (không có thì để trống).
   - Form thêm mới tên là **"Thêm tài sản"** và nhập được nhiều sản phẩm một lần (BR-18).
 - BR-2: Sản phẩm chỉ chọn được trong danh sách sản phẩm của thương hiệu đã chọn. Đổi thương hiệu thì xoá lựa chọn sản phẩm cũ.
@@ -47,6 +49,7 @@ Người mua vàng bạc tích trữ (chủ yếu ở Phú Quý) ghi lại từn
   - Nếu chỉ có **giá theo ngày** do nguồn công bố (không có giờ) thì ghi "Giá Phú Quý ngày dd/MM/yyyy".
   - Gợi ý chỉ điền vào khi ô giá đang trống hoặc vẫn đang giữ đúng số đã gợi ý lần trước. Đã sửa tay thì không ghi đè.
   - Không có ảnh chụp giá phù hợp thì để trống ô giá và ghi "Chưa có giá tham khảo cho thời điểm này".
+  - Trong lúc chờ giá gợi ý thì dưới ô đơn giá hiện "Đang lấy giá…". Đổi đơn vị khi đã có giá gợi ý thì quy đổi ngay tại chỗ, không chờ lấy lại giá.
 - BR-7: Sửa lần mua: sửa được mọi ô của BR-1, áp dụng lại BR-2…BR-6. Mở form sửa thì không tự gợi ý lại giá.
 - BR-8: Xoá lần mua phải xác nhận ("Xoá lần mua này? Không thể hoàn tác."). Xoá xong thì biến mất khỏi danh sách và khỏi mọi con số tổng.
 - BR-9: Lãi/lỗ (HOLD-BR-004, HOLD-BR-006).
@@ -59,6 +62,7 @@ Người mua vàng bạc tích trữ (chủ yếu ở Phú Quý) ghi lại từn
   - Danh sách toàn bộ lần mua, mới nhất trước, không phân trang.
   - Lãi hiện màu xanh có dấu "+", lỗ màu đỏ có dấu "−".
   - Mọi giá trị hiện tại ghi kèm "Giá cập nhật lúc HH:mm dd/MM/yyyy" theo ảnh chụp giá đang dùng.
+  - Mỗi dòng sản phẩm có thêm giá hiện tại của cửa hàng theo đơn vị niêm yết: "Mua vào 13.550.000 · Bán ra 13.850.000 /chỉ" (không có giá bán ra thì chỉ ghi mua vào). Sản phẩm chưa có giá thì không ghi dòng này.
 - BR-11: Danh mục rỗng thì hiện "Bạn chưa có lần mua nào" và nút "Thêm tài sản".
 - BR-12: Lỗi kiểm tra dữ liệu hiện ngay dưới ô bị lỗi, giữ nguyên các ô đã nhập. Sửa hoặc xoá lần mua không thuộc tài khoản đang đăng nhập (hoặc không tồn tại) thì trả về 404 "Không tìm thấy lần mua".
 - BR-13: Biểu đồ lịch sử giá theo các mốc mua, xem cho **một sản phẩm** mỗi lần.
@@ -84,7 +88,7 @@ Người mua vàng bạc tích trữ (chủ yếu ở Phú Quý) ghi lại từn
   - Lịch sử: ô chọn sản phẩm chỉ gồm sản phẩm của kim loại đang lọc (Tất cả thì đủ); mặc định là sản phẩm tiền mua lớn nhất trong nhóm đó.
   - Lần mua: chỉ hiện lần mua của kim loại đang lọc.
   - Kim loại đang lọc chưa có lần mua nào thì hiện "Chưa có tài sản vàng" / "Chưa có tài sản bạc".
-- BR-18: **Thêm tài sản nhiều sản phẩm**: ngày mua, giờ mua, thương hiệu và ghi chú dùng chung; bấm "+ Thêm sản phẩm" để thêm dòng (sản phẩm, khối lượng + đơn vị, giá); dòng có nút xoá (còn một dòng thì không xoá được).
+- BR-18: **Thêm tài sản nhiều sản phẩm**: ngày mua, giờ mua và thương hiệu dùng chung; bấm "+ Thêm sản phẩm" để thêm dòng (sản phẩm, khối lượng + đơn vị, giá); dòng có nút xoá (còn một dòng thì không xoá được).
   - Lưu ra **mỗi dòng một lần mua** riêng (sửa/xoá từng lần mua như cũ). Tối đa 20 dòng.
   - **Tất cả hoặc không:** một dòng sai (kể cả không tự lấy được giá, BR-16) thì không lưu dòng nào; lỗi hiện dưới đúng ô của đúng dòng.
   - Mỗi dòng có gợi ý giá riêng (BR-6) theo sản phẩm của dòng và ngày giờ chung.
@@ -189,6 +193,36 @@ Scenario: HOLD-UC01-SC45 Lần mua cũ có đơn vị nhập khác đơn vị ni
   Given lần mua lưu trước 2026-11-05: 7,5 gram "Nhẫn tròn Phú Quý 999.9", tổng tiền 27.700.000, đơn giá lưu theo chỉ 13.850.000
   When hệ thống nâng cấp dữ liệu
   Then đơn giá thành 3.693.333 (VNĐ/g), tổng tiền vẫn 27.700.000
+
+Scenario: HOLD-UC01-SC46 Tổng quan hiện giá hiện tại của từng sản phẩm
+  Given tôi có lần mua "Nhẫn tròn Phú Quý 999.9" và "Vàng miếng SJC"
+  And bảng giá mới nhất chỉ có nhẫn tròn: mua vào 13.550.000, bán ra 13.850.000 (theo chỉ)
+  When tôi mở tab Tổng quan
+  Then dòng "Nhẫn tròn Phú Quý 999.9" ghi "Mua vào 13.550.000 · Bán ra 13.850.000 /chỉ"
+  And dòng "Vàng miếng SJC" không ghi giá hiện tại
+
+Scenario: HOLD-UC01-SC47 Giờ mua ẩn sau nút
+  When tôi mở form "Thêm tài sản"
+  Then chỉ có ô ngày mua, kèm nút "+ Thêm giờ mua"
+  When tôi bấm "+ Thêm giờ mua", nhập 10:30, rồi bấm "Bỏ giờ mua"
+  Then ô giờ ẩn đi và lần mua được lưu không có giờ
+
+Scenario: HOLD-UC01-SC48 Báo đang lấy giá; đổi đơn vị quy đổi ngay
+  Given giá gợi ý trả về chậm
+  When tôi mở form "Thêm tài sản"
+  Then dưới ô đơn giá hiện "Đang lấy giá…"
+  When giá gợi ý về: 13.900.000/chỉ
+  Then dòng "Đang lấy giá…" mất, ô đơn giá là 13.900.000
+  When tôi đổi đơn vị sang lượng
+  Then ô đơn giá là 139.000.000 ngay, không lấy lại giá
+
+Scenario: HOLD-UC01-SC49 Không còn ô ghi chú
+  Given lần mua cũ có ghi chú "Mua ở Phú Quý"
+  When tôi mở form sửa lần mua đó
+  Then không có ô ghi chú
+  When tôi bấm Lưu
+  Then ghi chú "Mua ở Phú Quý" vẫn được giữ
+  And danh sách lần mua không hiện ghi chú
 
 Scenario: HOLD-UC01-SC6 Ngày mua ở tương lai bị chặn
   When tôi chọn ngày mua là ngày mai (giờ Việt Nam) rồi bấm Lưu
@@ -331,9 +365,9 @@ Scenario: HOLD-UC01-SC33 Khối lượng và giá vượt giới hạn
   When tôi nhập 1.000 kg, đơn giá 999.999.999.999
   Then hiện "Tổng tiền tối đa 1.000 tỷ đồng"
 
-Scenario: HOLD-UC01-SC23 Ghi chú quá dài
-  When tôi nhập ghi chú 201 ký tự rồi bấm Lưu
-  Then hiện "Ghi chú tối đa 200 ký tự"
+Scenario: HOLD-UC01-SC23 Ghi chú quá dài (API)
+  When gửi lần mua qua API kèm ghi chú 201 ký tự
+  Then API báo lỗi ô ghi chú "Ghi chú tối đa 200 ký tự"
 
 Scenario: HOLD-UC01-SC26 Biểu đồ giá theo các mốc mua
   Given với "Nhẫn tròn Phú Quý 999.9" tôi có 2 lần mua
@@ -374,31 +408,31 @@ Scenario: HOLD-UC01-SC30 Danh sách không phân trang
 ```
 
 ## Cài đặt
-> Kiểm ở commit `23a0d44` (nhánh `main`, 2026-11-05). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
+> Kiểm ở commit `6a84c5d` (nhánh `main`, 2026-11-05). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
 
 | Mục | Code | Test |
 |---|---|---|
-| BR-1 thương hiệu mặc định, các ô form | `server/src/routes.ts:10`, `web/src/pages/PurchaseFormPage.tsx:60` | `api.test.ts` (SC1) |
-| BR-2 sản phẩm theo thương hiệu, danh sách nhập sẵn | `server/src/catalog.ts:30`, `web/src/pages/PurchaseFormPage.tsx:205` | `api.test.ts` (SC31), `purchase-form.test.tsx` (SC9) |
+| BR-1 thương hiệu mặc định, các ô form; giờ mua ẩn sau nút | `server/src/routes.ts:10`, `web/src/pages/PurchaseFormPage.tsx:63`, `web/src/pages/PurchaseFormPage.tsx:43`; không có ô ghi chú, giữ ghi chú cũ khi sửa `web/src/pages/PurchaseFormPage.tsx:45` | `api.test.ts` (SC1), `assets.test.tsx` (SC47, SC49) |
+| BR-2 sản phẩm theo thương hiệu, danh sách nhập sẵn | `server/src/catalog.ts:30`, `web/src/pages/PurchaseFormPage.tsx:208` | `api.test.ts` (SC31), `purchase-form.test.tsx` (SC9) |
 | BR-3 khối lượng, đơn vị | `shared/src/units.ts:54`, `shared/src/format.ts:35` | `units.test.ts`, `format.test.ts`, `api.test.ts` (SC4, SC5, SC25, SC33) |
 | BR-4 ngày giờ không ở tương lai (giờ VN) | `server/src/purchases/validate.ts:77-86` | `api.test.ts` (SC6, SC7) |
 | BR-5 đơn giá ↔ tổng tiền, nhớ cách nhập | `shared/src/money.ts:21-26`, `server/src/purchases/validate.ts:107-108` | `money.test.ts`, `api.test.ts` (SC2, SC3, SC8, SC20, SC24, SC33) |
-| BR-6 gợi ý giá, không ghi đè giá sửa tay (kể cả khi gõ trong lúc chờ gợi ý) | `server/src/routes.ts:42`, `server/src/prices/service.ts:142`, `web/src/components/PurchaseLine.tsx:88` | `price-service.test.ts`, `api.test.ts` (SC10, SC11, SC12, SC32), `purchase-form.test.tsx` (SC13 + ca race R-UI-02) |
-| BR-7 sửa, không gợi ý lại | `server/src/purchases/routes.ts:129`, `web/src/pages/PurchaseFormPage.tsx:65` | `api.test.ts` (SC20, SC24) |
+| BR-6 gợi ý giá, không ghi đè giá sửa tay (kể cả khi gõ trong lúc chờ gợi ý) | `server/src/routes.ts:42`, `server/src/prices/service.ts:142`, `web/src/components/PurchaseLine.tsx:82`; "Đang lấy giá…" và quy đổi khi đổi đơn vị `web/src/components/PurchaseLine.tsx:65`, `web/src/components/PurchaseLine.tsx:123` | `price-service.test.ts`, `api.test.ts` (SC10, SC11, SC12, SC32), `purchase-form.test.tsx` (SC13 + ca race R-UI-02), `assets.test.tsx` (SC48) |
+| BR-7 sửa, không gợi ý lại | `server/src/purchases/routes.ts:129`, `web/src/pages/PurchaseFormPage.tsx:68` | `api.test.ts` (SC20, SC24) |
 | BR-8 xoá có xác nhận | `server/src/purchases/routes.ts:146`, `web/src/components/ConfirmSheet.tsx:2` | `api.test.ts` (SC21) |
 | BR-9 lãi/lỗ theo giá mua vào, loại lần mua chưa có giá | `shared/src/pnl.ts:8`, `server/src/portfolio/service.ts:67` | `pnl.test.ts`, `api.test.ts` (SC14, SC15, SC17) |
-| BR-10 tổng quan, nhóm kim loại/sản phẩm, giờ giá | `server/src/portfolio/service.ts:112`, `web/src/pages/OverviewPage.tsx:12` | `api.test.ts` (SC16, SC18, SC30) |
+| BR-10 tổng quan, nhóm kim loại/sản phẩm, giờ giá, giá hiện tại từng sản phẩm | `server/src/portfolio/service.ts:112`, `server/src/portfolio/service.ts:128`, `web/src/pages/OverviewPage.tsx:12`, `web/src/pages/OverviewPage.tsx:89` | `api.test.ts` (SC16, SC18, SC30, SC46), `assets.test.tsx` (SC46) |
 | BR-11 danh mục rỗng | `web/src/pages/OverviewPage.tsx:19` | `api.test.ts` (SC19) |
 | BR-12 lỗi theo ô, 404 lần mua của người khác | `server/src/purchases/routes.ts:53-57`, `web/src/components/ui.tsx:10` | `api.test.ts` (SC22, SC23) |
-| BR-13 biểu đồ theo mốc mua, giá vốn bình quân | `server/src/portfolio/service.ts:150`, `shared/src/pnl.ts:25-32`, `web/src/components/HistoryChart.tsx:71` | `pnl.test.ts`, `api.test.ts` (SC26, SC27) |
-| BR-14 thiếu giá hiện tại | `server/src/portfolio/service.ts:150` | `api.test.ts` (SC28) |
+| BR-13 biểu đồ theo mốc mua, giá vốn bình quân | `server/src/portfolio/service.ts:153`, `shared/src/pnl.ts:25-32`, `web/src/components/HistoryChart.tsx:71` | `pnl.test.ts`, `api.test.ts` (SC26, SC27) |
+| BR-14 thiếu giá hiện tại | `server/src/portfolio/service.ts:153` | `api.test.ts` (SC28) |
 | BR-17 lọc Vàng/Bạc/Tất cả | `web/src/components/MetalFilter.tsx:11`, `web/src/portfolio-context.tsx:25`, `web/src/pages/OverviewPage.tsx:34` | `assets.test.tsx` (SC40) |
-| BR-18 thêm tài sản nhiều sản phẩm, tất cả hoặc không | `server/src/purchases/routes.ts:97`, `server/src/purchases/routes.ts:118`, `web/src/pages/PurchaseFormPage.tsx:134`, `web/src/components/PurchaseLine.tsx:62` | `api.test.ts` (SC41, SC42), `assets.test.tsx` (SC41, SC42) |
-| BR-5 (2026-11-05) đơn giá theo đơn vị đang chọn | `shared/src/money.ts:31`, `server/src/purchases/validate.ts:107-108`, `server/src/purchases/validate.ts:132`, `web/src/components/PurchaseLine.tsx:91`, nâng cấp dữ liệu cũ `server/src/db.ts:102` | `money.test.ts`, `api.test.ts` (SC44), `db.test.ts` (SC45), `assets.test.tsx` (SC44) |
+| BR-18 thêm tài sản nhiều sản phẩm, tất cả hoặc không | `server/src/purchases/routes.ts:97`, `server/src/purchases/routes.ts:118`, `web/src/pages/PurchaseFormPage.tsx:137`, `web/src/components/PurchaseLine.tsx:62` | `api.test.ts` (SC41, SC42), `assets.test.tsx` (SC41, SC42) |
+| BR-5 (2026-11-05) đơn giá theo đơn vị đang chọn | `shared/src/money.ts:31`, `server/src/purchases/validate.ts:107-108`, `server/src/purchases/validate.ts:132`, `web/src/components/PurchaseLine.tsx:87`, nâng cấp dữ liệu cũ `server/src/db.ts:102` | `money.test.ts`, `api.test.ts` (SC44), `db.test.ts` (SC45), `assets.test.tsx` (SC44) |
 | BR-19 ô tiền dạng VNĐ | `web/src/components/MoneyInput.tsx:9` | `assets.test.tsx` (SC43) |
-| BR-20 trang sửa một sản phẩm | `web/src/pages/PurchaseFormPage.tsx:65` | `purchase-form.test.tsx` (SC20, SC24) |
+| BR-20 trang sửa một sản phẩm | `web/src/pages/PurchaseFormPage.tsx:68` | `purchase-form.test.tsx` (SC20, SC24) |
 | BR-3 (2026-11-05) bước 0,1 chỉ, ô khối lượng chọn/gõ, sản phẩm mặc định | `shared/src/units.ts:42`, `shared/src/units.ts:54`, `web/src/components/WeightCombo.tsx:13`, `server/src/catalog.ts:134` | `units.test.ts`, `api.test.ts` (SC1, SC5, SC39), `assets.test.tsx` (SC38) |
-| BR-16 tự lấy giá khi để trống | `server/src/purchases/validate.ts:126`, `server/src/prices/suggest.ts:11`, `server/src/db.ts:88`, `web/src/pages/PurchaseFormPage.tsx:73`, `web/src/pages/PurchasesPage.tsx:52` | `api.test.ts` (SC8, SC34, SC35, SC36, SC37), `db.test.ts`, `auto-price.test.tsx` (SC34, SC37) |
+| BR-16 tự lấy giá khi để trống | `server/src/purchases/validate.ts:126`, `server/src/prices/suggest.ts:11`, `server/src/db.ts:88`, `web/src/pages/PurchaseFormPage.tsx:76`, `web/src/pages/PurchasesPage.tsx:52` | `api.test.ts` (SC8, SC34, SC35, SC36, SC37), `db.test.ts`, `auto-price.test.tsx` (SC34, SC37) |
 | BR-15 sản phẩm biến mất khỏi bảng giá | `server/src/prices/service.ts:117`, `server/src/purchases/validate.ts:64` | `price-service.test.ts`, `api.test.ts` (SC29) |
 
 Test web (vitest + Testing Library): `web/test/purchase-form.test.tsx` (SC1, SC9, SC13, race R-UI-02, SC20, SC24, SC21), `web/test/shell.test.tsx` (SC17, SC19, 3 tab, nút +), `web/test/auto-price.test.tsx` (nhãn giá tự lấy, form để trống giá), `web/test/states.test.tsx` (biểu đồ quay về sản phẩm mặc định sau SC21, lỗi/thử lại, SC22 phía web: trang sửa báo không tìm thấy).
