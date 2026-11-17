@@ -1,6 +1,6 @@
 # CAL-UC01 — Lịch âm dương (web và widget Android)
 
-> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `b150411` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `8d5268e` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Xem lịch dương kèm ngày âm, ngày lễ, ngày tốt xấu như lịch treo tường; có widget lịch tháng trên màn hình chính Android. Không phí, không quảng cáo (user chốt 2026-11-17).
@@ -33,7 +33,7 @@ Xem lịch dương kèm ngày âm, ngày lễ, ngày tốt xấu như lịch tre
   - Tự đổi ngày lúc 0 giờ (Android có thể trễ vài phút). Widget không cần mạng.
 - BR-7: **App Android = web trong app:**
   - Lần đầu nhập địa chỉ web (vd địa chỉ Render) một lần; chưa nhập thì mở màn hình nhập.
-  - Mở app luôn vào tab Lịch (user chốt 2026-11-18), không khôi phục trang đang xem dở lần trước.
+  - Mở app luôn vào tab Lịch (user chốt 2026-11-18), không khôi phục trang đang xem dở lần trước, kể cả khi quay lại app đang chạy nền (bấm icon). Riêng mở từ ô ngày trên widget thì vào đúng ngày đó.
   - Web chạy trong webview, có localStorage (hồ sơ, tử vi đã xem) và cookie; mất mạng thì dùng bản đã lưu trong bộ nhớ đệm, mở trang lỗi kèm "Thử lại" nếu chưa từng mở.
   - Nút back lùi trang trong web trước; link ngoài mở bằng trình duyệt.
   - Menu ⋮: "Thêm widget ra màn hình chính", "Đổi địa chỉ web", "Kiểm tra cập nhật".
@@ -85,6 +85,6 @@ Scenario: CAL-UC01-SC5 Tab Lịch
 | BR-6 widget | `android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:111`, `android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:185`, `android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:209`, `web/src/pages/CalendarPage.tsx:16` | `web/test/app.test.tsx` (?ngay=); widget: CI build, thử trên máy thật |
 | BR-9 icon theo ngày | `android/app/src/main/java/app/mylunarcalendar/AppTheme.kt:44`, `android/app/src/main/AndroidManifest.xml:29` | (thử trên máy thật) |
 | BR-8 cập nhật trong app | `android/app/src/main/java/app/mylunarcalendar/Updater.kt:27`, `.github/workflows/android.yml:34` | (thử trên máy thật) |
-| BR-7 web trong app | `android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:23`, `android/app/src/main/java/app/mylunarcalendar/WebScreen.kt:24`, `android/app/src/main/java/app/mylunarcalendar/SetupActivity.kt:19` | (thử trên máy thật) |
+| BR-7 web trong app | `android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:24`, `android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:83`, `android/app/src/main/java/app/mylunarcalendar/WebScreen.kt:24`, `android/app/src/main/java/app/mylunarcalendar/SetupActivity.kt:19` | (thử trên máy thật) |
 
 Chưa kiểm: widget trên điện thoại thật; bản Android chỉ được build và test ở GitHub Actions.

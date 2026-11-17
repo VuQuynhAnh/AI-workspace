@@ -1,6 +1,6 @@
 # mylunarcalendar — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `b150411` (nhánh `main`, 2026-11-17).
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `8d5268e` (nhánh `main`, 2026-11-17).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan
@@ -12,7 +12,7 @@ npm workspaces, TypeScript, Node 22, cùng khung với GoldFolio:
 | `shared/` | Lịch âm và tử vi thuần, không I/O: `lunar.ts` (thuật toán Hồ Ngọc Đức), `holidays.ts`, `tuvi.ts` (số liệu tử vi). Server và web import thẳng mã TS |
 | `server/` | Express 4, **không database, không tài khoản** (user chốt 2026-11-17). Route ở `server/src/app.ts:29-36`: `GET /api/config`, `POST /api/horoscope`, `POST /api/chat` (sau mật khẩu chung); `/api` lạ trả 404 JSON. Có `web/dist` thì trả luôn giao diện |
 | `web/` | React 18 + Vite 6 + Tailwind 4, mobile-first. Route ở `web/src/App.tsx:78`: `Gate` (mật khẩu chung, `web/src/App.tsx:22`) → 3 tab trong `AppShell` (`/` Lịch, `/tien-ich` Tiện ích có trang con `/tu-vi`, `/ho-so`, `/cai-dat` Cài đặt) + trang form `/ho-so/them`, `/ho-so/:id`. Hồ sơ lưu trên máy qua `ProfilesProvider` (`web/src/profiles-context.tsx:26`), tử vi đã xem qua `web/src/lib/readings.ts:13` |
-| `android/` | App Kotlin chỉ dùng SDK chuẩn: widget tháng `MonthWidgetProvider` (`android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:21`) tính offline; mở app là web trong webview (`android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:23`, cấu hình `android/app/src/main/java/app/mylunarcalendar/WebScreen.kt:24`), địa chỉ web nhập một lần ở `SetupActivity` |
+| `android/` | App Kotlin chỉ dùng SDK chuẩn: widget tháng `MonthWidgetProvider` (`android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:21`) tính offline; mở app là web trong webview (`android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:24`, cấu hình `android/app/src/main/java/app/mylunarcalendar/WebScreen.kt:24`), địa chỉ web nhập một lần ở `SetupActivity` |
 
 | Kho | Dùng cho | Bắt buộc |
 |---|---|---|
@@ -40,7 +40,7 @@ npm workspaces, TypeScript, Node 22, cùng khung với GoldFolio:
 | R-TIME-01 | "Hôm nay" theo `Asia/Ho_Chi_Minh` qua `vnDate`; đồng hồ tiêm qua `createApp({ now })` để test. |
 | R-UI-02 | Kết quả async về muộn không ghi đè cái đang xem: so khoá hiện tại qua `ref` (`web/src/pages/HoroscopePage.tsx:42`). |
 | R-UI-03..05 | Như GoldFolio: mobile-first, vùng bấm ≥ 44px, đủ trạng thái tải/lỗi/rỗng, màu chỉ dùng token trong `web/src/index.css` (`bg`, `surface`, `surface-2`, `line`, `ink`, `muted`, `gold`, `gold-deep`, `gold-soft`, `good`, `bad`, `sat`). Có hai bộ giá trị: tối (mặc định) và sáng (`web/src/index.css:36`, gắn bằng `data-theme` trên `<html>`); thêm token mới thì khai báo cả hai. |
-| R-BRIDGE-01 | Web nói chuyện với app Android chỉ qua `window.AndroidApp` (`android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:52`), luôn kiểm có cầu nối và bọc try/catch (mở bằng trình duyệt hay app bản cũ thì không có). Cầu nối chỉ nhận giá trị trong danh sách cho phép (`AppTheme.MODES`). |
+| R-BRIDGE-01 | Web nói chuyện với app Android chỉ qua `window.AndroidApp` (`android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:53`), luôn kiểm có cầu nối và bọc try/catch (mở bằng trình duyệt hay app bản cũ thì không có). Cầu nối chỉ nhận giá trị trong danh sách cho phép (`AppTheme.MODES`). |
 
 ## 6. Bẫy âm thầm
 
