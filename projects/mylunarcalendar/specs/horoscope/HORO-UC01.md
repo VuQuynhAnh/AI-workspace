@@ -1,6 +1,6 @@
 # HORO-UC01 — Hồ sơ ngày sinh và tử vi hằng ngày bằng AI
 
-> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `d7255cf` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `e1e3c92` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Xem tử vi trong ngày cho bản thân và người nhà theo tuổi âm lịch, để vui (user chốt). Code tính phần lịch, AI viết lời luận giải.

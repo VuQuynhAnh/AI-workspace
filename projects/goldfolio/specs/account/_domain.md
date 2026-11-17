@@ -1,6 +1,6 @@
 # Domain: Tài khoản (ACC)
 
-> Kiểm ở commit `b26543a` (nhánh `main`, 2026-11-17). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (email + mật khẩu, chốt 2026-11-03).
+> Kiểm ở commit `e3fcedc` (nhánh `main`, 2026-11-17). Chưa có UC riêng: cài đặt tối thiểu cho HOLD-UC01 (email + mật khẩu, chốt 2026-11-03).
 
 | ID | Rule | Code |
 |---|---|---|

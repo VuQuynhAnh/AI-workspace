@@ -1,6 +1,6 @@
 # HOLD-UC02 — Widget màn hình chính Android
 
-> Trạng thái: implemented · Việc: 2026-11-17-widget-android · Cập nhật: 2026-11-17 · Kiểm ở commit `b26543a` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-17-widget-android · Cập nhật: 2026-11-17 · Kiểm ở commit `e3fcedc` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Xem nhanh tổng tài sản, lãi/lỗ và giá vàng, bạc ngay trên màn hình chính điện thoại Android, không cần mở GoldFolio.

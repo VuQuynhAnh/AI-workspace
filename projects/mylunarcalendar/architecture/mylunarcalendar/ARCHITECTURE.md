@@ -1,6 +1,6 @@
 # mylunarcalendar — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `d7255cf` (nhánh `main`, 2026-11-17).
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `e1e3c92` (nhánh `main`, 2026-11-17).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan

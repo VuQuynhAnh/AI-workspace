@@ -1,6 +1,6 @@
 # Domain: Giá (PRICE)
 
-> Kiểm ở commit `b26543a` (nhánh `main`, 2026-11-17). UC: `PRICE-UC02` (AI nhận định xu hướng), `PRICE-UC03` (chat hỏi AI). Phần còn lại là cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
+> Kiểm ở commit `e3fcedc` (nhánh `main`, 2026-11-17). UC: `PRICE-UC02` (AI nhận định xu hướng), `PRICE-UC03` (chat hỏi AI). Phần còn lại là cài đặt tối thiểu cho HOLD-UC01 (adapter Phú Quý, lấy giá 15 phút/lần).
 
 ## Khảo sát nguồn giá (2026-11-02)
 

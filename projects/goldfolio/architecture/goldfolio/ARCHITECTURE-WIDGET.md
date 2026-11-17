@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE-WIDGET (widget Android)
 
-> Tách riêng vì `ARCHITECTURE.md` sát 15 KB. Kiểm ở commit `b26543a` (nhánh `main`, 2026-11-17). Nghiệp vụ: `specs/holding/HOLD-UC02.md`.
+> Tách riêng vì `ARCHITECTURE.md` sát 15 KB. Kiểm ở commit `e3fcedc` (nhánh `main`, 2026-11-17). Nghiệp vụ: `specs/holding/HOLD-UC02.md`.
 
 ## Thành phần
 
@@ -25,3 +25,4 @@
 1. **Khoá ký APK:** chưa có Secrets `ANDROID_KEYSTORE_*` thì APK ký bằng khoá debug sinh mới trên mỗi máy build, nên bản sau không cài đè được bản trước (phải gỡ rồi cài lại, dán lại mã). Cách tạo khoá cố định: README "Widget Android".
 2. **Mã kết nối có `#`:** phần sau `#` là fragment, trình duyệt không gửi lên server, nên mã không lọt vào log nếu ai đó mở chuỗi như một đường dẫn. App tách theo dấu `#` cuối (`android/app/src/main/java/app/goldfolio/widget/Prefs.kt:29`).
 3. **`APK_URL` cố định** trỏ trang Releases của repo GitHub (`web/src/pages/WidgetPage.tsx:14`). Repo private thì điện thoại phải đăng nhập GitHub mới tải được APK.
+4. **Cookie đăng nhập trong webview phải `flush()` khi app bị ẩn** (`android/app/src/main/java/app/goldfolio/widget/MainActivity.kt:51`): đăng nhập là gọi API ngầm, không tải trang mới; không ghi xuống máy thì đóng app là mất phiên, mở lại phải đăng nhập lại (gặp thật 2026-11-17).
