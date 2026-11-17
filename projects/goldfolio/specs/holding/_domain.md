@@ -1,6 +1,6 @@
 # Domain: Danh mục và lãi/lỗ (HOLD)
 
-> Kiểm ở commit `e3fcedc` (nhánh `main`, 2026-11-17). Chi tiết theo UC: `HOLD-UC01.md` mục Cài đặt.
+> Kiểm ở commit `b85b3bb` (nhánh `main`, 2026-11-17). Chi tiết theo UC: `HOLD-UC01.md` mục Cài đặt.
 
 | ID | Rule | Code |
 |---|---|---|

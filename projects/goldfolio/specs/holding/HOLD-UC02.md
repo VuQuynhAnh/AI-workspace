@@ -1,6 +1,6 @@
 # HOLD-UC02 — Widget màn hình chính Android
 
-> Trạng thái: implemented · Việc: 2026-11-17-widget-android · Cập nhật: 2026-11-17 · Kiểm ở commit `e3fcedc` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-17-widget-android · Cập nhật: 2026-11-17 · Kiểm ở commit `b85b3bb` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Xem nhanh tổng tài sản, lãi/lỗ và giá vàng, bạc ngay trên màn hình chính điện thoại Android, không cần mở GoldFolio.
@@ -24,6 +24,7 @@ Xem nhanh tổng tài sản, lãi/lỗ và giá vàng, bạc ngay trên màn hì
 - BR-5: **Cập nhật:** Android tự làm mới khoảng 30 phút một lần (mức thấp nhất hệ điều hành cho phép); bấm dòng giờ để làm mới ngay ("Đang cập nhật…"). Lỗi mạng hoặc server đang ngủ thì giữ số cũ và ghi "⚠ <lỗi> · Giá lúc …". Bấm vào số liệu thì mở app (GoldFolio trong app, BR-7); chưa kết nối thì app mở màn hình dán mã.
 - BR-6: **Cài đặt widget** (trong app, menu ⋮ → "Cài đặt widget"): dán mã kết nối (có nút "Dán"), bấm Lưu thì kiểm thử kết nối ngay và báo kết quả (server đang ngủ có thể mất tới 1 phút). Mã sai dạng thì báo cách lấy lại mã. Có nút "Mở GoldFolio", "Thêm widget ra màn hình chính" (nếu launcher hỗ trợ) và "Xoá kết nối".
 - BR-7: **App là GoldFolio trong app** (user chốt 2026-11-17): mở app hay bấm widget là mở GoldFolio trong webview, đăng nhập một lần rồi nhớ cookie, không phải mở trình duyệt. Địa chỉ lấy từ mã kết nối; chưa dán mã thì mở Cài đặt widget trước. Nút back lùi trang trong web trước; link ngoài (GitHub) mở bằng trình duyệt; tên app là "GoldFolio".
+- BR-8: **Cập nhật trong app:** mở app thì kiểm tra bản mới trên GitHub Releases mỗi ngày một lần (hoặc menu ⋮ → "Kiểm tra cập nhật"); có bản mới thì hỏi, bấm Cập nhật là tải APK và mở màn cài của Android, không phải gỡ app (cần khoá ký cố định, README "Widget Android").
 
 ## Scenario
 
@@ -74,7 +75,8 @@ Scenario: HOLD-UC02-SC6 Trang Widget: tạo lại và thu hồi phải xác nh�
 | BR-4 nội dung | `server/src/widget/service.ts:69`; hiện ở `android/app/src/main/java/app/goldfolio/widget/GoldWidgetProvider.kt:41` | `widget.test.ts` (SC1, SC2) |
 | BR-5 cập nhật | `android/app/src/main/res/xml/widget_info.xml:10`, `android/app/src/main/java/app/goldfolio/widget/RefreshJob.kt:48` | (thử trên máy thật) |
 | BR-6 cài đặt widget | `android/app/src/main/java/app/goldfolio/widget/WidgetSetupActivity.kt:68`, `android/app/src/main/java/app/goldfolio/widget/Prefs.kt:29` | (thử trên máy thật) |
-| BR-7 GoldFolio trong app | `android/app/src/main/java/app/goldfolio/widget/MainActivity.kt:20`, `android/app/src/main/java/app/goldfolio/widget/WebScreen.kt:24`, `android/app/src/main/java/app/goldfolio/widget/GoldWidgetProvider.kt:70` | (thử trên máy thật) |
+| BR-8 cập nhật trong app | `android/app/src/main/java/app/goldfolio/widget/Updater.kt:27`, `.github/workflows/android-widget.yml:33` | (thử trên máy thật) |
+| BR-7 GoldFolio trong app | `android/app/src/main/java/app/goldfolio/widget/MainActivity.kt:21`, `android/app/src/main/java/app/goldfolio/widget/WebScreen.kt:24`, `android/app/src/main/java/app/goldfolio/widget/GoldWidgetProvider.kt:70` | (thử trên máy thật) |
 
 API: `GET/POST/DELETE /api/widget/token` (cookie), `GET /api/widget` (mã widget) — `server/src/widget/routes.ts:13`.
 

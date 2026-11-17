@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE-WIDGET (widget Android)
 
-> Tách riêng vì `ARCHITECTURE.md` sát 15 KB. Kiểm ở commit `e3fcedc` (nhánh `main`, 2026-11-17). Nghiệp vụ: `specs/holding/HOLD-UC02.md`.
+> Tách riêng vì `ARCHITECTURE.md` sát 15 KB. Kiểm ở commit `b85b3bb` (nhánh `main`, 2026-11-17). Nghiệp vụ: `specs/holding/HOLD-UC02.md`.
 
 ## Thành phần
 
@@ -8,7 +8,7 @@
 |---|---|
 | `server/src/widget/` | Mã widget (tạo, thu hồi, tra người dùng) và số liệu widget dựng từ `buildPortfolio` + `pickProduct` của nhận định xu hướng (`server/src/widget/service.ts:69`) |
 | `web/src/pages/WidgetPage.tsx` | Trang `/widget` trong `AppShell`, mở từ header (không chiếm tab) |
-| `android/` | App Kotlin chỉ dùng SDK chuẩn (`Activity`, `WebView`, `AppWidgetProvider`, `JobService`, `HttpURLConnection`, `org.json`); không AndroidX, không thư viện ngoài. Mở app là GoldFolio trong webview (`android/app/src/main/java/app/goldfolio/widget/MainActivity.kt:20`), cài đặt widget ở `WidgetSetupActivity` |
+| `android/` | App Kotlin chỉ dùng SDK chuẩn (`Activity`, `WebView`, `AppWidgetProvider`, `JobService`, `HttpURLConnection`, `org.json`); không AndroidX, không thư viện ngoài. Mở app là GoldFolio trong webview (`android/app/src/main/java/app/goldfolio/widget/MainActivity.kt:21`), cài đặt widget ở `WidgetSetupActivity` |
 | `.github/workflows/android-widget.yml` | Build APK release khi `android/` đổi trên `main`, tạo GitHub Release `widget-v<run_number>` |
 
 ## Luật
@@ -22,7 +22,7 @@
 
 ## Bẫy
 
-1. **Khoá ký APK:** chưa có Secrets `ANDROID_KEYSTORE_*` thì APK ký bằng khoá debug sinh mới trên mỗi máy build, nên bản sau không cài đè được bản trước (phải gỡ rồi cài lại, dán lại mã). Cách tạo khoá cố định: README "Widget Android".
+1. **Khoá ký APK** (`.github/workflows/android-widget.yml:33`): chỉ cài đè (và cập nhật trong app) được khi mọi bản ký cùng khoá. Khoá `android/release-key.p12` do CI tạo một lần, khoá bằng Secret `ANDROID_KEYSTORE_PASSWORD`; đổi mật khẩu hay xoá file này là mọi máy phải gỡ app cài lại. Chưa có Secret thì ký bằng khoá debug sinh mới mỗi lần build. Cập nhật trong app: `android/app/src/main/java/app/goldfolio/widget/Updater.kt:27` so tag `widget-v<n>` với versionCode (= số lần build).
 2. **Mã kết nối có `#`:** phần sau `#` là fragment, trình duyệt không gửi lên server, nên mã không lọt vào log nếu ai đó mở chuỗi như một đường dẫn. App tách theo dấu `#` cuối (`android/app/src/main/java/app/goldfolio/widget/Prefs.kt:29`).
 3. **`APK_URL` cố định** trỏ trang Releases của repo GitHub (`web/src/pages/WidgetPage.tsx:14`). Repo private thì điện thoại phải đăng nhập GitHub mới tải được APK.
-4. **Cookie đăng nhập trong webview phải `flush()` khi app bị ẩn** (`android/app/src/main/java/app/goldfolio/widget/MainActivity.kt:51`): đăng nhập là gọi API ngầm, không tải trang mới; không ghi xuống máy thì đóng app là mất phiên, mở lại phải đăng nhập lại (gặp thật 2026-11-17).
+4. **Cookie đăng nhập trong webview phải `flush()` khi app bị ẩn** (`android/app/src/main/java/app/goldfolio/widget/MainActivity.kt:52`): đăng nhập là gọi API ngầm, không tải trang mới; không ghi xuống máy thì đóng app là mất phiên, mở lại phải đăng nhập lại (gặp thật 2026-11-17).

@@ -1,6 +1,6 @@
 # HORO-UC01 — Hồ sơ ngày sinh và tử vi hằng ngày bằng AI
 
-> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `e1e3c92` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `babc858` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Xem tử vi trong ngày cho bản thân và người nhà theo tuổi âm lịch, để vui (user chốt). Code tính phần lịch, AI viết lời luận giải.
@@ -91,7 +91,7 @@ Scenario: HORO-UC01-SC10 Chưa bật AI
 | BR-4 AI | `server/src/horoscope/routes.ts:19`, `server/src/ai/model.ts:81`, `server/src/ai/model.ts:113` | `server/test/api.test.ts` (SC3), `server/test/gemini.test.ts` |
 | BR-5 lưu trên máy, lỗi | `web/src/lib/readings.ts:13`, `web/src/lib/readings.ts:18`, `server/src/ai/model.ts:141`, `server/src/ai/gemini.ts:46` | `app.test.tsx` (SC6), `api.test.ts` (SC5) |
 | BR-6 mật khẩu chung | `server/src/access.ts:15`, `server/src/app.ts:29`, `web/src/App.tsx:18`, `web/src/api.ts:39` | `api.test.ts` (SC8), `app.test.tsx` (SC9) |
-| BR-8 ẩn khi chưa bật AI | `server/src/app.ts:29`, `web/src/App.tsx:21`, `web/src/App.tsx:66`, `web/src/components/AppShell.tsx:14` | `app.test.tsx` (SC10) |
+| BR-8 ẩn khi chưa bật AI | `server/src/app.ts:29`, `web/src/App.tsx:21`, `web/src/App.tsx:66`, `web/src/components/AppShell.tsx:16` | `app.test.tsx` (SC10) |
 | BR-7 màn Tử vi | `web/src/pages/HoroscopePage.tsx:30`, `web/src/pages/HoroscopePage.tsx:43` | `app.test.tsx` (SC6) |
 
 Chưa kiểm: chất lượng lời tử vi của Gemini thật.

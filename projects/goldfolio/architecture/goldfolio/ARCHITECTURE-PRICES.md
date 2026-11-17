@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE-PRICES (bẫy nguồn giá)
 
-> Tách từ `ARCHITECTURE.md` §6 vì file chính vượt 15 KB; giữ nguyên số thứ tự bẫy (§6.n) để các chỗ đang trích không đổi. Kiểm ở commit `e3fcedc` (nhánh `main`, 2026-11-17).
+> Tách từ `ARCHITECTURE.md` §6 vì file chính vượt 15 KB; giữ nguyên số thứ tự bẫy (§6.n) để các chỗ đang trích không đổi. Kiểm ở commit `b85b3bb` (nhánh `main`, 2026-11-17).
 
 1. **Bảng bạc có 2 dòng nhóm** (`server/src/prices/phuquy/parse.ts:78`): "BẠC THƯƠNG HIỆU PHÚ QUÝ" đứng trước, "… KHÁC" đứng sau. Coi mọi dòng nhóm là "hãng khác" thì mất toàn bộ bạc Phú Quý.
 2. **Bảng vàng trang chủ có dòng bạc theo chỉ** (`server/src/prices/phuquy/parse.ts:59`): bỏ khi lấy giá live; chỉ dùng trong giá theo ngày, nhân lên lượng qua `matchRows`. Sản phẩm theo kg không nhận giá quy từ chỉ (`server/src/prices/match.ts:46`).
