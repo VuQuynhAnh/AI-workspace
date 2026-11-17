@@ -1,6 +1,6 @@
 # PRICE-UC03 — Chat hỏi AI về giá và tài sản
 
-> Trạng thái: implemented · Việc: 2026-11-05-ai-chat · Cập nhật: 2026-11-05 · Kiểm ở commit `3478da4` (nhánh `main`, 2026-11-05)
+> Trạng thái: implemented · Việc: 2026-11-05-ai-chat · Cập nhật: 2026-11-05 · Kiểm ở commit `3635158` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Người dùng hỏi bằng lời thường ("vàng của tôi đang lỗ vì sao?", "bạc tháng này thế nào?") và nhận câu trả lời ngắn dựa trên chính danh mục và giá thật trong GoldFolio. Chỉ để tham khảo, không phải lời khuyên đầu tư.
@@ -63,7 +63,7 @@ PRICE-UC03-SC5 (bong bóng nhận định, "Hỏi thêm") nằm trong `PRICE-UC0
 | BR-4 kiểm tin nhắn | `server/src/chat/service.ts:19` | `chat.test.ts` (SC3) |
 | BR-5 prompt, gọi Gemini | `server/src/ai/chat.ts:20`, `server/src/ai/gemini.ts:77` | (chưa kiểm với Gemini thật) |
 | BR-6 lỗi | `server/src/chat/service.ts:93`, `web/src/chat-context.tsx:60` | `chat.test.ts` (SC2), `chat.test.tsx` |
-| BR-7 khung chat, nút nổi | `web/src/components/ChatSheet.tsx:16`, `web/src/components/AppShell.tsx:47` | `chat.test.tsx` (SC4) |
+| BR-7 khung chat, nút nổi | `web/src/components/ChatSheet.tsx:16`, `web/src/components/AppShell.tsx:53` | `chat.test.tsx` (SC4) |
 
 API: `GET /api/chat` (số câu còn lại), `POST /api/chat` `{ messages }` (`server/src/chat/routes.ts:9`).
 

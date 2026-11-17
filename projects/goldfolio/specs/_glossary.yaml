@@ -116,3 +116,8 @@
   meaning: Giá trị hiện tại (theo giá mua vào mới nhất) trừ tổng tiền đã mua.
   code_name: pnl
   ui_label: Lãi/Lỗ
+
+- term: mã widget
+  meaning: Mã chỉ đọc để widget màn hình chính Android lấy số liệu tài sản mà không cần đăng nhập. Mỗi tài khoản một mã, tạo lại thì mã cũ hết hiệu lực, có thể thu hồi. "Mã kết nối" = địa chỉ GoldFolio + "#" + mã widget, dán một lần vào app.
+  code_name: widget_tokens, createToken, userOfToken (GET/POST/DELETE /api/widget/token, GET /api/widget)
+  ui_label: Mã widget, Mã kết nối
