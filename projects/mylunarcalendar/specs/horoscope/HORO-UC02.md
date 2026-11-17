@@ -1,6 +1,6 @@
 # HORO-UC02 — Chat hỏi AI về ngày tốt xấu và tử vi
 
-> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `8d5268e` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `94d320c` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Hỏi bằng lời thường ("ngày mai có hợp khai trương không?", "tuổi tôi hợp màu gì?"), AI trả lời dựa trên hồ sơ và lịch hôm nay.
