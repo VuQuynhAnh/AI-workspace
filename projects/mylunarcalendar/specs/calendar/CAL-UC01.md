@@ -1,6 +1,6 @@
 # CAL-UC01 — Lịch âm dương (web và widget Android)
 
-> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `5fcc913` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `b150411` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Xem lịch dương kèm ngày âm, ngày lễ, ngày tốt xấu như lịch treo tường; có widget lịch tháng trên màn hình chính Android. Không phí, không quảng cáo (user chốt 2026-11-17).
@@ -33,6 +33,7 @@ Xem lịch dương kèm ngày âm, ngày lễ, ngày tốt xấu như lịch tre
   - Tự đổi ngày lúc 0 giờ (Android có thể trễ vài phút). Widget không cần mạng.
 - BR-7: **App Android = web trong app:**
   - Lần đầu nhập địa chỉ web (vd địa chỉ Render) một lần; chưa nhập thì mở màn hình nhập.
+  - Mở app luôn vào tab Lịch (user chốt 2026-11-18), không khôi phục trang đang xem dở lần trước.
   - Web chạy trong webview, có localStorage (hồ sơ, tử vi đã xem) và cookie; mất mạng thì dùng bản đã lưu trong bộ nhớ đệm, mở trang lỗi kèm "Thử lại" nếu chưa từng mở.
   - Nút back lùi trang trong web trước; link ngoài mở bằng trình duyệt.
   - Menu ⋮: "Thêm widget ra màn hình chính", "Đổi địa chỉ web", "Kiểm tra cập nhật".

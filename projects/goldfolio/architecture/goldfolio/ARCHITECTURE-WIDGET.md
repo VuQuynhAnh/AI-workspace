@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE-WIDGET (widget Android)
 
-> Tách riêng vì `ARCHITECTURE.md` sát 15 KB. Kiểm ở commit `b85b3bb` (nhánh `main`, 2026-11-17). Nghiệp vụ: `specs/holding/HOLD-UC02.md`.
+> Tách riêng vì `ARCHITECTURE.md` sát 15 KB. Kiểm ở commit `7957b32` (nhánh `main`, 2026-11-17). Nghiệp vụ: `specs/holding/HOLD-UC02.md`.
 
 ## Thành phần
 
@@ -22,7 +22,7 @@
 
 ## Bẫy
 
-1. **Khoá ký APK** (`.github/workflows/android-widget.yml:33`): chỉ cài đè (và cập nhật trong app) được khi mọi bản ký cùng khoá. Khoá `android/release-key.p12` do CI tạo một lần, khoá bằng Secret `ANDROID_KEYSTORE_PASSWORD`; đổi mật khẩu hay xoá file này là mọi máy phải gỡ app cài lại. Chưa có Secret thì ký bằng khoá debug sinh mới mỗi lần build. Cập nhật trong app: `android/app/src/main/java/app/goldfolio/widget/Updater.kt:27` so tag `widget-v<n>` với versionCode (= số lần build).
+1. **Khoá ký APK** (`.github/workflows/android-widget.yml:33`): chỉ cài đè (và cập nhật trong app) được khi mọi bản ký cùng khoá. Khoá `android/release-key.p12` do CI tạo một lần, mật khẩu là Secret `ANDROID_KEYSTORE_PASSWORD` nếu có, không thì mật khẩu ghi sẵn trong workflow (khoá công khai, user chốt 2026-11-18); đặt Secret sau khi khoá đã tạo là build lỗi vì sai mật khẩu; đổi mật khẩu hay xoá file này là mọi máy phải gỡ app cài lại. Chưa có Secret thì ký bằng khoá debug sinh mới mỗi lần build. Cập nhật trong app: `android/app/src/main/java/app/goldfolio/widget/Updater.kt:27` so tag `widget-v<n>` với versionCode (= số lần build).
 2. **Mã kết nối có `#`:** phần sau `#` là fragment, trình duyệt không gửi lên server, nên mã không lọt vào log nếu ai đó mở chuỗi như một đường dẫn. App tách theo dấu `#` cuối (`android/app/src/main/java/app/goldfolio/widget/Prefs.kt:29`).
 3. **`APK_URL` cố định** trỏ trang Releases của repo GitHub (`web/src/pages/WidgetPage.tsx:14`). Repo private thì điện thoại phải đăng nhập GitHub mới tải được APK.
 4. **Cookie đăng nhập trong webview phải `flush()` khi app bị ẩn** (`android/app/src/main/java/app/goldfolio/widget/MainActivity.kt:52`): đăng nhập là gọi API ngầm, không tải trang mới; không ghi xuống máy thì đóng app là mất phiên, mở lại phải đăng nhập lại (gặp thật 2026-11-17).

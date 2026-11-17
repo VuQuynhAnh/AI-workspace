@@ -1,6 +1,6 @@
 # mylunarcalendar — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `5fcc913` (nhánh `main`, 2026-11-17).
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `b150411` (nhánh `main`, 2026-11-17).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan
@@ -53,7 +53,7 @@ npm workspaces, TypeScript, Node 22, cùng khung với GoldFolio:
 7. **Widget đổi ngày lúc 0 giờ** bằng `AlarmManager.setWindow` (`android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:209`). `DATE_CHANGED` có thể không tới trên Android 8+; báo thức và `updatePeriodMillis` 3 giờ là lưới an toàn.
 12. **Service worker giữ bản cũ một lần** (`web/public/sw.js:1`): trả giao diện đã lưu trước rồi mới lấy bản mới ở nền, nên lần mở đầu sau khi deploy vẫn là bản cũ. Đổi cách lưu (đổi file tĩnh, đường dẫn) thì tăng tên cache `mlc-shell-vN` để xoá bộ nhớ cũ. Không cho `/api` qua bộ nhớ đệm.
 11. **Icon đổi theo ngày bằng activity-alias** (`android/app/src/main/java/app/mylunarcalendar/AppTheme.kt:44`): bật bí danh mới trước rồi mới tắt cái cũ để lúc nào cũng có icon; một số launcher xoá lối tắt trên màn hình chính hoặc đóng app khi đổi. MainActivity không có intent-filter LAUNCHER, chỉ các bí danh có; thêm bí danh mới phải đủ cả 31 ngày.
-10. **Khoá ký APK** (`.github/workflows/android.yml:34`): chỉ cài đè (và cập nhật trong app, `android/app/src/main/java/app/mylunarcalendar/Updater.kt:27`) được khi mọi bản ký cùng khoá `android/release-key.p12` (CI tạo một lần, khoá bằng Secret `ANDROID_KEYSTORE_PASSWORD`). Đổi mật khẩu hay xoá file là mọi máy phải gỡ app. Updater so tag `android-v<n>` với versionCode (= số lần build).
+10. **Khoá ký APK** (`.github/workflows/android.yml:34`): chỉ cài đè (và cập nhật trong app, `android/app/src/main/java/app/mylunarcalendar/Updater.kt:27`) được khi mọi bản ký cùng khoá `android/release-key.p12` (CI tạo một lần, mật khẩu là Secret `ANDROID_KEYSTORE_PASSWORD` nếu có, không thì mật khẩu ghi sẵn trong workflow (khoá công khai, user chốt 2026-11-18); đặt Secret sau khi khoá đã tạo là build lỗi vì sai mật khẩu). Đổi mật khẩu hay xoá file là mọi máy phải gỡ app. Updater so tag `android-v<n>` với versionCode (= số lần build).
 9. **Webview Android chỉ chạy offline sau lần mở đầu:** `LOAD_CACHE_ELSE_NETWORK` khi mất mạng (`android/app/src/main/java/app/mylunarcalendar/WebScreen.kt:27`) dùng bộ nhớ đệm HTTP của webview, không phải service worker; chưa từng mở thì hiện trang lỗi "Thử lại". Widget thì luôn offline.
 8. **Mật khẩu chung nằm trong localStorage** dạng chữ thường: chỉ chặn người lạ dùng hạn mức AI, không phải bảo mật thật; đừng dựa vào nó để giấu dữ liệu.
 

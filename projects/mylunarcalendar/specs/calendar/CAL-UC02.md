@@ -1,6 +1,6 @@
 # CAL-UC02 — Cài đặt giao diện sáng / tối
 
-> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `5fcc913` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `b150411` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Chọn giao diện sáng hay tối cho web, app Android và widget lịch tháng trên màn hình chính (user chốt 2026-11-17).
