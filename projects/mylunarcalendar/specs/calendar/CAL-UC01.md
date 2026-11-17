@@ -1,6 +1,6 @@
 # CAL-UC01 — Lịch âm dương (web và widget Android)
 
-> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `babc858` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `7a01eec` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Xem lịch dương kèm ngày âm, ngày lễ, ngày tốt xấu như lịch treo tường; có widget lịch tháng trên màn hình chính Android. Không phí, không quảng cáo (user chốt 2026-11-17).
@@ -18,11 +18,12 @@ Xem lịch dương kèm ngày âm, ngày lễ, ngày tốt xấu như lịch tre
   - Âm lịch, chỉ tính trong tháng thường, không tính tháng nhuận: mùng 1–3 Tết, rằm tháng Giêng, 3/3, 10/3, 15/4, 5/5, 15/7, 15/8, 23/12, Giao thừa (ngày cuối tháng Chạp).
   - Ngày nghỉ theo luật lao động tô **đỏ**, ngày lễ khác tô vàng; Chủ nhật cũng đỏ.
 - BR-4: **Chi tiết một ngày:** thứ, ngày dương, ngày âm kèm năm can chi; can chi ngày và tháng; ngày hoàng đạo/hắc đạo (12 thần theo tháng âm); ngũ hành nạp âm của ngày; tiết khí (ghi "bắt đầu hôm nay" nếu đúng ngày chuyển tiết); giờ hoàng đạo kèm giờ đồng hồ (user chốt: lễ, giờ hoàng đạo, tiết khí).
-- BR-5: **Đổi ngày âm ↔ dương** nằm trong bảng **"Thêm"**, mở từ nút nổi đặt trên nút Hỏi AI (không có AI thì đứng chỗ nút Hỏi AI) (user chốt 2026-11-17):
+- BR-5: **Đổi ngày âm ↔ dương** nằm trong tab **Tiện ích** (user chốt 2026-11-17; trước đó là nút nổi "Thêm"):
   - Âm → dương: ngày, tháng, năm 1900–2100, tháng nhuận. Ngày không tồn tại (tháng nhuận sai năm, ngày 30 của tháng thiếu) thì báo "Ngày âm không tồn tại".
   - Dương → âm: chọn ngày (31/01/1900 – 31/12/2100), ra ngày tháng âm (nhuận) kèm năm can chi.
-  - Đổi được thì có nút "Xem trên lịch": đóng bảng, tab Lịch nhảy tới ngày đó.
-  - Bảng "Thêm" còn có mục tải app Android (ẩn khi đang mở trong app).
+  - Đổi được thì có nút "Xem trên lịch": sang tab Lịch ở đúng ngày đó.
+- BR-10: **3 tab** Lịch / Tiện ích / Cài đặt, luôn hiện. Tiện ích có lối vào Tử vi, Hồ sơ (chỉ khi AI bật, HORO-UC01/BR-8) và đổi ngày. Đang ở trang Tử vi, Hồ sơ thì tab Tiện ích sáng.
+- BR-11: **Vuốt ngang trên lưới lịch** để chuyển tháng (vuốt sang trái là tháng sau), chỉ tính khi vuốt ngang rõ ràng (≥ 50px, ngang nhiều hơn dọc) để không lẫn với cuộn trang. Widget màn hình chính không vuốt được (Android không cho), dùng ‹ ›.
 - BR-6: **Widget Android:**
   - ‹ › chuyển tháng; chạm tiêu đề về tháng hiện tại; sang ngày mới thì tự về tháng hiện tại.
   - Dòng cuối: hôm nay âm lịch, tiết khí, ngày lễ, giờ tốt.
@@ -33,6 +34,7 @@ Xem lịch dương kèm ngày âm, ngày lễ, ngày tốt xấu như lịch tre
   - Web chạy trong webview, có localStorage (hồ sơ, tử vi đã xem) và cookie; mất mạng thì dùng bản đã lưu trong bộ nhớ đệm, mở trang lỗi kèm "Thử lại" nếu chưa từng mở.
   - Nút back lùi trang trong web trước; link ngoài mở bằng trình duyệt.
   - Menu ⋮: "Thêm widget ra màn hình chính", "Đổi địa chỉ web", "Kiểm tra cập nhật".
+- BR-9: **Icon app hiện ngày dương hôm nay** (user chốt 2026-11-17, đã biết rủi ro): tờ lịch gáy đỏ, số ngày ở giữa. 31 bí danh icon (Day1..Day31), mỗi ngày bật đúng một, đổi lúc mở app và lúc 0 giờ. Mới cài (chưa mở app lần nào) là icon trăng khuyết. Một số launcher xoá icon trên màn hình chính hoặc đóng app khi icon đổi; icon vẫn có trong danh sách ứng dụng.
 - BR-8: **Cập nhật trong app:** mở app thì kiểm tra bản mới trên GitHub Releases mỗi ngày một lần (hoặc bấm "Kiểm tra cập nhật"); có bản mới thì hỏi, bấm Cập nhật là tải APK và mở màn cài của Android, không phải gỡ app. Lần đầu Android hỏi cho phép app cài ứng dụng.
 
 ## Scenario
@@ -66,10 +68,13 @@ Scenario: CAL-UC01-SC5 Tab Lịch
 | BR-1 ngày âm | `shared/src/lunar.ts:144`, `shared/src/lunar.ts:181`; Kotlin `android/app/src/main/java/app/mylunarcalendar/LunarCalendar.kt:130` | `shared/test/lunar.test.ts` (SC1, SC2), `LunarCalendarTest.kt` |
 | BR-2 lưới tháng | `web/src/lib/calendar.ts:35`, `web/src/pages/CalendarPage.tsx:12` | `web/test/app.test.tsx` (SC5) |
 | BR-3 ngày lễ | `shared/src/holidays.ts:48` | `shared/test/tuvi.test.ts` (SC4) |
-| BR-4 chi tiết ngày | `shared/src/tuvi.ts:36`, `shared/src/lunar.ts:244`, `shared/src/lunar.ts:259`, `shared/src/lunar.ts:288`, `web/src/pages/CalendarPage.tsx:83` | `shared/test/lunar.test.ts` (SC3), `app.test.tsx` (SC5) |
-| BR-5 bảng Thêm, đổi âm ↔ dương | `web/src/components/MoreSheet.tsx:17`, `web/src/components/MoreSheet.tsx:84`, `web/src/components/MoreSheet.tsx:125`, `web/src/components/AppShell.tsx:36` | `app.test.tsx` |
-| BR-6 widget | `android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:96`, `android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:156`, `android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:180`, `web/src/pages/CalendarPage.tsx:16` | `web/test/app.test.tsx` (?ngay=); widget: CI build, thử trên máy thật |
+| BR-4 chi tiết ngày | `shared/src/tuvi.ts:36`, `shared/src/lunar.ts:244`, `shared/src/lunar.ts:259`, `shared/src/lunar.ts:288`, `web/src/pages/CalendarPage.tsx:106` | `shared/test/lunar.test.ts` (SC3), `app.test.tsx` (SC5) |
+| BR-5 đổi âm ↔ dương | `web/src/pages/UtilitiesPage.tsx:9`, `web/src/components/Converters.tsx:20`, `web/src/components/Converters.tsx:61` | `app.test.tsx` |
+| BR-10 3 tab | `web/src/components/BottomNav.tsx:12`, `web/src/App.tsx:79` | `app.test.tsx` |
+| BR-11 vuốt chuyển tháng | `web/src/pages/CalendarPage.tsx:44` | `app.test.tsx` |
+| BR-6 widget | `android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:106`, `android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:172`, `android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:196`, `web/src/pages/CalendarPage.tsx:16` | `web/test/app.test.tsx` (?ngay=); widget: CI build, thử trên máy thật |
+| BR-9 icon theo ngày | `android/app/src/main/java/app/mylunarcalendar/AppTheme.kt:44`, `android/app/src/main/AndroidManifest.xml:29` | (thử trên máy thật) |
 | BR-8 cập nhật trong app | `android/app/src/main/java/app/mylunarcalendar/Updater.kt:27`, `.github/workflows/android.yml:34` | (thử trên máy thật) |
-| BR-7 web trong app | `android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:22`, `android/app/src/main/java/app/mylunarcalendar/WebScreen.kt:24`, `android/app/src/main/java/app/mylunarcalendar/SetupActivity.kt:19` | (thử trên máy thật) |
+| BR-7 web trong app | `android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:23`, `android/app/src/main/java/app/mylunarcalendar/WebScreen.kt:24`, `android/app/src/main/java/app/mylunarcalendar/SetupActivity.kt:19` | (thử trên máy thật) |
 
 Chưa kiểm: widget trên điện thoại thật; bản Android chỉ được build và test ở GitHub Actions.

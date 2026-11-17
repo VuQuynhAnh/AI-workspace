@@ -1,13 +1,13 @@
 # HORO-UC01 — Hồ sơ ngày sinh và tử vi hằng ngày bằng AI
 
-> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `babc858` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `7a01eec` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Xem tử vi trong ngày cho bản thân và người nhà theo tuổi âm lịch, để vui (user chốt). Code tính phần lịch, AI viết lời luận giải.
 
 ## Phạm vi
 - **Không có tài khoản, không có database** (user chốt 2026-11-17: dự án cá nhân, không thu thập dữ liệu người dùng). Hồ sơ và tử vi đã xem chỉ lưu trên máy (trình duyệt); không sao lưu.
-- Màn hình: tab **Tử vi** (`/tu-vi`), tab **Hồ sơ** (`/ho-so`), form `/ho-so/them`, `/ho-so/:id`.
+- Màn hình: trang **Tử vi** (`/tu-vi`) và **Hồ sơ** (`/ho-so`) mở từ tab Tiện ích, form `/ho-so/them`, `/ho-so/:id`.
 - Phụ thuộc: Gemini gói miễn phí qua server (khoá API phải nằm trên server).
 - Ngoài phạm vi (đợt sau, user chốt "làm dần"): lá số Tử Vi Đẩu Số 12 cung, tử vi tháng/năm.
 
@@ -38,7 +38,7 @@ Xem tử vi trong ngày cho bản thân và người nhà theo tuổi âm lịch
   - Sai thì server trả 401 "Sai mật khẩu, nhập lại mật khẩu chung" và web hỏi lại.
   - Không đặt thì không hỏi.
   - Không gọi được server (đang ngủ, mất mạng) thì vẫn vào app: lịch và hồ sơ chạy trên máy.
-- BR-8: **Chưa bật AI thì ẩn, không báo lỗi** (user chốt 2026-11-17): server chưa có `GEMINI_API_KEY` (`/api/config` trả `aiEnabled: false`) hoặc không gọi được server thì ẩn tab Tử vi, tab Hồ sơ, nút Hỏi AI và thanh tab; chỉ còn tab Lịch. Mở link `/tu-vi`, `/ho-so` thì về Lịch. Lịch mở ngay, không chờ server: dùng cấu hình lần trước nhớ trên máy; máy chưa từng hỏi server thì các trang AI đợi server trả lời rồi mới quyết định.
+- BR-8: **Chưa bật AI thì ẩn, không báo lỗi** (user chốt 2026-11-17): server chưa có `GEMINI_API_KEY` (`/api/config` trả `aiEnabled: false`) hoặc không gọi được server thì ẩn lối vào Tử vi, Hồ sơ trong tab Tiện ích và nút Hỏi AI; thanh tab Lịch / Tiện ích / Cài đặt vẫn còn (đổi ngày không cần AI). Mở link `/tu-vi`, `/ho-so` thì về Lịch. Lịch mở ngay, không chờ server: dùng cấu hình lần trước nhớ trên máy; máy chưa từng hỏi server thì các trang AI đợi server trả lời rồi mới quyết định.
 - BR-7: **Màn Tử vi:**
   - Chọn hồ sơ (máy nhớ hồ sơ đã chọn), điểm dạng sao, giờ tốt.
   - "Hỏi thêm AI" mở chat với tóm tắt vừa xem.
@@ -90,8 +90,8 @@ Scenario: HORO-UC01-SC10 Chưa bật AI
 | BR-3 ngày xem | `server/src/horoscope/routes.ts:7` | `server/test/api.test.ts` |
 | BR-4 AI | `server/src/horoscope/routes.ts:19`, `server/src/ai/model.ts:81`, `server/src/ai/model.ts:113` | `server/test/api.test.ts` (SC3), `server/test/gemini.test.ts` |
 | BR-5 lưu trên máy, lỗi | `web/src/lib/readings.ts:13`, `web/src/lib/readings.ts:18`, `server/src/ai/model.ts:141`, `server/src/ai/gemini.ts:46` | `app.test.tsx` (SC6), `api.test.ts` (SC5) |
-| BR-6 mật khẩu chung | `server/src/access.ts:15`, `server/src/app.ts:29`, `web/src/App.tsx:18`, `web/src/api.ts:39` | `api.test.ts` (SC8), `app.test.tsx` (SC9) |
-| BR-8 ẩn khi chưa bật AI | `server/src/app.ts:29`, `web/src/App.tsx:21`, `web/src/App.tsx:66`, `web/src/components/AppShell.tsx:16` | `app.test.tsx` (SC10) |
+| BR-6 mật khẩu chung | `server/src/access.ts:15`, `server/src/app.ts:29`, `web/src/App.tsx:23`, `web/src/api.ts:39` | `api.test.ts` (SC8), `app.test.tsx` (SC9) |
+| BR-8 ẩn khi chưa bật AI | `server/src/app.ts:29`, `web/src/App.tsx:23`, `web/src/App.tsx:68`, `web/src/components/AppShell.tsx:14` | `app.test.tsx` (SC10) |
 | BR-7 màn Tử vi | `web/src/pages/HoroscopePage.tsx:30`, `web/src/pages/HoroscopePage.tsx:43` | `app.test.tsx` (SC6) |
 
 Chưa kiểm: chất lượng lời tử vi của Gemini thật.

@@ -1,6 +1,6 @@
 # mylunarcalendar — ARCHITECTURE
 
-> Đường dẫn tính từ gốc repo. Kiểm ở commit `babc858` (nhánh `main`, 2026-11-17).
+> Đường dẫn tính từ gốc repo. Kiểm ở commit `7a01eec` (nhánh `main`, 2026-11-17).
 > Chỉ ghi điều KHÔNG suy ra được nhanh từ code. Mỗi khẳng định có `file:line` thật.
 
 ## 1. Tổng quan
@@ -11,8 +11,8 @@ npm workspaces, TypeScript, Node 22, cùng khung với GoldFolio:
 |---|---|
 | `shared/` | Lịch âm và tử vi thuần, không I/O: `lunar.ts` (thuật toán Hồ Ngọc Đức), `holidays.ts`, `tuvi.ts` (số liệu tử vi). Server và web import thẳng mã TS |
 | `server/` | Express 4, **không database, không tài khoản** (user chốt 2026-11-17). Route ở `server/src/app.ts:29-36`: `GET /api/config`, `POST /api/horoscope`, `POST /api/chat` (sau mật khẩu chung); `/api` lạ trả 404 JSON. Có `web/dist` thì trả luôn giao diện |
-| `web/` | React 18 + Vite 6 + Tailwind 4, mobile-first. Route ở `web/src/App.tsx:56`: `Gate` (mật khẩu chung, `web/src/App.tsx:18`) → 3 tab trong `AppShell` (`/` Lịch, `/tu-vi`, `/ho-so`) + trang form `/ho-so/them`, `/ho-so/:id`. Hồ sơ lưu trên máy qua `ProfilesProvider` (`web/src/profiles-context.tsx:23`), tử vi đã xem qua `web/src/lib/readings.ts:13` |
-| `android/` | App Kotlin chỉ dùng SDK chuẩn: widget tháng `MonthWidgetProvider` (`android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:21`) tính offline; mở app là web trong webview (`android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:22`, cấu hình `android/app/src/main/java/app/mylunarcalendar/WebScreen.kt:24`), địa chỉ web nhập một lần ở `SetupActivity` |
+| `web/` | React 18 + Vite 6 + Tailwind 4, mobile-first. Route ở `web/src/App.tsx:79`: `Gate` (mật khẩu chung, `web/src/App.tsx:23`) → 3 tab trong `AppShell` (`/` Lịch, `/tien-ich` Tiện ích có trang con `/tu-vi`, `/ho-so`, `/cai-dat` Cài đặt) + trang form `/ho-so/them`, `/ho-so/:id`. Hồ sơ lưu trên máy qua `ProfilesProvider` (`web/src/profiles-context.tsx:23`), tử vi đã xem qua `web/src/lib/readings.ts:13` |
+| `android/` | App Kotlin chỉ dùng SDK chuẩn: widget tháng `MonthWidgetProvider` (`android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:21`) tính offline; mở app là web trong webview (`android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:23`, cấu hình `android/app/src/main/java/app/mylunarcalendar/WebScreen.kt:24`), địa chỉ web nhập một lần ở `SetupActivity` |
 
 | Kho | Dùng cho | Bắt buộc |
 |---|---|---|
@@ -35,11 +35,12 @@ npm workspaces, TypeScript, Node 22, cùng khung với GoldFolio:
 | R-AI-02 | Gửi AI chỉ tên gọi, giới tính và số liệu lịch; không gửi ngày sinh dương lịch đầy đủ (`server/src/ai/model.ts:81`, `server/src/chat/service.ts:51`). |
 | R-AI-03 | Lỗi AI đổi thành thông báo người dùng qua `aiHttpError` (`server/src/ai/model.ts:141`). Quá tải/hết lượt thì thử model dự phòng (`server/src/ai/gemini.ts:46`). Không giới hạn lượt (user chốt). |
 | R-LOCAL-01 | Không có database: dữ liệu người dùng chỉ lưu trên máy qua `load`/`save` (`web/src/lib/storage.ts:6`), luôn bọc try/catch (chế độ riêng tư, bị chặn lưu). Server không giữ trạng thái; hồ sơ gửi lên phải kiểm lại bằng `checkProfile` (`shared/src/profile.ts:31`), cùng luật với form. |
-| R-AIHIDE-01 | Phần AI (tab Tử vi, Hồ sơ, nút Hỏi AI, thanh tab) chỉ hiện khi `/api/config` trả `aiEnabled` (`server/src/app.ts:29`, `web/src/App.tsx:21`). Thêm tính năng AI mới thì đặt route trong `AiOnly` (`web/src/App.tsx:66`) và ẩn nút bằng `useAiEnabled`. Lịch không được phụ thuộc server. |
+| R-AIHIDE-01 | Phần AI (tab Tử vi, Hồ sơ, nút Hỏi AI, thanh tab) chỉ hiện khi `/api/config` trả `aiEnabled` (`server/src/app.ts:29`, `web/src/App.tsx:23`). Thêm tính năng AI mới thì đặt route trong `AiOnly` (`web/src/App.tsx:68`) và ẩn nút bằng `useAiEnabled`. Lịch không được phụ thuộc server. |
 | R-PASS-01 | API gọi AI đi sau `requirePassword` (`server/src/access.ts:15`), so băm bằng `timingSafeEqual` (`server/src/access.ts:20`). `/api/config` không cần mật khẩu, để web biết có phải hỏi không. |
 | R-TIME-01 | "Hôm nay" theo `Asia/Ho_Chi_Minh` qua `vnDate`; đồng hồ tiêm qua `createApp({ now })` để test. |
 | R-UI-02 | Kết quả async về muộn không ghi đè cái đang xem: so khoá hiện tại qua `ref` (`web/src/pages/HoroscopePage.tsx:43`). |
-| R-UI-03..05 | Như GoldFolio: mobile-first, vùng bấm ≥ 44px, đủ trạng thái tải/lỗi/rỗng, màu chỉ dùng token trong `web/src/index.css` (`bg`, `surface`, `surface-2`, `line`, `ink`, `muted`, `gold`, `gold-deep`, `gold-soft`, `good`, `bad`). |
+| R-UI-03..05 | Như GoldFolio: mobile-first, vùng bấm ≥ 44px, đủ trạng thái tải/lỗi/rỗng, màu chỉ dùng token trong `web/src/index.css` (`bg`, `surface`, `surface-2`, `line`, `ink`, `muted`, `gold`, `gold-deep`, `gold-soft`, `good`, `bad`). Có hai bộ giá trị: tối (mặc định) và sáng (`web/src/index.css:34`, gắn bằng `data-theme` trên `<html>`); thêm token mới thì khai báo cả hai. |
+| R-BRIDGE-01 | Web nói chuyện với app Android chỉ qua `window.AndroidApp` (`android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:52`), luôn kiểm có cầu nối và bọc try/catch (mở bằng trình duyệt hay app bản cũ thì không có). Cầu nối chỉ nhận giá trị trong danh sách cho phép (`AppTheme.MODES`). |
 
 ## 6. Bẫy âm thầm
 
@@ -49,7 +50,8 @@ npm workspaces, TypeScript, Node 22, cùng khung với GoldFolio:
 4. **Ngày hoàng đạo theo tháng âm**, không theo tiết khí (`shared/src/lunar.ts:288`). Một số lịch vạn niên dùng tháng tiết khí nên lệch vài ngày quanh đầu tháng.
 5. **Khoá tử vi đã lưu gồm ngày giờ sinh và giới tính** (`web/src/lib/readings.ts:11`): sửa các ô này thì tự xem lại, đổi tên thì giữ. Đổi cách đặt khoá là mất các bản đã lưu của người dùng.
 6. **Android chưa build được trên máy dev:** chỉ CI build. Kotlin `/` trên `Int` cắt về 0, còn TS dùng `Math.floor`: bản Kotlin dùng `floor` trên `Double` ở mọi chỗ TS dùng `INT`.
-7. **Widget đổi ngày lúc 0 giờ** bằng `AlarmManager.setWindow` (`android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:180`). `DATE_CHANGED` có thể không tới trên Android 8+; báo thức và `updatePeriodMillis` 3 giờ là lưới an toàn.
+7. **Widget đổi ngày lúc 0 giờ** bằng `AlarmManager.setWindow` (`android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:196`). `DATE_CHANGED` có thể không tới trên Android 8+; báo thức và `updatePeriodMillis` 3 giờ là lưới an toàn.
+11. **Icon đổi theo ngày bằng activity-alias** (`android/app/src/main/java/app/mylunarcalendar/AppTheme.kt:44`): bật bí danh mới trước rồi mới tắt cái cũ để lúc nào cũng có icon; một số launcher xoá lối tắt trên màn hình chính hoặc đóng app khi đổi. MainActivity không có intent-filter LAUNCHER, chỉ các bí danh có; thêm bí danh mới phải đủ cả 31 ngày.
 10. **Khoá ký APK** (`.github/workflows/android.yml:34`): chỉ cài đè (và cập nhật trong app, `android/app/src/main/java/app/mylunarcalendar/Updater.kt:27`) được khi mọi bản ký cùng khoá `android/release-key.p12` (CI tạo một lần, khoá bằng Secret `ANDROID_KEYSTORE_PASSWORD`). Đổi mật khẩu hay xoá file là mọi máy phải gỡ app. Updater so tag `android-v<n>` với versionCode (= số lần build).
 9. **Webview Android chỉ chạy offline sau lần mở đầu:** `LOAD_CACHE_ELSE_NETWORK` khi mất mạng (`android/app/src/main/java/app/mylunarcalendar/WebScreen.kt:27`) dùng bộ nhớ đệm HTTP của webview, không phải service worker; chưa từng mở thì hiện trang lỗi "Thử lại". Widget thì luôn offline.
 8. **Mật khẩu chung nằm trong localStorage** dạng chữ thường: chỉ chặn người lạ dùng hạn mức AI, không phải bảo mật thật; đừng dựa vào nó để giấu dữ liệu.
