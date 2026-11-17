@@ -1,6 +1,6 @@
 # CAL-UC02 — Cài đặt giao diện sáng / tối
 
-> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `7a01eec` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-17-widget-lich · Cập nhật: 2026-11-17 · Kiểm ở commit `5fcc913` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Chọn giao diện sáng hay tối cho web, app Android và widget lịch tháng trên màn hình chính (user chốt 2026-11-17).
@@ -29,7 +29,7 @@ Scenario: CAL-UC02-SC1 Chọn sáng tối
 
 | Quy tắc | Code | Test |
 |---|---|---|
-| BR-1 lựa chọn, áp, nhớ | `web/src/lib/theme.ts:26`, `web/src/lib/theme.ts:37`, `web/src/pages/SettingsPage.tsx:21`, token sáng `web/src/index.css:34` | `web/test/app.test.tsx` (SC1) |
-| BR-2 widget ăn theo | `android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:52`, `android/app/src/main/java/app/mylunarcalendar/AppTheme.kt:14`, `android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:117` | (thử trên máy thật) |
+| BR-1 lựa chọn, áp, nhớ | `web/src/lib/theme.ts:26`, `web/src/lib/theme.ts:37`, `web/src/pages/SettingsPage.tsx:21`, token sáng `web/src/index.css:36` | `web/test/app.test.tsx` (SC1) |
+| BR-2 widget ăn theo | `android/app/src/main/java/app/mylunarcalendar/MainActivity.kt:52`, `android/app/src/main/java/app/mylunarcalendar/AppTheme.kt:14`, `android/app/src/main/java/app/mylunarcalendar/MonthWidgetProvider.kt:122` | (thử trên máy thật) |
 | BR-3 không nháy màu | `web/index.html:8` | — |
 | BR-4 tải app | `web/src/pages/SettingsPage.tsx:21` | `app.test.tsx` |
