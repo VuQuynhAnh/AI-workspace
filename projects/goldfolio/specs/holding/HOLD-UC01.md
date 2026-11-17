@@ -482,7 +482,7 @@ Scenario: HOLD-UC01-SC30 Danh sách không phân trang
 ```
 
 ## Cài đặt
-> Kiểm ở commit `3635158` (nhánh `main`, 2026-11-17). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
+> Kiểm ở commit `eb1b88b` (nhánh `main`, 2026-11-17). Test: `server/test/api.test.ts` (API), `shared/test/*.test.ts` (công thức), `server/test/price-service.test.ts` (giá).
 
 | Mục | Code | Test |
 |---|---|---|

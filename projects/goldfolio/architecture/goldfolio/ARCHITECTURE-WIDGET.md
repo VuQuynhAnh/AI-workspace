@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE-WIDGET (widget Android)
 
-> Tách riêng vì `ARCHITECTURE.md` sát 15 KB. Kiểm ở commit `3635158` (nhánh `main`, 2026-11-17). Nghiệp vụ: `specs/holding/HOLD-UC02.md`.
+> Tách riêng vì `ARCHITECTURE.md` sát 15 KB. Kiểm ở commit `eb1b88b` (nhánh `main`, 2026-11-17). Nghiệp vụ: `specs/holding/HOLD-UC02.md`.
 
 ## Thành phần
 

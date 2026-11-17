@@ -1,6 +1,6 @@
 # PRICE-UC03 — Chat hỏi AI về giá và tài sản
 
-> Trạng thái: implemented · Việc: 2026-11-05-ai-chat · Cập nhật: 2026-11-05 · Kiểm ở commit `3635158` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-05-ai-chat · Cập nhật: 2026-11-05 · Kiểm ở commit `eb1b88b` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Người dùng hỏi bằng lời thường ("vàng của tôi đang lỗ vì sao?", "bạc tháng này thế nào?") và nhận câu trả lời ngắn dựa trên chính danh mục và giá thật trong GoldFolio. Chỉ để tham khảo, không phải lời khuyên đầu tư.
