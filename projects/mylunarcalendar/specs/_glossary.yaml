@@ -1,0 +1,52 @@
+# Từ điển thuật ngữ nghiệp vụ — code, UI và spec dùng chung một cách gọi.
+# term: cách gọi trong spec · meaning: nghĩa · code_name: tên trong code/DB · ui_label: chữ trên giao diện
+
+- term: ngày âm
+  meaning: Ngày theo lịch âm Việt Nam (múi giờ +7), có tháng nhuận.
+  code_name: solarToLunar, lunarToSolar, LunarDate
+  ui_label: âm, âm lịch
+
+- term: can chi
+  meaning: Tên theo 10 can và 12 chi của năm, tháng, ngày (vd ngày Mậu Ngọ, năm Bính Ngọ).
+  code_name: yearCanChi, monthCanChi, dayCanChi
+  ui_label: Can chi
+
+- term: tuổi
+  meaning: Can chi của năm âm lịch sinh; sinh trước Tết thuộc năm âm trước.
+  code_name: birthFacts().tuoi
+  ui_label: tuổi
+
+- term: mệnh
+  meaning: Ngũ hành nạp âm của năm sinh theo 60 Hoa Giáp (vd Lộ Bàng Thổ).
+  code_name: napAm, birthFacts().menh
+  ui_label: mệnh
+
+- term: ngày hoàng đạo / hắc đạo
+  meaning: Ngày tốt/xấu theo 12 thần trực ngày (Thanh Long, Minh Đường…), tính theo tháng âm và chi của ngày.
+  code_name: ngayHoangDao
+  ui_label: Hoàng đạo, Hắc đạo
+
+- term: giờ hoàng đạo
+  meaning: 6 giờ tốt trong ngày theo chi của ngày.
+  code_name: gioHoangDao
+  ui_label: Giờ tốt
+
+- term: tiết khí
+  meaning: 24 mốc theo kinh độ mặt trời, mỗi tiết 15° (Lập xuân, Đông chí…).
+  code_name: tietKhi
+  ui_label: Tiết khí
+
+- term: hồ sơ
+  meaning: Một người xem tử vi (bản thân, người nhà) với ngày giờ sinh và giới tính, lưu trên máy (localStorage), không lưu trên server.
+  code_name: Profile, ProfileInput, checkProfile, mlc.profiles
+  ui_label: Hồ sơ
+
+- term: tử vi
+  meaning: Lời luận một ngày cho một hồ sơ do AI viết dựa trên số liệu code tính; web lưu trên máy, mỗi hồ sơ mỗi ngày một bản.
+  code_name: Reading, horoscopeRouter, cachedReading, mlc.readings
+  ui_label: Tử vi
+
+- term: mật khẩu chung
+  meaning: Mật khẩu đặt ở biến môi trường APP_PASSWORD để người lạ không dùng hết hạn mức AI; web hỏi một lần rồi nhớ trên máy.
+  code_name: APP_PASSWORD, requirePassword, x-app-password, mlc.password
+  ui_label: Mật khẩu chung

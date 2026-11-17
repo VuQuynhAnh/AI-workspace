@@ -1,6 +1,6 @@
 # PRICE-UC02 — AI nhận định xu hướng giá vàng, bạc
 
-> Trạng thái: implemented · Việc: 2026-11-05-ai-xu-huong · Cập nhật: 2026-11-05 · Kiểm ở commit `eb1b88b` (nhánh `main`, 2026-11-17)
+> Trạng thái: implemented · Việc: 2026-11-05-ai-xu-huong · Cập nhật: 2026-11-05 · Kiểm ở commit `b26543a` (nhánh `main`, 2026-11-17)
 
 ## Mục tiêu
 Người dùng mở khung chat "Hỏi AI" và đọc được ngay ở đầu khung, bằng lời dễ hiểu, giá vàng (hoặc bạc) 30 ngày qua đang tăng, giảm hay đi ngang, và giá mua vào hiện tại đang ở đâu so với giá vốn của mình. Đây là nhận định tham khảo, không phải lời khuyên đầu tư.

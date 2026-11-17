@@ -9,6 +9,7 @@ Quy ước chung: `.claude/kit/CONVENTIONS.md`. Đọc file này trước khi ch
 |---|---|---|
 | `smartclocking` | Chấm công, bảng lương, trợ lý AI hỏi đáp quy chế (Node/Express + React) | `projects/smartclocking/CLAUDE.md` |
 | `goldfolio` | Sổ tài sản vàng bạc, lãi/lỗ theo giá hiện tại, nguồn giá Phú Quý (Node/Express + React, mobile-first) | `projects/goldfolio/CLAUDE.md` |
+| `mylunarcalendar` | Lịch âm Việt Nam, tử vi hằng ngày bằng AI, widget lịch tháng Android offline (Node/Express + React, Kotlin) | `projects/mylunarcalendar/CLAUDE.md` |
 
 Khi làm việc trong một dự án, đọc `projects/<p>/CLAUDE.md`, rồi tới ARCHITECTURE của repo đang sửa. Các dự án không đọc chéo nhau.
 

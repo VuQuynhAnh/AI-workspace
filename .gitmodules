@@ -6,3 +6,7 @@
 	path = projects/goldfolio/repos/goldfolio
 	url = https://github.com/VuQuynhAnh/GoldFolio.git
 	branch = main
+[submodule "mylunarcalendar"]
+	path = projects/mylunarcalendar/repos/mylunarcalendar
+	url = https://github.com/VuQuynhAnh/MyLunarCalendar.git
+	branch = main

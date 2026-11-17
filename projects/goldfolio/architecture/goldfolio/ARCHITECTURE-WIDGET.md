@@ -1,6 +1,6 @@
 # goldfolio — ARCHITECTURE-WIDGET (widget Android)
 
-> Tách riêng vì `ARCHITECTURE.md` sát 15 KB. Kiểm ở commit `eb1b88b` (nhánh `main`, 2026-11-17). Nghiệp vụ: `specs/holding/HOLD-UC02.md`.
+> Tách riêng vì `ARCHITECTURE.md` sát 15 KB. Kiểm ở commit `b26543a` (nhánh `main`, 2026-11-17). Nghiệp vụ: `specs/holding/HOLD-UC02.md`.
 
 ## Thành phần
 
@@ -8,7 +8,7 @@
 |---|---|
 | `server/src/widget/` | Mã widget (tạo, thu hồi, tra người dùng) và số liệu widget dựng từ `buildPortfolio` + `pickProduct` của nhận định xu hướng (`server/src/widget/service.ts:69`) |
 | `web/src/pages/WidgetPage.tsx` | Trang `/widget` trong `AppShell`, mở từ header (không chiếm tab) |
-| `android/` | App Kotlin chỉ dùng SDK chuẩn (`Activity`, `AppWidgetProvider`, `JobService`, `HttpURLConnection`, `org.json`); không AndroidX, không thư viện ngoài |
+| `android/` | App Kotlin chỉ dùng SDK chuẩn (`Activity`, `WebView`, `AppWidgetProvider`, `JobService`, `HttpURLConnection`, `org.json`); không AndroidX, không thư viện ngoài. Mở app là GoldFolio trong webview (`android/app/src/main/java/app/goldfolio/widget/MainActivity.kt:20`), cài đặt widget ở `WidgetSetupActivity` |
 | `.github/workflows/android-widget.yml` | Build APK release khi `android/` đổi trên `main`, tạo GitHub Release `widget-v<run_number>` |
 
 ## Luật
